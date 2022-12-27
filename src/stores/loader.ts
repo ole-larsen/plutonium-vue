@@ -74,18 +74,17 @@ export const useLoaderStore = defineStore("loader", () => {
 
     try {
       await loadUsers();
-      await connectWeb3();
-      await loadContractsToWeb3();
-      await loadContractsToMetamask();
-      await storeMarketName();
-      await storeMarketItems();
-      // if (!installed) {
-      //   runOnboarding();
-      // }
-      if (installed) {
+      if (!installed) {
+        await connectWeb3();
+        await loadContractsToWeb3();
+      }  else {
+        await loadContractsToMetamask();
+        await storeMarketName();
+        await storeMarketItems();
+        // if (!installed) {
+        //   runOnboarding();
+        // }
         await connectMetamask();
-
-
       }
     } catch(e) {
       console.error(e);
