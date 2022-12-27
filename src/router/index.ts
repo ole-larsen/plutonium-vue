@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home01View from "../views/Home01View.vue";
 import Home02View from "../views/Home02View.vue";
+import Home03View from "../views/Home03View.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -11,6 +12,7 @@ const router = createRouter({
     },
     { path: "/home-01",        redirect: "/"},
     { path: "/home-02",        name: "Home-02",       component: Home02View },
+    { path: "/home-03",        name: "Home-03",       component: Home03View },
     {
       path: "/card/:id",
       name: "card",
