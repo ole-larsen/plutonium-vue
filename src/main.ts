@@ -43,6 +43,10 @@ if (typeof window.ethereum !== 'undefined') {
   app.config.globalProperties.$ethereum = new ethers.providers.Web3Provider(ethereum as ethers.providers.ExternalProvider);
 }
 
+if (import.meta.env.VITE_WEB3_PROVIDER) {
+  app.config.globalProperties.$web3 = new ethers.providers.JsonRpcProvider(import.meta.env.VITE_WEB3_PROVIDER);
+}
+
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.use(VueAxios, axios);
 app.provide('axios', app.config.globalProperties.axios);

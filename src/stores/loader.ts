@@ -1,17 +1,20 @@
 import { defineStore } from "pinia";
 import {inject, ref, computed} from "vue";
 import MetaMaskOnboarding from "@metamask/onboarding";
-import {useMetaMaskStore} from "@/stores/metamask";
+import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import {useNFTStore} from "@/stores/contracts/nft";
 import {useAuthStore} from "@/stores/auth";
 import {useUsersStore} from "@/stores/users.store";
+import {useWeb3Store} from "@/stores/web3/web3";
 
 export const useLoaderStore = defineStore("loader", () => {
   const axios: any = inject("axios");  // inject axios
   const market = useMarketPlaceStore();
   const nft = useNFTStore();
   const metamask = useMetaMaskStore();
+  const web3 = useWeb3Store();
+
   const connected = computed(() => !!useAuthStore().user);
 
   function loadUsers() {
@@ -32,13 +35,23 @@ export const useLoaderStore = defineStore("loader", () => {
     return market.getName();
   }
 
-  function loadContracts() {
-    if (metamask.chainID) {
-      market.loadContract(metamask.chainID);
-      nft.loadContract(metamask.chainID);
+  function loadContractsToWeb3() {
+    if (web3.chainID) {
+      market.loadWeb3Contract(web3.chainID);
+      nft.loadWeb3Contract(web3.chainID);
     }
   }
 
+  function loadContractsToMetamask() {
+    if (metamask.chainID) {
+      market.loadMetamaskContract(metamask.chainID);
+      nft.loadMetamaskContract(metamask.chainID);
+    }
+  }
+
+  function connectWeb3() {
+    return useWeb3Store().register();
+  }
   function connectMetamask() {
     return useMetaMaskStore().register();
   }
@@ -60,15 +73,19 @@ export const useLoaderStore = defineStore("loader", () => {
     const installed = isMetaMaskInstalled();
 
     try {
-      if (!installed) {
-        runOnboarding();
-      }
+      await loadUsers();
+      await connectWeb3();
+      await loadContractsToWeb3();
+      await loadContractsToMetamask();
+      await storeMarketName();
+      await storeMarketItems();
+      // if (!installed) {
+      //   runOnboarding();
+      // }
       if (installed) {
-        await loadUsers();
         await connectMetamask();
-        await loadContracts();
-        await storeMarketName();
-        await storeMarketItems();
+
+
       }
     } catch(e) {
       console.error(e);

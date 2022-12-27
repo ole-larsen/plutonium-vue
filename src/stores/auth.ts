@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {ref} from "vue";
-import {LS_KEY} from "@/stores/metamask";
+import {LS_KEY} from "@/stores/web3/metamask";
 import {useLoaderStore} from "@/stores/loader";
 
 export type User = {

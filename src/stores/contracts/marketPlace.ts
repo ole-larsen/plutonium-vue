@@ -7,7 +7,8 @@ import contractData from "@/../dapp-contracts/artifacts/contracts/NFTMarketplace
 import type {NFTMarketplace} from "@/../dapp-contracts/typechain-types";
 
 import {useNFTStore} from "@/stores/contracts/nft";
-import {useMetaMaskStore} from "@/stores/metamask";
+import {useMetaMaskStore} from "@/stores/web3/metamask";
+import {useWeb3Store} from "@/stores/web3/web3";
 import type {NFTItem} from "@/index";
 import {useUsersStore} from "@/stores/users.store";
 import type {User} from "@/stores/auth";
@@ -20,10 +21,16 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     items = ref([]),
     fee = ref(0);
 
-  function loadContract(chainID: number) {
+  function loadMetamaskContract(chainID: number) {
     contractAddress.value = (addresses["NFTMarketplace"] as {[chain: number]: string})[chainID];
     // @ts-ignore
     contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useMetaMaskStore().signer()) as NFTMarketplace;
+  }
+
+  function loadWeb3Contract(chainID: number) {
+    contractAddress.value = (addresses["NFTMarketplace"] as {[chain: number]: string})[chainID];
+    // @ts-ignore
+    contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useWeb3Store().getSigner()) as NFTMarketplace;
   }
 
   function getName() {
@@ -138,7 +145,7 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
   return {
 
     name, contractAddress, contractData, contract, itemCount, items, fee,
-    loadContract, getName, setName, getFeePercent, getItemCount, getItem, loadMetadata, getItems, buy, createItem, storeFee
+    loadWeb3Contract, loadMetamaskContract, getName, setName, getFeePercent, getItemCount, getItem, loadMetadata, getItems, buy, createItem, storeFee
   }
 });
 

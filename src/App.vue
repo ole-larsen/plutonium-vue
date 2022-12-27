@@ -6,7 +6,7 @@ import Header from "@/components/template/Header/Header.vue";
 import Footer from "@/components/template/Footer/Footer.vue";
 import BackToTop from "@/components/template/BackToTop.vue";
 import {useLoaderStore} from "@/stores/loader";
-import {useMetaMaskStore} from "@/stores/metamask";
+import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useAuthStore} from "@/stores/auth";
 
 // spinner loader

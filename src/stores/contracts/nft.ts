@@ -6,7 +6,7 @@ import contractData from "@/../dapp-contracts/artifacts/contracts/NFTCollection.
 import type {NFT} from "@/../dapp-contracts/typechain-types";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-
+import { useWeb3Store} from "@/stores/web3/web3";
 // Import the NFTStorage class and File constructor from the 'nft.storage' package
 import { NFTStorage, File } from 'nft.storage'
 
@@ -17,12 +17,12 @@ import fs from "fs"
 import path from "path"
 
 import {ref} from "vue";
-import {useMetaMaskStore} from "@/stores/metamask";
+import {useMetaMaskStore} from "@/stores/web3/metamask";
 export const useNFTStore = defineStore("nft", () => {
   const contractAddress = ref("");
   const contract = ref(null);
 
-  function loadContract(chainID: number) {
+  function loadMetamaskContract(chainID: number) {
     contractAddress.value = (addresses["NFT"] as {[chain: number]: string})[chainID];
 
     if (contractAddress.value) {
@@ -30,6 +30,16 @@ export const useNFTStore = defineStore("nft", () => {
       contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useMetaMaskStore().signer()) as NFT;
     }
   }
+
+  function loadWeb3Contract(chainID: number) {
+    contractAddress.value = (addresses["NFT"] as {[chain: number]: string})[chainID];
+
+    if (contractAddress.value) {
+      // @ts-ignore
+      contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useWeb3Store().getSigner()) as NFT;
+    }
+  }
+
 
   async function mint(_item: any) {
   const { file, price, name, description, category, tags } = _item;
@@ -97,7 +107,8 @@ export const useNFTStore = defineStore("nft", () => {
     contractAddress,
     contractData,
     contract,
-    loadContract,
+    loadWeb3Contract,
+    loadMetamaskContract,
     mint,
     uploadToIpfs
   }
