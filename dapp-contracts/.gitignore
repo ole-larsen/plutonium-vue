@@ -9,3 +9,4 @@ coverage.json
 cache
 #artifacts
 
+/var/www/go-plutonium/composition/dist/index.html
