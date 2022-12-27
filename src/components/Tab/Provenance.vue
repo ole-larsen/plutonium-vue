@@ -13,7 +13,7 @@ async function created () {
   bid.value = attributes
 }
 onBeforeMount(async() => {
-  await created();
+  // await created();
 })
 </script>
 <template>
