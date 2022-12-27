@@ -44,6 +44,7 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function loadContractsToMetamask() {
+    console.log(metamask.chainID)
     if (metamask.chainID) {
       market.loadMetamaskContract(metamask.chainID);
       nft.loadMetamaskContract(metamask.chainID);
@@ -80,13 +81,15 @@ export const useLoaderStore = defineStore("loader", () => {
         await loadContractsToWeb3();
       }  else {
         console.log("run metamask");
+        await connectMetamask();
         await loadContractsToMetamask();
+        console.log(market.contract)
         await storeMarketName();
         await storeMarketItems();
         // if (!installed) {
         //   runOnboarding();
         // }
-        await connectMetamask();
+
       }
     } catch(e) {
       console.error(e);
