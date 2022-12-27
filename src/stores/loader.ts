@@ -27,6 +27,7 @@ export const useLoaderStore = defineStore("loader", () => {
 
   function storeMarketName() {
     return market.getName().then((name: string) => {
+      console.log(name);
       market.setName(name);
     });
   }
@@ -78,6 +79,7 @@ export const useLoaderStore = defineStore("loader", () => {
         await connectWeb3();
         await loadContractsToWeb3();
       }  else {
+        console.log("run metamask");
         await loadContractsToMetamask();
         await storeMarketName();
         await storeMarketItems();
