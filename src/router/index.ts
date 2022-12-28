@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home01View from "../views/Home01View.vue";
 import Home02View from "../views/Home02View.vue";
 import Home03View from "../views/Home03View.vue";
+
+import Blog from "../components/template/Blog/Blog.vue";
+import BlogDetails from "../components/template/BlogDetails/BlogDetails.vue";
+
 import {useBlogStore} from "@/stores/blog";
 import {usePageStore} from "@/stores/page";
 import {useAuthorStore} from "@/stores/author";
@@ -46,9 +50,28 @@ const router = createRouter({
       component: () => import("../views/ContactUsView.vue"),
     },
     {
+      path: "/wallet-connect",
+      name: "WalletConnect",
+      component: () => import("../views/WalletConnectView.vue"),
+    },
+    {
       path: "/faq",
       name: "Faq",
       component: () => import("../views/FaqView.vue"),
+    },
+    {
+      path: "/help-center",
+      name: "HelpCenter",
+      component: () => import("../views/HelpCenterView.vue"),
+    },
+    {
+      path: "/blog",
+      name: "Blog",
+      component: () => import("../views/BlogView.vue"),
+      children: [
+        { path: "",                 name: "Blog",        component: Blog },
+        { path: "/blog/:slug",      name: "BlogDetails", component: BlogDetails },
+      ]
     },
     {
       path: "/about",
