@@ -83,7 +83,7 @@ export const useLoaderStore = defineStore("loader", () => {
         console.log("run metamask");
         await connectMetamask();
         await loadContractsToMetamask();
-        console.log(market.contract)
+
         await storeMarketName();
         await storeMarketItems();
         // if (!installed) {

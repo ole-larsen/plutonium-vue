@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import type {BigNumber} from "ethers";
 import Modal from "@/components/template/Modal/Modal.vue";
+import PageTitle from "@/components/template/PageTitle/PageTitle.vue";
 
 const route = useRoute();
 const id = route.params.id // read parameter id (it is reactive)
@@ -46,9 +47,12 @@ const itemDetails: any = computed(() => store.itemDetails);
 onBeforeMount(async () => {
   await store.load();
 });
-
 </script>
 <template>
+  <PageTitle v-if="item && item['id']"
+             pageTitle="Card"
+             pageTitleActive="card"
+             :link="item['id']" />
   <div class="item-details">
     <div class="tf-section tf-item-details">
       <div class="themesflat-container " v-if="item">

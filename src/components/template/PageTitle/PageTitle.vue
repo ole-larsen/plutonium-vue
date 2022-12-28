@@ -18,9 +18,8 @@ const { pageTitle, pageTitleActive, link, pageName } = toRefs(props);
           <div class="breadcrumbs style2">
             <ul>
               <li><router-link :to="'/'">Home</router-link></li>
-              <li><router-link :to='link'>{{pageTitleActive}}</router-link></li>
-              <li v-if="pageName">{{pageName}}</li>
-              <li v-else >{{pageTitle}}</li>
+              <li v-if="pageTitleActive">{{pageTitleActive}}</li>
+              <li><router-link :to='link'>{{link}}</router-link></li>
             </ul>
           </div>
         </div>
