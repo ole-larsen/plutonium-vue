@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home01View from "../views/Home01View.vue";
 import Home02View from "../views/Home02View.vue";
 import Home03View from "../views/Home03View.vue";
+import {useBlogStore} from "@/stores/blog";
+import {usePageStore} from "@/stores/page";
+import {useAuthorStore} from "@/stores/author";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -38,6 +41,16 @@ const router = createRouter({
       component: () => import("../views/AuthorView.vue"),
     },
     {
+      path: "/contact-us",
+      name: "ContactUs",
+      component: () => import("../views/ContactUsView.vue"),
+    },
+    {
+      path: "/faq",
+      name: "Faq",
+      component: () => import("../views/FaqView.vue"),
+    },
+    {
       path: "/about",
       name: "about",
       // route level code-splitting
@@ -48,12 +61,89 @@ const router = createRouter({
   ],
 });
 
+router.beforeResolve(async (to, from, next) => {
+  const pageStore = usePageStore();
+  const blogStore = useBlogStore();
+  const authorStore = useAuthorStore();
+
+  let path = to.path.split("/").filter(segment => segment !== "");
+
+  if (path.includes("blog") && path.length > 1) {
+    const slug = path[path.length - 1];
+
+    blogStore.setPath(slug);
+    // @ts-ignore
+    authorStore.setPath(null);
+    // @ts-ignore
+    pageStore.setPath(null);
+
+    if (!blogStore.blog(slug)) {
+      try {
+        await blogStore.loadBlog(slug);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    if (!blogStore.blog(slug)) {
+      // @ts-ignore
+      blogStore.setPath(null);
+    }
+    return next();
+  }
+
+  if (path.includes("authors") && path.length > 1) {
+    const slug = path[path.length - 1];
+
+    authorStore.setPath(slug);
+    // @ts-ignore
+    blogStore.setPath(null);
+    // @ts-ignore
+    pageStore.setPath(null);
+
+    if (!authorStore.author(slug)) {
+      try {
+        await authorStore.loadAuthor(slug);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    if (!authorStore.author(slug)) {
+      // @ts-ignore
+      authorStore.setPath(null);
+    }
+
+    return next();
+  }
+
+  if (path.includes("profile") && path.length > 1) {
+    const slug = path[path.length - 1];
+
+    // @ts-ignore
+    authorStore.setPath(null);
+    // @ts-ignore
+    blogStore.setPath(null);
+    // @ts-ignore
+    pageStore.setPath("profile");
+
+    return next();
+  }
+
+  const strPath = path.join("/");
+  pageStore.setPath(strPath);
+  // @ts-ignore
+  authorStore.setPath(null);
+  // @ts-ignore
+  blogStore.setPath(null);
+
+  if (!pageStore.page(strPath)) {
+    try {
+      await pageStore.loadPage(strPath);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+  return next();
+});
+
 export default router;
-// {
-//           path: "/profile",
-//           name: "Profile",
-//           component: Page,
-//           children: [
-//             { path: "/profile/:uuid",            name: "Profile",       component: Profile },
-//           ]
-//         },

@@ -19,7 +19,7 @@ const { pageTitle, pageTitleActive, link, pageName } = toRefs(props);
             <ul>
               <li><router-link :to="'/'">Home</router-link></li>
               <li v-if="pageTitleActive">{{pageTitleActive}}</li>
-              <li><router-link :to='link'>{{link}}</router-link></li>
+              <li v-if="link"><router-link :to="link">{{link}}</router-link></li>
             </ul>
           </div>
         </div>
