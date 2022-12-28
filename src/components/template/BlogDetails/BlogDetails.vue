@@ -7,7 +7,7 @@ const store = useBlogStore();
 const blogs = computed(() => store.blogs);
 const recent: any = ref([]);
 const blog: any = computed(() => store.blog(String(store.path)));
-const hashtags = computed(() => blog.value['tags'].map((tag: any) => tag['title']).join(','));
+const hashtags = computed(() => blog.value['tags'] ?? [].map((tag: any) => tag['title']).join(','));
 
 onBeforeMount(async () => {
   for (const b of Object.values((blogs.value))) {
