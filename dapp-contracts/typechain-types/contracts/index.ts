@@ -3,5 +3,7 @@
 /* eslint-disable */
 import type * as nftCollectionSol from "./NFTCollection.sol";
 export type { nftCollectionSol };
+import type * as ntfSol from "./NTF.sol";
+export type { ntfSol };
 export type { Marketplace } from "./Marketplace";
 export type { NFTMarketplace } from "./NFTMarketplace";

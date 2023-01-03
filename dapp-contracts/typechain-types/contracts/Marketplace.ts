@@ -29,51 +29,74 @@ import type {
 } from "../common";
 
 export declare namespace Marketplace {
-  export type ItemStruct = {
-    id: PromiseOrValue<BigNumberish>;
-    name: PromiseOrValue<string>;
+  export type SingleItemStruct = {
+    itemId: PromiseOrValue<BigNumberish>;
+    nft: PromiseOrValue<string>;
+    tokenId: PromiseOrValue<BigNumberish>;
     price: PromiseOrValue<BigNumberish>;
-    owner: PromiseOrValue<string>;
-    purchased: PromiseOrValue<boolean>;
+    seller: PromiseOrValue<string>;
+    sold: PromiseOrValue<boolean>;
   };
 
-  export type ItemStructOutput = [
+  export type SingleItemStructOutput = [
     BigNumber,
     string,
+    BigNumber,
     BigNumber,
     string,
     boolean
   ] & {
-    id: BigNumber;
-    name: string;
+    itemId: BigNumber;
+    nft: string;
+    tokenId: BigNumber;
     price: BigNumber;
-    owner: string;
-    purchased: boolean;
+    seller: string;
+    sold: boolean;
   };
 }
 
 export interface MarketplaceInterface extends utils.Interface {
   functions: {
     "buy(uint256)": FunctionFragment;
-    "createItem(string,uint256)": FunctionFragment;
+    "cancelOffer(uint256)": FunctionFragment;
+    "claimFunds()": FunctionFragment;
+    "collectibles(uint256)": FunctionFragment;
+    "createItem(address,uint256,uint256)": FunctionFragment;
+    "fillOffer(uint256)": FunctionFragment;
+    "getCollectibleCount()": FunctionFragment;
+    "getFeeAccount()": FunctionFragment;
+    "getFeePercent()": FunctionFragment;
     "getItem(uint256)": FunctionFragment;
     "getItemCount()": FunctionFragment;
     "getName()": FunctionFragment;
-    "getOwner()": FunctionFragment;
+    "getTotalPrice(uint256)": FunctionFragment;
+    "makeOffer(uint256,uint256)": FunctionFragment;
+    "setFeePercent(uint256)": FunctionFragment;
     "setItemCount(uint256)": FunctionFragment;
     "setName(string)": FunctionFragment;
+    "userFunds(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "buy"
+      | "cancelOffer"
+      | "claimFunds"
+      | "collectibles"
       | "createItem"
+      | "fillOffer"
+      | "getCollectibleCount"
+      | "getFeeAccount"
+      | "getFeePercent"
       | "getItem"
       | "getItemCount"
       | "getName"
-      | "getOwner"
+      | "getTotalPrice"
+      | "makeOffer"
+      | "setFeePercent"
       | "setItemCount"
       | "setName"
+      | "userFunds"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -81,8 +104,40 @@ export interface MarketplaceInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "cancelOffer",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimFunds",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "collectibles",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "createItem",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fillOffer",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCollectibleCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getFeeAccount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getFeePercent",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getItem",
@@ -93,7 +148,18 @@ export interface MarketplaceInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getName", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getTotalPrice",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "makeOffer",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFeePercent",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "setItemCount",
     values: [PromiseOrValue<BigNumberish>]
@@ -102,58 +168,154 @@ export interface MarketplaceInterface extends utils.Interface {
     functionFragment: "setName",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "userFunds",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelOffer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "claimFunds", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "collectibles",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "fillOffer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getCollectibleCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getFeeAccount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getFeePercent",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getItem", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getItemCount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getName", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getTotalPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "makeOffer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setFeePercent",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setItemCount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setName", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "userFunds", data: BytesLike): Result;
 
   events: {
-    "BuyItem(uint256,string,uint256,address,bool)": EventFragment;
-    "CreateItem(uint256,string,uint256,address,bool)": EventFragment;
+    "Bought(uint256,address,uint256,uint256,address,address,bool)": EventFragment;
+    "ClaimFunds(address,uint256)": EventFragment;
+    "Offer(uint256,uint256,address,uint256,bool,bool)": EventFragment;
+    "OfferCancelled(uint256,uint256,address)": EventFragment;
+    "OfferFilled(uint256,uint256,address)": EventFragment;
+    "Offered(uint256,address,uint256,uint256,address,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "BuyItem"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "CreateItem"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ClaimFunds"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Offer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OfferCancelled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OfferFilled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Offered"): EventFragment;
 }
 
-export interface BuyItemEventObject {
-  id: BigNumber;
-  name: string;
+export interface BoughtEventObject {
+  itemId: BigNumber;
+  nft: string;
+  tokenId: BigNumber;
   price: BigNumber;
-  owner: string;
-  purchased: boolean;
+  seller: string;
+  buyer: string;
+  sold: boolean;
 }
-export type BuyItemEvent = TypedEvent<
-  [BigNumber, string, BigNumber, string, boolean],
-  BuyItemEventObject
+export type BoughtEvent = TypedEvent<
+  [BigNumber, string, BigNumber, BigNumber, string, string, boolean],
+  BoughtEventObject
 >;
 
-export type BuyItemEventFilter = TypedEventFilter<BuyItemEvent>;
+export type BoughtEventFilter = TypedEventFilter<BoughtEvent>;
 
-export interface CreateItemEventObject {
-  id: BigNumber;
-  name: string;
-  price: BigNumber;
-  owner: string;
-  purchased: boolean;
+export interface ClaimFundsEventObject {
+  user: string;
+  amount: BigNumber;
 }
-export type CreateItemEvent = TypedEvent<
-  [BigNumber, string, BigNumber, string, boolean],
-  CreateItemEventObject
+export type ClaimFundsEvent = TypedEvent<
+  [string, BigNumber],
+  ClaimFundsEventObject
 >;
 
-export type CreateItemEventFilter = TypedEventFilter<CreateItemEvent>;
+export type ClaimFundsEventFilter = TypedEventFilter<ClaimFundsEvent>;
+
+export interface OfferEventObject {
+  offerId: BigNumber;
+  id: BigNumber;
+  user: string;
+  price: BigNumber;
+  fulfilled: boolean;
+  cancelled: boolean;
+}
+export type OfferEvent = TypedEvent<
+  [BigNumber, BigNumber, string, BigNumber, boolean, boolean],
+  OfferEventObject
+>;
+
+export type OfferEventFilter = TypedEventFilter<OfferEvent>;
+
+export interface OfferCancelledEventObject {
+  offerId: BigNumber;
+  id: BigNumber;
+  owner: string;
+}
+export type OfferCancelledEvent = TypedEvent<
+  [BigNumber, BigNumber, string],
+  OfferCancelledEventObject
+>;
+
+export type OfferCancelledEventFilter = TypedEventFilter<OfferCancelledEvent>;
+
+export interface OfferFilledEventObject {
+  offerId: BigNumber;
+  id: BigNumber;
+  newOwner: string;
+}
+export type OfferFilledEvent = TypedEvent<
+  [BigNumber, BigNumber, string],
+  OfferFilledEventObject
+>;
+
+export type OfferFilledEventFilter = TypedEventFilter<OfferFilledEvent>;
+
+export interface OfferedEventObject {
+  itemId: BigNumber;
+  nft: string;
+  tokenId: BigNumber;
+  price: BigNumber;
+  seller: string;
+  sold: boolean;
+}
+export type OfferedEvent = TypedEvent<
+  [BigNumber, string, BigNumber, BigNumber, string, boolean],
+  OfferedEventObject
+>;
+
+export type OfferedEventFilter = TypedEventFilter<OfferedEvent>;
 
 export interface Marketplace extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -183,26 +345,75 @@ export interface Marketplace extends BaseContract {
 
   functions: {
     buy(
-      _id: PromiseOrValue<BigNumberish>,
+      _itemId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    cancelOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimFunds(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    collectibles(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, string, BigNumber, boolean, boolean] & {
+        offerId: BigNumber;
+        id: BigNumber;
+        user: string;
+        price: BigNumber;
+        fulfilled: boolean;
+        cancelled: boolean;
+      }
+    >;
+
     createItem(
-      _name: PromiseOrValue<string>,
+      _nft: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
       _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    fillOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    getCollectibleCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getFeeAccount(overrides?: CallOverrides): Promise<[string]>;
+
+    getFeePercent(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getItem(
       _itemCount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[Marketplace.ItemStructOutput]>;
+    ): Promise<[Marketplace.SingleItemStructOutput]>;
 
     getItemCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getName(overrides?: CallOverrides): Promise<[string]>;
 
-    getOwner(overrides?: CallOverrides): Promise<[string]>;
+    getTotalPrice(
+      _itemId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    makeOffer(
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setFeePercent(
+      _feePercent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setItemCount(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -213,29 +424,83 @@ export interface Marketplace extends BaseContract {
       _name: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    userFunds(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
   buy(
-    _id: PromiseOrValue<BigNumberish>,
+    _itemId: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  cancelOffer(
+    _offerId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  claimFunds(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  collectibles(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, string, BigNumber, boolean, boolean] & {
+      offerId: BigNumber;
+      id: BigNumber;
+      user: string;
+      price: BigNumber;
+      fulfilled: boolean;
+      cancelled: boolean;
+    }
+  >;
+
   createItem(
-    _name: PromiseOrValue<string>,
+    _nft: PromiseOrValue<string>,
+    _tokenId: PromiseOrValue<BigNumberish>,
     _price: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  fillOffer(
+    _offerId: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  getCollectibleCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getFeeAccount(overrides?: CallOverrides): Promise<string>;
+
+  getFeePercent(overrides?: CallOverrides): Promise<BigNumber>;
+
   getItem(
     _itemCount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<Marketplace.ItemStructOutput>;
+  ): Promise<Marketplace.SingleItemStructOutput>;
 
   getItemCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   getName(overrides?: CallOverrides): Promise<string>;
 
-  getOwner(overrides?: CallOverrides): Promise<string>;
+  getTotalPrice(
+    _itemId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  makeOffer(
+    _id: PromiseOrValue<BigNumberish>,
+    _price: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setFeePercent(
+    _feePercent: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setItemCount(
     _itemCount: PromiseOrValue<BigNumberish>,
@@ -247,28 +512,80 @@ export interface Marketplace extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  userFunds(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
     buy(
-      _id: PromiseOrValue<BigNumberish>,
+      _itemId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    cancelOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimFunds(overrides?: CallOverrides): Promise<void>;
+
+    collectibles(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, string, BigNumber, boolean, boolean] & {
+        offerId: BigNumber;
+        id: BigNumber;
+        user: string;
+        price: BigNumber;
+        fulfilled: boolean;
+        cancelled: boolean;
+      }
+    >;
+
     createItem(
-      _name: PromiseOrValue<string>,
+      _nft: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
       _price: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    fillOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getCollectibleCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getFeeAccount(overrides?: CallOverrides): Promise<string>;
+
+    getFeePercent(overrides?: CallOverrides): Promise<BigNumber>;
+
     getItem(
       _itemCount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<Marketplace.ItemStructOutput>;
+    ): Promise<Marketplace.SingleItemStructOutput>;
 
     getItemCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     getName(overrides?: CallOverrides): Promise<string>;
 
-    getOwner(overrides?: CallOverrides): Promise<string>;
+    getTotalPrice(
+      _itemId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    makeOffer(
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setFeePercent(
+      _feePercent: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setItemCount(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -279,51 +596,133 @@ export interface Marketplace extends BaseContract {
       _name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    userFunds(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
-    "BuyItem(uint256,string,uint256,address,bool)"(
-      id?: null,
-      name?: null,
+    "Bought(uint256,address,uint256,uint256,address,address,bool)"(
+      itemId?: null,
+      nft?: PromiseOrValue<string> | null,
+      tokenId?: null,
       price?: null,
-      owner?: null,
-      purchased?: null
-    ): BuyItemEventFilter;
-    BuyItem(
-      id?: null,
-      name?: null,
+      seller?: PromiseOrValue<string> | null,
+      buyer?: PromiseOrValue<string> | null,
+      sold?: null
+    ): BoughtEventFilter;
+    Bought(
+      itemId?: null,
+      nft?: PromiseOrValue<string> | null,
+      tokenId?: null,
       price?: null,
-      owner?: null,
-      purchased?: null
-    ): BuyItemEventFilter;
+      seller?: PromiseOrValue<string> | null,
+      buyer?: PromiseOrValue<string> | null,
+      sold?: null
+    ): BoughtEventFilter;
 
-    "CreateItem(uint256,string,uint256,address,bool)"(
+    "ClaimFunds(address,uint256)"(
+      user?: null,
+      amount?: null
+    ): ClaimFundsEventFilter;
+    ClaimFunds(user?: null, amount?: null): ClaimFundsEventFilter;
+
+    "Offer(uint256,uint256,address,uint256,bool,bool)"(
+      offerId?: null,
       id?: null,
-      name?: null,
+      user?: null,
       price?: null,
-      owner?: null,
-      purchased?: null
-    ): CreateItemEventFilter;
-    CreateItem(
+      fulfilled?: null,
+      cancelled?: null
+    ): OfferEventFilter;
+    Offer(
+      offerId?: null,
       id?: null,
-      name?: null,
+      user?: null,
       price?: null,
-      owner?: null,
-      purchased?: null
-    ): CreateItemEventFilter;
+      fulfilled?: null,
+      cancelled?: null
+    ): OfferEventFilter;
+
+    "OfferCancelled(uint256,uint256,address)"(
+      offerId?: null,
+      id?: null,
+      owner?: null
+    ): OfferCancelledEventFilter;
+    OfferCancelled(
+      offerId?: null,
+      id?: null,
+      owner?: null
+    ): OfferCancelledEventFilter;
+
+    "OfferFilled(uint256,uint256,address)"(
+      offerId?: null,
+      id?: null,
+      newOwner?: null
+    ): OfferFilledEventFilter;
+    OfferFilled(
+      offerId?: null,
+      id?: null,
+      newOwner?: null
+    ): OfferFilledEventFilter;
+
+    "Offered(uint256,address,uint256,uint256,address,bool)"(
+      itemId?: null,
+      nft?: PromiseOrValue<string> | null,
+      tokenId?: null,
+      price?: null,
+      seller?: PromiseOrValue<string> | null,
+      sold?: null
+    ): OfferedEventFilter;
+    Offered(
+      itemId?: null,
+      nft?: PromiseOrValue<string> | null,
+      tokenId?: null,
+      price?: null,
+      seller?: PromiseOrValue<string> | null,
+      sold?: null
+    ): OfferedEventFilter;
   };
 
   estimateGas: {
     buy(
-      _id: PromiseOrValue<BigNumberish>,
+      _itemId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    cancelOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    claimFunds(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    collectibles(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     createItem(
-      _name: PromiseOrValue<string>,
+      _nft: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
       _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    fillOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    getCollectibleCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getFeeAccount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getFeePercent(overrides?: CallOverrides): Promise<BigNumber>;
 
     getItem(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -334,7 +733,21 @@ export interface Marketplace extends BaseContract {
 
     getName(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getOwner(overrides?: CallOverrides): Promise<BigNumber>;
+    getTotalPrice(
+      _itemId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    makeOffer(
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setFeePercent(
+      _feePercent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setItemCount(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -345,19 +758,52 @@ export interface Marketplace extends BaseContract {
       _name: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    userFunds(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     buy(
-      _id: PromiseOrValue<BigNumberish>,
+      _itemId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    cancelOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimFunds(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    collectibles(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     createItem(
-      _name: PromiseOrValue<string>,
+      _nft: PromiseOrValue<string>,
+      _tokenId: PromiseOrValue<BigNumberish>,
       _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    fillOffer(
+      _offerId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getCollectibleCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getFeeAccount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getFeePercent(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getItem(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -368,7 +814,21 @@ export interface Marketplace extends BaseContract {
 
     getName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getTotalPrice(
+      _itemId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    makeOffer(
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFeePercent(
+      _feePercent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     setItemCount(
       _itemCount: PromiseOrValue<BigNumberish>,
@@ -378,6 +838,11 @@ export interface Marketplace extends BaseContract {
     setName(
       _name: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    userFunds(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

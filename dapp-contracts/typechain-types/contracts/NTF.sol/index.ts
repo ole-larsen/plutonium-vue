@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { NFT } from "./NFT";
-export type { NFTCollection } from "./NFTCollection";

@@ -8,6 +8,7 @@ import BackToTop from "@/components/template/BackToTop.vue";
 import {useLoaderStore} from "@/stores/loader";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useAuthStore} from "@/stores/auth";
+import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 
 // spinner loader
 const loading = ref(true);
@@ -15,9 +16,11 @@ const loading = ref(true);
 // header variables
 
 const user = computed(() => useAuthStore().user);
-const name = ref("");
+
 const store = useLoaderStore();
 const metamask = useMetaMaskStore();
+const market = useMarketPlaceStore();
+const name = computed(() => market.name);
 const connected = computed(() => store.connected);
 async function handleConnect() {
   await metamask.login();
@@ -26,7 +29,7 @@ async function handleConnect() {
 
 onBeforeMount(async () => {
   await store.load();
-  name.value = await store.loadMarketName();
+  // name.value = await store.loadMarketName();
   loading.value = false;
 });
 </script>

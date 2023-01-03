@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { NFT__factory } from "./NFT__factory";
+export { NFTCollection__factory } from "./NFTCollection__factory";

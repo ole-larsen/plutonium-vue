@@ -1,45 +1,41 @@
 import {defineStore} from "pinia";
 import {ethers} from "ethers";
 
-import addresses from "@/../dapp-contracts/addresses/addresses.json";
-import contractData from "@/../dapp-contracts/artifacts/contracts/NFTCollection.sol/NFT.json";
 import type {NFT} from "@/../dapp-contracts/typechain-types";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import { useWeb3Store} from "@/stores/web3/web3";
-// Import the NFTStorage class and File constructor from the 'nft.storage' package
+
 import { NFTStorage, File } from 'nft.storage'
-
-// The "fs" builtin module on Node.js provides access to the file system
-import fs from "fs"
-
-// The "path" module provides helpers for manipulating filesystem paths
-import path from "path"
 
 import {ref} from "vue";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 export const useNFTStore = defineStore("nft", () => {
   const contractAddress = ref("");
   const contract = ref(null);
+  const abi = ref("");
 
   function loadMetamaskContract(chainID: number) {
-    contractAddress.value = (addresses["NFT"] as {[chain: number]: string})[chainID];
-
     if (contractAddress.value) {
       // @ts-ignore
-      contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useMetaMaskStore().signer()) as NFT;
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), useMetaMaskStore().signer()) as NFT;
     }
   }
 
   function loadWeb3Contract(chainID: number) {
-    contractAddress.value = (addresses["NFT"] as {[chain: number]: string})[chainID];
-
     if (contractAddress.value) {
       // @ts-ignore
-      contract.value = new ethers.Contract(contractAddress.value, contractData.abi, useWeb3Store().getSigner()) as NFT;
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), useWeb3Store().getSigner()) as NFT;
     }
   }
 
+  function setAbi(_abi: string) {
+    abi.value = _abi;
+  }
+
+  function setAddress(address: string) {
+    contractAddress.value = address;
+  }
 
   async function mint(_item: any) {
   const { file, price, name, description, category, tags } = _item;
@@ -103,12 +99,14 @@ export const useNFTStore = defineStore("nft", () => {
       }
     }
   }
+
   return {
     contractAddress,
-    contractData,
     contract,
     loadWeb3Contract,
     loadMetamaskContract,
+    setAddress,
+    setAbi,
     mint,
     uploadToIpfs
   }

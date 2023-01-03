@@ -8,6 +8,25 @@ import {useAuthStore} from "@/stores/auth";
 import {useUsersStore} from "@/stores/users.store";
 import {useWeb3Store} from "@/stores/web3/web3";
 
+export type Item = {
+  metadata?: Metadata;
+  ItemId: number;
+  Nft: string;
+  Price: number;
+  Seller: string;
+  Sold: boolean;
+  TokenId: number;
+}
+
+export type Metadata = {
+  total: number;
+  category: string;
+  description: string;
+  image: string;
+  name: string;
+  tags: string;
+}
+
 export const useLoaderStore = defineStore("loader", () => {
   const axios: any = inject("axios");  // inject axios
   const market = useMarketPlaceStore();
@@ -21,15 +40,40 @@ export const useLoaderStore = defineStore("loader", () => {
     return useUsersStore().load();
   }
 
-  function storeMarketItems() {
-    return market.getItems();
+  function loadMarketData() {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/marketdata`, {
+      headers: {
+        "X-Token": import.meta.env.VITE_X_TOKEN
+      }
+    });
   }
 
-  function storeMarketName() {
-    return market.getName().then((name: string) => {
-      console.log(name);
-      market.setName(name);
-    });
+  function storeMarketItems(items: {[id: string]: Item}, metadata: {[id: string]: Metadata}) {
+    return market.getItems(items, metadata);
+  }
+
+  function storeNFTAbi(abi: string) {
+    nft.setAbi(abi);
+  }
+
+  function storeNFTAddress(address: string) {
+    nft.setAddress(address);
+  }
+
+  function storeMarketName(name: string) {
+    market.setName(name);
+  }
+
+  function storeMarketAbi(abi: string) {
+    market.setAbi(abi);
+  }
+
+  function storeMarketAddress(address: string) {
+    market.setAddress(address);
+  }
+
+  function storeMarketFee(fee: number) {
+    market.setFee(fee);
   }
 
   function loadMarketName() {
@@ -44,7 +88,6 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function loadContractsToMetamask() {
-    console.log(metamask.chainID)
     if (metamask.chainID) {
       market.loadMetamaskContract(metamask.chainID);
       nft.loadMetamaskContract(metamask.chainID);
@@ -76,20 +119,23 @@ export const useLoaderStore = defineStore("loader", () => {
 
     try {
       await loadUsers();
+      const { data } = await loadMarketData();
+      console.log(data);
+      await storeMarketAddress(data.market.address);
+      await storeMarketName(data.market.name);
+      await storeMarketAbi(data.market.abi);
+      await storeMarketFee(data.market.fee);
+      await storeNFTAddress(data.nft.address)
+      await storeNFTAbi(data.nft.abi);
+
+      await storeMarketItems(data.market.items, data.market.metadata);
+
       if (!installed) {
         await connectWeb3();
         await loadContractsToWeb3();
       }  else {
-        console.log("run metamask");
         await connectMetamask();
         await loadContractsToMetamask();
-
-        await storeMarketName();
-        await storeMarketItems();
-        // if (!installed) {
-        //   runOnboarding();
-        // }
-
       }
     } catch(e) {
       console.error(e);
