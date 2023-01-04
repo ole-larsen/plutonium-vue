@@ -1091,7 +1091,7 @@ background-color: #14141F;
 @media only screen and (max-width: 767px) {
   .main-nav {
     width: 65%;
-}
+  }
   .form-infor-profile,
   .form-upload-profile .option-profile,
   .tab-authors .author-profile .widget-social ul,
@@ -1110,17 +1110,17 @@ background-color: #14141F;
     -ms-flex: 0 0 100%;
     flex: 0 0 100%;
     max-width: 100%;
-}
-.side-bar.item {
-  width: 100%;
-  margin-top: 0;
-}
-.home-1 .flat-title-page {
-  padding: 70px 0 100px;
-}
-.home-8 .side-bar.item {
-  height: 100%;
-}
+  }
+  .side-bar.item {
+    width: 100%;
+    margin-top: 0;
+  }
+  .home-1 .flat-title-page {
+    padding: 70px 0 100px;
+  }
+  .home-8 .side-bar.item {
+    height: 100%;
+  }
 
   .right .mainslider.home .wrap-heading .content {
     text-align: center;
@@ -1597,11 +1597,17 @@ background-color: #14141F;
   
   .home-7 .flat-title-page.style3 {
     padding: 120px 0 90px;
-}
-.home-7 .flat-slider {
-  padding-top: 0;
-}
-
+  }
+  .home-7 .flat-slider {
+    padding-top: 0;
+  }
+  .header-img-text {
+    font-size: 4rem;
+    font-weight: 700;
+    position: relative;
+    top: 10px;
+    color: #fff;
+  }
 }
 @media only screen and (max-width: 575px) {
 .tf-activity.s1 .sc-card-activity .content {
