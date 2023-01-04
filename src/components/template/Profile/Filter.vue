@@ -75,7 +75,7 @@ async function buy(_item: any) {
           <div class="card-title mg-bt-16">
             <h5><router-link :to="`/card/${item['id']}`">"{{item['metadata']['name']}}"</router-link></h5>
           </div>
-          <div class="meta-info">
+          <div class="meta-info" v-if="item && item['seller']">
             <div class="author">
               <div class="avatar">
                 <img :src="item['seller']['gravatar']" :alt="item['seller']['username']">
