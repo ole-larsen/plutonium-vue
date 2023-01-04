@@ -43,7 +43,7 @@ function toggleActive(itemId: number) {
                 <div class="tags">{{item['sold'] ? 'sold' : 'ETH'}}</div>
               </div>
 
-              <div class="meta-info" v-if="item">
+              <div class="meta-info" v-if="item && item['seller']">
                 <div class="author">
                   <div class="avatar">
                     <img :src="item['seller']['gravatar']" alt="image">

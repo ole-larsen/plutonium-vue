@@ -75,14 +75,14 @@ function toggleActive(itemId: number) {
                     <h5><router-link :to="`/card/${slide.id}`">{{slide.metadata.name}}</router-link></h5>
                     <div class="tags">{{slide.metadata.category }}</div>
                   </div>
-                  <div class="meta-info">
+                  <div class="meta-info" v-if="slide.seller">
                     <div class="author">
-                      <div class="avatar">
+                      <div class="avatar" v-if="slide.seller.gravatar">
                         <img :src="slide.seller.gravatar" :alt="slide.seller.username">
                       </div>
-                      <div class="info">
+                      <div class="info" v-if="slide.seller.address">
                         <span>{{ slide.seller.address.slice(0, 4) + "..." + slide.seller.address.slice(-4) }}</span>
-                        <h6>
+                        <h6 v-if="slide.seller.uuid">
                           <router-link :to="`/author/${slide.seller.uuid}`">{{slide.seller.username.slice(0, 16)}}...</router-link>
                         </h6>
                       </div>

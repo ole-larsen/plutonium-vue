@@ -49,7 +49,7 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function storeMarketItems(items: {[id: string]: Item}, metadata: {[id: string]: Metadata}) {
-    return market.getItems(items, metadata);
+    return market.setItems(items, metadata);
   }
 
   function storeNFTAbi(abi: string) {

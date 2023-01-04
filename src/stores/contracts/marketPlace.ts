@@ -67,42 +67,43 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     return contract.value.getItem(itemId);
   }
 
-
-
-  async function getItems(items: {[id: string]: Item}, metadatas: {[id: string]: Metadata}) {
+  async function setItems(_items: {[id: string]: Item}, metadatas: {[id: string]: Metadata}) {
     try {
       const users = useUsersStore().users;
 
-      const _items: NFTItem[] = [];
+      const nftItems: NFTItem[] = [];
 
-      for (let key in items) {
-        if (items.hasOwnProperty(key) && metadatas.hasOwnProperty(key)) {
-          const item: Item = items[key];
+      for (let key in _items) {
+        if (_items.hasOwnProperty(key) && metadatas.hasOwnProperty(key)) {
+          const item: Item = _items[key];
           const metadata: Metadata = metadatas[key];
-          const seller = users.find((user: User) => user.address.toLowerCase() === item.Seller.toLowerCase());
-          console.log(item, metadata);
-          // @ts-ignore
-          // const price = BigNumber.from(metadata.total);
+
+          const seller = users.find((user: User) => {
+            console.log(user.address.toLowerCase(), item.Seller.toLowerCase())
+            return user.address.toLowerCase() === item.Seller.toLowerCase();
+          });
+
+          const price = BigNumber.from(metadata.total);
+          const itemPrice = BigNumber.from(item.Price.toString());
           item.metadata = metadata;
 
-          _items.push({
+          nftItems.push({
             id: item.ItemId,
             tokenId: item.TokenId,
             nft: item.Nft,
             // @ts-ignore
             seller,
             sold: item.Sold,
-            //price: Number(ethers.utils.formatEther(item.Price)),
+            price: Number(ethers.utils.formatEther(itemPrice)),
             metadata,
             feePercent: fee.value,
-            fee: 0, // Number(ethers.utils.formatEther(price.sub(item.Price))),
-           // total: Number(ethers.utils.formatEther(price)),
+            fee: Number(ethers.utils.formatEther(price.sub(itemPrice))),
+            total: Number(ethers.utils.formatEther(price)),
           });
         }
       }
       // @ts-ignore
-      items.value = _items;
-
+      items.value = nftItems;
     } catch (e) {
       throw e;
     }
@@ -124,7 +125,8 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
   }
   return {
     name, contractAddress, contract, itemCount, items, fee,
-    loadWeb3Contract, loadMetamaskContract, getName, setName, setFee, setAddress, setAbi, getFeePercent, getItemCount, getItem, getItems, buy, createItem, storeFee
+    loadWeb3Contract, loadMetamaskContract, getName, setName, setFee, setAddress,
+    setAbi, getFeePercent, getItemCount, getItem, setItems, buy, createItem, storeFee
   }
 });
 
