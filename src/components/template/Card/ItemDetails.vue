@@ -3,7 +3,7 @@
 // import LiveAution from "@/components/Home01/LiveAuction.vue"
 import Countdown from "@/components/template/Layouts/Countdown.vue";
 import Tab from "@/components/Tab/Tab.vue";
-import {computed, watch, ref} from "vue";
+import {computed, watch, ref, onBeforeMount} from "vue";
 
 import { useRoute } from "vue-router";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
@@ -11,6 +11,7 @@ import type {MarketItem} from "@/stores/contracts/marketPlace";
 
 import Modal from "@/components/template/Modal/Modal.vue";
 import PageTitle from "@/components/template/PageTitle/PageTitle.vue";
+import {useItemDetailsStore} from "@/stores/itemDetails";
 
 const route = useRoute();
 const id = route.params.id // read parameter id (it is reactive)
@@ -18,10 +19,13 @@ const market = useMarketPlaceStore();
 const item: any = computed(() => market.items.find((_item: MarketItem) => Number(_item.id) === Number(id)));
 const nft: any = ref(null);
 const isActive = ref(false);
+const likes = computed(() => useItemDetailsStore().likes(item.value.id, item.value.tokenId));
 
 watch(() => item.value, async (_item: any) => {
   if (_item) {
+    await useItemDetailsStore().load(_item.id, _item.tokenId);
     console.log(_item);
+    console.log(likes.value);
     // nft.value = await market.getItem(_item.id);
   }
 });
@@ -31,11 +35,10 @@ function toggleActive() {
   isActive.value = !isActive.value;
 }
 
-const likeCount = ref(0)
-
 async function like() {
   try {
    await market.like(item.value as MarketItem);
+   await useItemDetailsStore().load(item.value.id, item.value.tokenId);
   } catch(e) {
     console.error(e);
   }
@@ -64,7 +67,9 @@ async function like() {
                 <div class="meta-item">
                   <div class="left">
                     <span class="viewed eye">225</span>
-                    <span class="liked heart wishlist-button mg-l-8" @click="like"><span class="number-like">{{ likeCount }}</span></span>
+                    <span class="liked heart wishlist-button mg-l-8" @click="like">
+                      <span class="number-like">{{ likes ? likes : 0 }}</span>
+                    </span>
                   </div>
                   <div class="right">
                     <router-link to="#" class="share"></router-link>
