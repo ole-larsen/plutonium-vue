@@ -152,6 +152,9 @@ router.beforeResolve(async (to, from, next) => {
     return next();
   }
 
+  if (path.includes("card") && path.length > 1) {
+    return next();
+  }
   const strPath = path.join("/");
   pageStore.setPath(strPath);
   // @ts-ignore

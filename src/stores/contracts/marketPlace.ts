@@ -1,26 +1,46 @@
 import {defineStore} from "pinia";
 import {BigNumber, ethers} from "ethers";
-import {ref} from "vue";
+import {computed, inject, ref} from "vue";
 
 // @ts-ignore
 import type {NFTMarketplace} from "@/../dapp-contracts/typechain-types";
 
-import {useNFTStore} from "@/stores/contracts/nft";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useWeb3Store} from "@/stores/web3/web3";
 import type {NFTItem} from "@/index";
-import {useUsersStore} from "@/stores/users.store";
 import type {User} from "@/stores/auth";
 import type {Item, Metadata} from "@/stores/loader";
+import {useAuthStore} from "@/stores/auth";
+import {useUsersStore} from "@/stores/users.store";
 
+export type MarketItem = {
+  fee: number;
+  feePercent: BigNumber;
+  id: number;
+  metadata: {
+    category: string;
+    description: string;
+    image: string;
+    name: string;
+    tags: string;
+  };
+  nft: string;
+  price: number;
+  seller: any;
+  sold: boolean;
+  tokenId: number;
+  total: number;
+}
 export const useMarketPlaceStore = defineStore("marketPlace", () => {
+  const axios: any = inject("axios");  // inject axios
   const name = ref("");
   const contractAddress = ref(""),
     contract = ref(null),
     abi = ref(""),
     itemCount = ref(0),
     items = ref([]),
-    fee = ref(0);
+    fee = ref(0),
+    user = computed(() => useAuthStore().user);
 
   function loadMetamaskContract(chainID: number) {
     // @ts-ignore
@@ -79,7 +99,6 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
           const metadata: Metadata = metadatas[key];
 
           const seller = users.find((user: User) => {
-            console.log(user.address.toLowerCase(), item.Seller.toLowerCase())
             return user.address.toLowerCase() === item.Seller.toLowerCase();
           });
 
@@ -123,10 +142,22 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     // @ts-ignore
     fee.value = _fee;
   }
+
+  function like(item: MarketItem) {
+    console.log(user.value.id);
+    console.log(item);
+    return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/like`, {
+      userId: user.value.id,
+      itemId: item.id,
+      tokenId: item.tokenId
+    }, {
+      withCredentials: true
+    });
+  }
   return {
     name, contractAddress, contract, itemCount, items, fee,
     loadWeb3Contract, loadMetamaskContract, getName, setName, setFee, setAddress,
-    setAbi, getFeePercent, getItemCount, getItem, setItems, buy, createItem, storeFee
+    setAbi, getFeePercent, getItemCount, getItem, setItems, buy, createItem, storeFee, like
   }
 });
 

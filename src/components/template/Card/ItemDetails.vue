@@ -1,58 +1,51 @@
 <script setup lang="ts">
+
 // import LiveAution from "@/components/Home01/LiveAuction.vue"
 import Countdown from "@/components/template/Layouts/Countdown.vue";
 import Tab from "@/components/Tab/Tab.vue";
-import {useItemDetailsStore} from "@/stores/itemDetails";
-import {computed, onBeforeMount, watch, ref} from "vue";
+import {computed, watch, ref} from "vue";
 
-import { useRoute } from 'vue-router';
+import { useRoute } from "vue-router";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import type {BigNumber} from "ethers";
+import type {MarketItem} from "@/stores/contracts/marketPlace";
+
 import Modal from "@/components/template/Modal/Modal.vue";
 import PageTitle from "@/components/template/PageTitle/PageTitle.vue";
 
 const route = useRoute();
 const id = route.params.id // read parameter id (it is reactive)
 const market = useMarketPlaceStore();
-const item = computed(() => market.items.find((_item: {
-    fee: number;
-    feePercent: BigNumber;
-    id: number;
-    metadata: {
-      category: string;
-      description: string;
-      image: string;
-      name: string;
-      tags: string;
-    };
-    nft: string;
-    price: number;
-    seller: any;
-    sold: boolean;
-    tokenId: number;
-    total: number;
-  }) => Number(_item.id) === Number(id)));
+const item: any = computed(() => market.items.find((_item: MarketItem) => Number(_item.id) === Number(id)));
 const nft: any = ref(null);
 const isActive = ref(false);
+
 watch(() => item.value, async (_item: any) => {
   if (_item) {
-    nft.value = await market.getItem(_item.id);
+    console.log(_item);
+    // nft.value = await market.getItem(_item.id);
   }
 });
+
+
 function toggleActive() {
   isActive.value = !isActive.value;
 }
-const store = useItemDetailsStore();
-const itemDetails: any = computed(() => store.itemDetails);
-onBeforeMount(async () => {
-  await store.load();
-});
+
+const likeCount = ref(0)
+
+async function like() {
+  try {
+   await market.like(item.value as MarketItem);
+  } catch(e) {
+    console.error(e);
+  }
+}
 </script>
 <template>
   <PageTitle v-if="item && item['id']"
              pageTitle="Card"
              pageTitleActive="card"
-             :link="item['id']" />
+             :link="'/card/' + item['id']" />
   <div class="item-details">
     <div class="tf-section tf-item-details">
       <div class="themesflat-container " v-if="item">
@@ -71,7 +64,7 @@ onBeforeMount(async () => {
                 <div class="meta-item">
                   <div class="left">
                     <span class="viewed eye">225</span>
-                    <span to="/login" class="liked heart wishlist-button mg-l-8"><span class="number-like">100</span></span>
+                    <span class="liked heart wishlist-button mg-l-8" @click="like"><span class="number-like">{{ likeCount }}</span></span>
                   </div>
                   <div class="right">
                     <router-link to="#" class="share"></router-link>

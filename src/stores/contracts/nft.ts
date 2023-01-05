@@ -53,7 +53,6 @@ export const useNFTStore = defineStore("nft", () => {
     };
 
     const result = await nftStorage.store(token);
-    console.log(result);
 
     const uri = result.url;
 
@@ -78,7 +77,8 @@ export const useNFTStore = defineStore("nft", () => {
     await approveTx.wait();
 
     const createTx = await useMarketPlaceStore().createItem(contractAddress.value, id, price);
-    console.log(await createTx.wait());
+    await createTx.wait();
+    location.reload();
   } catch (e) {
     console.error(e);
   }
@@ -86,12 +86,11 @@ export const useNFTStore = defineStore("nft", () => {
 }
 
   async function uploadToIpfs(item: any) {
-    const file: any = item.file[0];
-    if (typeof file !== "undefined") {
+
+    if (typeof item.file[0] !== "undefined") {
       try {
         const client = ipfsHttpClient({ url: "https://ipfs.influra.io:5001/api/v0" });
-        const result = await client.add(file);
-        console.log(result);
+        const result = await client.add(item.file[0]);
         const imgUrl = `https://ipfs.influra.io/ipfs/${result.path}`;
         console.log(imgUrl);
       } catch (e) {

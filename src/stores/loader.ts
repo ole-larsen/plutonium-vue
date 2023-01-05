@@ -143,7 +143,6 @@ export const useLoaderStore = defineStore("loader", () => {
   }
   return {
     load,
-    loadMarketName,
     connected
   }
 });
