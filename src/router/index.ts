@@ -21,7 +21,7 @@ const router = createRouter({
     { path: "/home-02",        name: "Home-02",       component: Home02View },
     { path: "/home-03",        name: "Home-03",       component: Home03View },
     {
-      path: "/card/:id",
+      path: "/card/:collectionId/:id",
       name: "card",
       // route level code-splitting
       // this generates a separate chunk (ItemDetails.[hash].js) for this route
@@ -114,7 +114,7 @@ router.beforeResolve(async (to, from, next) => {
     return next();
   }
 
-  if (path.includes("authors") && path.length > 1) {
+  if (path.includes("author") && path.length > 1) {
     const slug = path[path.length - 1];
 
     authorStore.setPath(slug);
@@ -123,13 +123,13 @@ router.beforeResolve(async (to, from, next) => {
     // @ts-ignore
     pageStore.setPath(null);
 
-    if (!authorStore.author(slug)) {
-      try {
-        await authorStore.loadAuthor(slug);
-      } catch(e) {
-        console.error(e);
-      }
-    }
+    // if (!authorStore.author(slug)) {
+    //   try {
+    //     await authorStore.loadAuthor(slug);
+    //   } catch(e) {
+    //     console.error(e);
+    //   }
+    // }
 
     if (!authorStore.author(slug)) {
       // @ts-ignore
@@ -155,6 +155,7 @@ router.beforeResolve(async (to, from, next) => {
   if (path.includes("card") && path.length > 1) {
     return next();
   }
+
   const strPath = path.join("/");
   pageStore.setPath(strPath);
   // @ts-ignore

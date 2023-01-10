@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-// import LiveAution from "@/components/Home01/LiveAuction.vue"
+// import LiveAution from "@/components/Home01/LiveAuction02.vue"
 import Countdown from "@/components/template/Layouts/Countdown.vue";
 import Tab from "@/components/Tab/Tab.vue";
-import {computed, watch, ref, onBeforeMount} from "vue";
+import {computed, watch, ref, onBeforeMount, toRaw} from "vue";
 
 import { useRoute } from "vue-router";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
@@ -12,21 +12,35 @@ import type {MarketItem} from "@/stores/contracts/marketPlace";
 import Modal from "@/components/template/Modal/Modal.vue";
 import PageTitle from "@/components/template/PageTitle/PageTitle.vue";
 import {useItemDetailsStore} from "@/stores/itemDetails";
+import type {BigNumber} from "ethers";
 
 const route = useRoute();
 const id = route.params.id // read parameter id (it is reactive)
+const collectionId = route.params.collectionId;
+
 const market = useMarketPlaceStore();
-const item: any = computed(() => market.items.find((_item: MarketItem) => Number(_item.id) === Number(id)));
+const collections = computed(() => market.collections);
+
+const item: any = computed(() => {
+  for (const owner in market.collections) {
+    if (market.collections.hasOwnProperty(owner)) {
+      // @ts-ignore
+      const collection = market.collections[owner][collectionId];
+      if (collection && collection.items) {
+        return collection.items.find((item: any) => Number(item.id) === Number(id));
+      }
+    }
+  }
+});
+
 const nft: any = ref(null);
 const isActive = ref(false);
-const likes = computed(() => useItemDetailsStore().likes(item.value.id, item.value.tokenId));
 
-watch(() => item.value, async (_item: any) => {
+const likes = computed(() => useItemDetailsStore().likes(item.value));
+
+watch(() => item.value, async (_item: MarketItem) => {
   if (_item) {
-    await useItemDetailsStore().load(_item.id, _item.tokenId);
-    console.log(_item);
-    console.log(likes.value);
-    // nft.value = await market.getItem(_item.id);
+    await useItemDetailsStore().load(_item);
   }
 });
 
@@ -35,14 +49,16 @@ function toggleActive() {
   isActive.value = !isActive.value;
 }
 
-async function like() {
+async function like(_item: MarketItem) {
   try {
-   await market.like(item.value as MarketItem);
-   await useItemDetailsStore().load(item.value.id, item.value.tokenId);
+    console.log(_item);
+    await market.like(_item as MarketItem);
+    await useItemDetailsStore().load(_item);
   } catch(e) {
     console.error(e);
   }
 }
+
 </script>
 <template>
   <PageTitle v-if="item && item['id']"
@@ -67,35 +83,35 @@ async function like() {
                 <div class="meta-item">
                   <div class="left">
                     <span class="viewed eye">225</span>
-                    <span class="liked heart wishlist-button mg-l-8" @click="like">
-                      <span class="number-like">{{ likes ? likes : 0 }}</span>
+                    <span class="liked heart wishlist-button mg-l-8" @click="like(item)">
+                      <span class="number-like">{{ likes }}</span>
                     </span>
                   </div>
-                  <div class="right">
-                    <router-link to="#" class="share"></router-link>
-                    <router-link to="#" class="option"></router-link>
-                  </div>
+<!--                  <div class="right">-->
+<!--                    <router-link to="#" class="share"></router-link>-->
+<!--                    <router-link to="#" class="option"></router-link>-->
+<!--                  </div>-->
                 </div>
                 <div class="client-infor sc-card-product">
                   <div class="meta-info">
                     <div class="author">
                       <div class="avatar">
-                        <img :src="item['seller']['gravatar']" alt="image">
+                        <img :src="item['owner']['gravatar']" alt="image">
                       </div>
                       <div class="info">
                         <span>Owned By</span>
-                        <h6> <router-link :to="`/author/${item['seller']['uuid']}`">{{ String(item['seller']['username']).slice(0, 16)}}</router-link> </h6>
+                        <h6> <router-link :to="`/author/${item['owner']['uuid']}`">{{ String(item['owner']['username']).slice(0, 16)}}</router-link> </h6>
                       </div>
                     </div>
                   </div>
                   <div class="meta-info">
                     <div class="author">
                       <div class="avatar">
-                        <img :src="item['seller']['gravatar']" alt="image">
+                        <img :src="item['creator']['gravatar']" alt="image">
                       </div>
                       <div class="info">
-                        <span>Create By</span>
-                        <h6> <router-link :to="`/author/${item['seller']['uuid']}`">{{String(item['seller']['username']).slice(0, 16)}}</router-link> </h6>
+                        <span>Created By</span>
+                        <h6> <router-link :to="`/author/${item['creator']['uuid']}`">{{String(item['creator']['username']).slice(0, 16)}}</router-link> </h6>
                       </div>
                     </div>
                   </div>

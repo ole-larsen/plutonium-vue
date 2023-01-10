@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 
 import {toRefs} from "vue";
+import type {MarketItem} from "@/stores/contracts/marketPlace";
+
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 
 const props = defineProps(["item", "isActive"]);
@@ -12,9 +14,9 @@ function toggleActive(id: number) {
     emit("close", isActive.value[id]);
   }
 }
-async function buy(item: any) {
+async function buy(item: MarketItem) {
   try {
-    await useMarketPlaceStore().buy(item.id, item.total);
+    await useMarketPlaceStore().buy(item);
     // @ts-ignore
     isActive.value[item.id] = false;
   } catch (e) {
@@ -28,9 +30,9 @@ async function buy(item: any) {
     <div class="overlay" v-on:click="toggleActive(item.id)"></div>
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" v-on:click="toggleActive(item.id)">
-        </button>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" v-on:click="toggleActive(item.id)"></button>
         <div class="modal-body space-y-20 pd-40" :class="{ show: isActive[item.id] }">
+
           <h3>Buy {{ item?.metadata?.name }}</h3>
           <p class="text-center">You must bid at least <span class="price color-popup">{{ item.total }} ETH</span>
           </p>
@@ -44,10 +46,13 @@ async function buy(item: any) {
             <p>Price:</p>
             <p class="text-right price color-popup"> {{ item.price }} ETH </p>
           </div>
+
           <div class="d-flex justify-content-between">
             <p> Service free:</p>
-            <p class="text-right price color-popup"> {{ item.feePercent }} % </p>
             <p class="text-right price color-popup"> {{ item.fee }} ETH </p>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="text-right price color-popup"> {{ item.feePercent }} % </p>
           </div>
           <div class="d-flex justify-content-between">
             <p> Total amount:</p>

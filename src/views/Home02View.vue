@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import Slider from "@/components/template/Home02/Slider.vue";
-import LiveAuction from "@/components/template/Home02/LiveAuction.vue";
-import CreateAndSell from "@/components/template/Home02/CreateAndSell.vue";
+import LiveAuction from "@/components/template/LiveAuction/LiveAuction01.vue";
+import CreateAndSell from "@/components/template/CreateAndSell/CreateAndSell.vue";
 import Collection from "@/components/template/Home02/Collection.vue";
-import TodayPick from "@/components/template/Home02/TodayPick.vue";
-import TopSeller from "@/components/template/Home02/TopSeller.vue";
+import TodayPick from "@/components/template/TodayPick/TodayPick01.vue";
+import TopSeller from "@/components/template/TopSeller/TopSeller01.vue";
 
 </script>
 <template>
@@ -12,7 +12,7 @@ import TopSeller from "@/components/template/Home02/TopSeller.vue";
     <Slider />
     <CreateAndSell />
     <LiveAuction />
-    <Collection />
+<!--    <Collection />-->
     <TopSeller />
     <TodayPick />
   </div>

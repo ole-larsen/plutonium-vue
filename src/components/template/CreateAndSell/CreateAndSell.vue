@@ -26,8 +26,8 @@ onBeforeMount(async() => {
           <div class='col-lg-3 col-md-6 col-12' v-for="item in items" :key="item['id']" >
             <div class="sc-box-icon" v-if="item && item['attributes']">
               <div class="image center" v-if="item['attributes']['image']">
-                <div class="icon-create" v-if="item['attributes']['image']['data']">
-                  <img :src="item['attributes']['image']['data']['attributes']['url']" alt="image">
+                <div class="icon-create">
+                  <img :src="item['attributes']['image']['attributes']['url']" alt="image">
                 </div>
               </div>
               <h3 class="heading">

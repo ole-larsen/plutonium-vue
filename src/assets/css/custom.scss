@@ -5,8 +5,8 @@
   .btn-edit-avatar {
     position: absolute;
     padding: 8px;
-    right: 8px;
-    top: 8px;
+    left: 180px;
+    top: -18px;
     width: 40px;
     height: 40px;
   }
@@ -172,17 +172,49 @@
   button {
     border-radius: 8px;
   }
+  select {
+    border: 1px solid rgba(138,138,160,.3);
+    outline: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    font-size: 18px;
+    line-height: 28px;
+    border-radius: 4px;
+    padding: 13px 15px;
+    width: 100%;
+    background: transparent;
+    color: #8a8aa0;
+    margin-bottom: 10px;
+  }
 }
-
+.create-collection-container {
+  position: absolute;
+  margin-top: 50px;
+  right: 0;
+}
+.filter-wrapper {
+  margin-top: 60px;
+}
 .tab-authors .author-profile .infor-profile .title {
   color: #fff;
   margin: 6px 20px 12px 0;
   font-size: 24px;
 }
+
 .tab-authors .author-profile .feature-profile {
   width: 50%;
 }
 
+.tab-authors {
+  min-height: 350px;
+  .mint-form-btn {
+    position: absolute;
+    bottom: 10px;
+    border-radius: 4px;
+    right: 4%;
+  }
+}
 // loader
 .lds-dual-ring {
   display: inline-block;
@@ -218,6 +250,10 @@
       width: 250px;
       height: auto;
     }
+  }
+  .tags {
+    min-width: 49px;
+    padding: 0 8px;
   }
   .card-title {
     .tags {
@@ -320,5 +356,11 @@
   }
   100% {
     opacity: 0;
+  }
+}
+
+.collection-form {
+  input, textarea{
+    margin-bottom: 10px;
   }
 }

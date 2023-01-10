@@ -18,6 +18,10 @@ export const useCreateAndSellStore = defineStore("createAndSell", () => {
 
       const { data } = response;
       items.value = data;
+      items.value.map((_item: any) => {
+        _item.attributes.image.attributes.url = import.meta.env.VITE_BACKEND + _item.attributes.image.attributes.url;
+        return _item;
+      })
     } catch (e) {
       throw e;
     }

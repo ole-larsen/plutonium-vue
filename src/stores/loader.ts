@@ -2,11 +2,13 @@ import { defineStore } from "pinia";
 import {inject, ref, computed} from "vue";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
+import type {Collection, CollectionItem} from "@/stores/contracts/marketPlace";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import {useNFTStore} from "@/stores/contracts/nft";
 import {useAuthStore} from "@/stores/auth";
 import {useUsersStore} from "@/stores/users.store";
 import {useWeb3Store} from "@/stores/web3/web3";
+import {useCollectionStore} from "@/stores/contracts/collection";
 
 export type Item = {
   metadata?: Metadata;
@@ -33,6 +35,7 @@ export const useLoaderStore = defineStore("loader", () => {
   const nft = useNFTStore();
   const metamask = useMetaMaskStore();
   const web3 = useWeb3Store();
+  const collection = useCollectionStore();
 
   const connected = computed(() => !!useAuthStore().user);
 
@@ -48,8 +51,12 @@ export const useLoaderStore = defineStore("loader", () => {
     });
   }
 
-  function storeMarketItems(items: {[id: string]: Item}, metadata: {[id: string]: Metadata}) {
-    return market.setItems(items, metadata);
+  function storeCollectionAbi(abi: string) {
+    collection.setAbi(abi);
+  }
+
+  function storeCollectionAddress(address: string) {
+    collection.setAddress(address);
   }
 
   function storeNFTAbi(abi: string) {
@@ -84,6 +91,7 @@ export const useLoaderStore = defineStore("loader", () => {
     if (web3.chainID) {
       market.loadWeb3Contract(web3.chainID);
       nft.loadWeb3Contract(web3.chainID);
+      collection.loadWeb3Contract(web3.chainID);
     }
   }
 
@@ -91,6 +99,7 @@ export const useLoaderStore = defineStore("loader", () => {
     if (metamask.chainID) {
       market.loadMetamaskContract(metamask.chainID);
       nft.loadMetamaskContract(metamask.chainID);
+      collection.loadMetamaskContract(metamask.chainID);
     }
   }
 
@@ -108,9 +117,20 @@ export const useLoaderStore = defineStore("loader", () => {
     try {
       const metaMaskOnboarding = new MetaMaskOnboarding({ forwarderOrigin });
       metaMaskOnboarding.startOnboarding();
-    } catch (error) {
-      throw(error);
+    } catch (e) {
+      throw(e);
     }
+  }
+
+  async function storeMarketItems(_items: { [id: string]: CollectionItem }, _metadata: {[id: string]: any}) {
+    await market.storeItems(_items, _metadata);
+  }
+  async function storeMarketCollectionsCount(collectionsCount: number) {
+    await market.storeCollectionsCount(collectionsCount);
+  }
+
+  async function storeMarketCollections(collections: { [id: string]: Collection }) {
+    await market.storeCollections(collections);
   }
 
   async function load() {
@@ -120,15 +140,22 @@ export const useLoaderStore = defineStore("loader", () => {
     try {
       await loadUsers();
       const { data } = await loadMarketData();
-      console.log(data);
+      console.log(data.market);
       await storeMarketAddress(data.market.address);
       await storeMarketName(data.market.name);
       await storeMarketAbi(data.market.abi);
-      await storeMarketFee(data.market.fee);
+      await storeMarketFee(data.market.feePercent);
+      await storeMarketItems(data.market.items, data.market.metadata);
+      await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
+      await storeMarketCollections(data.market.collections);
+
+      // await storeMarketMetadata(data.market.metadata);
+
       await storeNFTAddress(data.nft.address)
       await storeNFTAbi(data.nft.abi);
 
-      await storeMarketItems(data.market.items, data.market.metadata);
+      await storeCollectionAddress(data.collection.address)
+      await storeCollectionAbi(data.collection.abi);
 
       if (!installed) {
         await connectWeb3();
@@ -137,6 +164,28 @@ export const useLoaderStore = defineStore("loader", () => {
         await connectMetamask();
         await loadContractsToMetamask();
       }
+      // if (market.contract) {
+      //   await loadCollections()
+      // }
+      // console.log(collection.contract);
+      // // Load total Supply
+      // // @ts-ignore
+      // const totalSupply = await collection.contract.totalSupply();
+      // console.log(totalSupply.toNumber())
+
+      // Load Collection
+      //         collectionCtx.loadCollection(nftContract, totalSupply);
+      //
+      //         // Event subscription
+      //         nftContract.events.Transfer()
+      //         .on('data', (event) => {
+      //           collectionCtx.updateCollection(nftContract, event.returnValues.tokenId, event.returnValues.to);
+      //           collectionCtx.setNftIsLoading(false);
+      //         })
+      //         .on('error', (error) => {
+      //           console.log(error);
+      //         });
+      //
     } catch(e) {
       console.error(e);
     }

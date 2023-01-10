@@ -11,6 +11,7 @@ export const useProfileStore = defineStore({
     _showEditAvatarWallpaper: false,
     _showEditAvatarWallpaperOptions: false,
     _isActiveWallpaperModal: false,
+    _isActiveCollectionModal: false,
     _isActiveModal: false,
     _showUsername: false,
     _showEmail: false
@@ -22,6 +23,7 @@ export const useProfileStore = defineStore({
     showEditAvatarWallpaper: (state) => state._showEditAvatarWallpaper,
     showEditAvatarWallpaperOptions: (state) => state._showEditAvatarWallpaperOptions,
     isActiveWallpaperModal: (state) => state._isActiveWallpaperModal,
+    isActiveCollectionModal: (state) => state._isActiveCollectionModal,
     isActiveModal: (state) => state._isActiveModal,
     showUsername: (state) => state._showUsername,
     showEmail: (state) => state._showEmail
@@ -76,6 +78,9 @@ export const useProfileStore = defineStore({
     },
     handleWallpaperModal() {
       this._isActiveWallpaperModal = !this._isActiveWallpaperModal;
+    },
+    handleCollectionModal() {
+      this._isActiveCollectionModal = !this._isActiveCollectionModal;
     },
     handleShowUsername() {
       this._showUsername = !this._showUsername;

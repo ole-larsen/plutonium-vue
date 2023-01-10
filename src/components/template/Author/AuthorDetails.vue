@@ -1,26 +1,18 @@
 <script lang="ts" setup>
 
 import Filter from "./Filter.vue";
-
-import {computed, reactive, ref, watch} from "vue";
-
-import type { User } from "@/stores/auth";
+import type {MarketItem} from "@/stores/contracts/marketPlace";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import {useRoute} from "vue-router";
-import {useUsersStore} from "@/stores/users.store";
+import type { User } from "@/stores/auth";
+import {computed, reactive, ref, watch, toRefs} from "vue";
+const props = defineProps(["user"]);
+const { user } = toRefs(props);
+const market = useMarketPlaceStore();
 
-const route = useRoute();
-const uuid = route.params.uuid // read parameter id (it is reactive)
-
-const store = useUsersStore();
-const user: any = computed(() => {
-  if (store.users) {
-    return store.users.find((_user: User) => _user.uuid === uuid);
-  }
-  return undefined;
-});
-
-const items = computed(() => useMarketPlaceStore().items);
+const items = computed(() => market.items.filter((_item: MarketItem) => {
+  // @ts-ignore
+  return _item.creator.address.toLowerCase() === user.value.address.toLowerCase();
+}));
 
 const wallpaper: any = ref(null);
 
@@ -38,13 +30,31 @@ const wallPaperStyle = reactive({
 });
 
 watch(
-  () => user.value,
+  () => user?.value,
   (_user) => {
     if (_user.wallpaper) {
       wallPaperStyle.background = `url(${_user.wallpaper}) no-repeat top`;
     }
   });
 
+const collectionsCount = computed(() => market.collectionsCount);
+// @ts-ignore
+const collections = computed(() => {
+  // @ts-ignore
+  return market.collections[user.value.address.toLowerCase()];
+});
+const categories = computed(() => {
+  const _categories: { id: string; category: string }[] = [];
+  if (collections?.value) {
+    for (const id in collections.value) {
+      _categories.push({
+        id: id,
+        category: collections.value[id].name
+      });
+    }
+  }
+  return _categories;
+});
 </script>
 <template>
   <div class="authors-2">
@@ -87,7 +97,7 @@ watch(
               </ul>
             </div>
           </div>
-          <Filter :items="items"/>
+          <Filter v-if="collectionsCount > 0" :collections="collections" :categories="categories"/>
         </div>
       </div>
     </section>

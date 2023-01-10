@@ -38,52 +38,52 @@ export const useNFTStore = defineStore("nft", () => {
   }
 
   async function mint(_item: any) {
-  const { file, price, name, description, category, tags } = _item;
-  try {
-    // create a new NFTStorage client using our API key
-    const nftStorage = new NFTStorage({ token: import.meta.env.VITE_NFT_STORAGE_KEY })
+    const { file, price, name, description, category, tags } = _item;
+    try {
+      // create a new NFTStorage client using our API key
+      const nftStorage = new NFTStorage({ token: import.meta.env.VITE_NFT_STORAGE_KEY })
 
-    // call client.store, passing in the image & metadata
-    const token = {
-      image: file,
-      name,
-      description,
-      category,
-      tags
-    };
+      // call client.store, passing in the image & metadata
+      const token = {
+        image: file,
+        name,
+        description,
+        category,
+        tags
+      };
 
-    const result = await nftStorage.store(token);
+      const result = await nftStorage.store(token);
 
-    const uri = result.url;
+      const uri = result.url;
 
-    // @ts-ignore
-    const tx = await contract.value.mint(uri);
-    await tx.wait();
+      // @ts-ignore
+      const tx = await contract.value.mint(uri);
+      await tx.wait();
 
-    // const result = await client.add(JSON.stringify({ image, name, description }));
-    // console.log(result);
-    // const uri = `https://ipfs.influra.io/ipfs/${result.path}`;
-    // console.log(uri);
+      // const result = await client.add(JSON.stringify({ image, name, description }));
+      // console.log(result);
+      // const uri = `https://ipfs.influra.io/ipfs/${result.path}`;
+      // console.log(uri);
 
-    // @ts-ignore
-    const id = await contract.value.count();
+      // @ts-ignore
+      const id = await contract.value.count();
 
-    const price = ethers.utils.parseEther(_item.price.toString());
+      const price = ethers.utils.parseEther(_item.price.toString());
 
-    const marketplace = useMarketPlaceStore().contractAddress;
+      const marketplace = useMarketPlaceStore().contractAddress;
 
-    // @ts-ignore
-    const approveTx = await contract.value.setApprovalForAll(marketplace, true);
-    await approveTx.wait();
+      // @ts-ignore
+      const approveTx = await contract.value.setApprovalForAll(marketplace, true);
+      await approveTx.wait();
 
-    const createTx = await useMarketPlaceStore().createItem(contractAddress.value, id, price);
-    await createTx.wait();
-    location.reload();
-  } catch (e) {
-    console.error(e);
+      const createTx = await useMarketPlaceStore().createItem(contractAddress.value, id, price);
+      await createTx.wait();
+      location.reload();
+    } catch (e) {
+      console.error(e);
+    }
+
   }
-
-}
 
   async function uploadToIpfs(item: any) {
 
@@ -91,6 +91,7 @@ export const useNFTStore = defineStore("nft", () => {
       try {
         const client = ipfsHttpClient({ url: "https://ipfs.influra.io:5001/api/v0" });
         const result = await client.add(item.file[0]);
+        console.log(result);
         const imgUrl = `https://ipfs.influra.io/ipfs/${result.path}`;
         console.log(imgUrl);
       } catch (e) {

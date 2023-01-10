@@ -1086,7 +1086,7 @@
 }
 
 .sc-card-product .tags {
-  width: 49px;
+  min-width: 49px;
   height: 24px;
   line-height: 24px;
   text-align: center;

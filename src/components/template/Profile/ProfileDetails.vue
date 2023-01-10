@@ -8,11 +8,14 @@ import useDetectOutsideClick from "@/helpers/outside-click";
 
 import {useProfileStore} from "@/stores/profile";
 import {useAuthStore} from "@/stores/auth";
+import {useLoaderStore} from "@/stores/loader";
 import {useNFTStore} from "@/stores/contracts/nft";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 
 const store = useProfileStore();
+const market = useMarketPlaceStore();
 const user = computed(() => useAuthStore().user);
+const loader = useLoaderStore();
 
 const showEditAvatarBtn = computed(() => store.showEditAvatarBtn);
 const showEditAvatarOptions = computed(() => store.showEditAvatarOptions);
@@ -22,7 +25,7 @@ const isActiveModal = computed(() => store.isActiveModal);
 const isActiveWallpaperModal = computed(() => store.isActiveWallpaperModal);
 const showUsername = computed(() => store.showUsername);
 const showEmail = computed(() => store.showEmail);
-const items = computed(() => useMarketPlaceStore().items);
+
 const avatar: any = ref(null);
 const nftFile: any = ref(null);
 const wallpaper: any = ref(null);
@@ -30,14 +33,29 @@ const uploadNav = ref(null);
 const avatars = ref([]);
 const wallpapers = ref([]);
 const profile = ref(null);
-
-const item = ref({
+const isActiveCollectionModal = computed(() => store.isActiveCollectionModal);
+const collectionsCount = computed(() => market.collectionsCount);
+// @ts-ignore
+const collections = computed(() => {
+  // @ts-ignore
+  return market.collections[user.value.address.toLowerCase()];
+});
+const item: any = ref({
   name: "",
   description: "",
   price: 0,
   file: undefined,
-  category: "All",
-  tags: ""
+  collectionId: 0,
+  collections: [],
+  tags: "",
+  count: 1
+});
+
+const collection = ref({
+  name: "",
+  description: "",
+  price: 0,
+  fee: 0
 });
 
 useDetectOutsideClick(uploadNav, () => {
@@ -69,10 +87,40 @@ const wallPaperStyle = reactive({
   background: `url(${user.value.wallpaper}) no-repeat top`,
 });
 
+const loading = ref(false);
+
+const categories = computed(() => {
+  const _categories: { id: string; category: string }[] = [];
+  if (collections?.value) {
+    for (const id in collections.value) {
+      _categories.push({
+        id: id,
+        category: collections.value[id].name
+      });
+    }
+  }
+  return _categories;
+});
+
 watch(
   () => user.value.wallpaper,
   (url) => {
     wallPaperStyle.background = `url(${url}) no-repeat top`;
+  });
+
+watch(
+  () => categories.value,
+  (_categories) => {
+    if (_categories) {
+      for (const _category of _categories) {
+        if (!item.value.collections.map((itemCollection: { id: number; label: string }) => itemCollection.id).includes(Number(_category.id))) {
+          item.value.collections.push({
+            id: Number(_category.id),
+            label: _category.category
+          });
+        }
+      }
+    }
   });
 
 function enterEditAvatar() {
@@ -137,6 +185,9 @@ function handleCloseAvatarModal() {
   store.handleAvatarModal();
 }
 
+function handleCloseWallpaperModal() {
+  store.handleWallpaperModal();
+}
 function removeAvatar() {}
 
 function removeWallpaper() {}
@@ -159,7 +210,24 @@ function updateEmail() {
   store.handleShowEmail();
 }
 
+function handleCreateCollection() {
+  store.handleCollectionModal();
+}
+
+function handleCloseCollectionModal() {
+  store.handleCollectionModal();
+}
+
+async function mintCollection() {
+  try {
+    await market.mintCollection(collection.value);
+    store.handleCollectionModal();
+  } catch(e) {
+    console.log(e);
+  }
+}
 </script>
+
 <template>
   <div class="authors-2">
     <section class="tf-section authors profile" v-if="user">
@@ -237,9 +305,8 @@ function updateEmail() {
                 </form>
                 <br/>
               </div>
-
             </div>
-            <Mint :item="item" />
+            <Mint :item="item"/>
             <div class="widget-social style-3" v-if="user.socials">
               <ul>
                 <li v-for="social in user.socials">
@@ -247,8 +314,16 @@ function updateEmail() {
                 </li>
               </ul>
             </div>
+
           </div>
-          <Filter :items="items"/>
+          <div class="create-collection-container container">
+            <button type="button"
+                    class="mint-form-btn"
+                    @click.prevent="handleCreateCollection">
+              Create Collection
+            </button>
+          </div>
+          <Filter v-if="collectionsCount > 0" :collections="collections" :categories="categories"/>
         </div>
       </div>
     </section>
@@ -278,7 +353,7 @@ function updateEmail() {
     <div class="modal" id="popup_wallpaper" tabIndex="-1" role="dialog" aria-hidden="true"  :class="{ show: isActiveWallpaperModal }" ref="wallpaperModal">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="handleCloseAvatarModal" >
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="handleCloseWallpaperModal" >
             <span aria-hidden="true">&times;</span>
           </button>
           <div class="modal-body space-y-20 pd-40" :class="{ show: isActiveWallpaperModal }">
@@ -296,5 +371,38 @@ function updateEmail() {
         </div>
       </div>
     </div>
+
+    <div class="modal" id="popup_collection" tabIndex="-1" role="dialog" aria-hidden="true"  :class="{ show: isActiveCollectionModal }" ref="collectionModal">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="handleCloseCollectionModal" >
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <div class="modal-body space-y-20 pd-40 collection-form" :class="{ show: isActiveCollectionModal }">
+            <h3>Create Collection</h3>
+            <div class="lds-dual-ring" v-if="loading"></div>
+            <div v-show="!loading">
+              <input id="collection_name" name="collection_name" tabIndex="2"  aria-required="true" type="text" v-model="collection.name"
+                     placeholder="Name" />
+              <br/>
+              <textarea id="collection_description" name="collection_description" tabIndex="2"  aria-required="true" type="text"
+                        placeholder="Description" v-model="collection.description"/>
+              <br/>
+              <input id="collection_price" name="collection_price" tabIndex="2"  aria-required="true" type="text"
+                     placeholder="Collection Price" v-model="collection.price"/>
+              <br/>
+              <input id="collection_fee" name="collection_fee" tabIndex="2"  aria-required="true" type="text"
+                     placeholder="Collection Fee" v-model="collection.fee"/>
+              <br/>
+              <button type="button"
+                      class="min-form-btn"
+                      @click.prevent="mintCollection">
+                Mint Collection
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </template>
