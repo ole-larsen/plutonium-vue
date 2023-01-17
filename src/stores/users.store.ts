@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import {inject, ref} from "vue";
 import type {User} from "@/stores/auth";
 
 export const useUsersStore = defineStore("users", () => {
   const axios: any = inject("axios");  // inject axios
-  const baseUrl = `${import.meta.env.VITE_BACKEND_URL}/users`;
-  const users = ref([]);
+
+  const users: Ref<User[]> = ref([]);
 
   function getData() {
     return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/users`, {
@@ -14,6 +15,7 @@ export const useUsersStore = defineStore("users", () => {
       }
     });
   }
+
   async function load() {
     try {
       const { data } = await getData();
@@ -28,7 +30,7 @@ export const useUsersStore = defineStore("users", () => {
         return user;
       });
     } catch (e) {
-      throw e;
+      console.error(e);
     }
   }
   return {

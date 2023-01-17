@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import { ref } from "vue";
 
 export const useTodayPickStore = defineStore("todayPick", () => {
-  const isActive = ref({});
+  const isActive: Ref<{[id: number]: boolean}> = ref({});
 
   function toggleActive(itemId: number) {
-    // @ts-ignore
     isActive.value[itemId] = !isActive.value[itemId];
   }
 

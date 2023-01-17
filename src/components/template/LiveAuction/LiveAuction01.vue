@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-
+import type {ComputedRef, Ref} from "vue";
 import {computed, ref, watch} from "vue";
 import { Carousel, Slide, Navigation, Pagination } from "vue3-carousel";
 import {useLiveAuctionStore} from "@/stores/liveAuction";
@@ -7,30 +7,33 @@ import Modal from "@/components/template/Modal/Modal.vue";
 
 import "vue3-carousel/dist/carousel.css";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import type {BigNumber} from "ethers";
-import type {MarketItem} from "@/stores/contracts/marketPlace";
+
+import type {PublicMarketItem} from "@/stores/contracts/marketPlace";
 import {useItemDetailsStore} from "@/stores/itemDetails";
+import {useAuthStore} from "@/stores/auth";
 
 const store = useLiveAuctionStore();
 const market = useMarketPlaceStore();
 
-const item: any = ref({});
+const item: Ref<any> = ref({});
 
-const isActive: any = computed(() => store.isActive);
+const isActive: ComputedRef<{[id: number]: boolean}> = computed(() => store.isActive);
 
-const itemCount = computed(() => market.itemCount);
+const itemCount: ComputedRef<number> = computed(() => market.itemCount);
 
-const items: any = computed(() => market.items);
+const items: ComputedRef<PublicMarketItem[]> = computed(() => market.items);
 
 const likes = computed(() => {
-  return items.value.map((_item: MarketItem) => {
+  return items.value.map((_item: PublicMarketItem) => {
     return useItemDetailsStore().likes(_item);
   });
 });
 
-watch(() => items.value, (_items: MarketItem[]) => {
+const user = computed(() => useAuthStore().user);
+
+watch(() => items.value, (_items: PublicMarketItem[]) => {
   if (_items) {
-    _items.map(async (_item: MarketItem) => {
+    _items.map(async (_item: PublicMarketItem) => {
       try {
         await useItemDetailsStore().load(_item);
       } catch (e) {
@@ -50,26 +53,31 @@ const breakpoints = {
     itemsToShow: 2
   },
   991: {
-    itemsToShow: 3
+    itemsToShow: 4
   },
   1200: {
     itemsToShow: 4
   }
 };
 
-function toggleActive(_item: MarketItem) {
+function toggleActive(_item: PublicMarketItem) {
   store.toggleActive(_item.id);
   item.value = _item;
 }
 
-async function like(_item: MarketItem) {
+async function like(_item: PublicMarketItem) {
   try {
-    await market.like(_item as MarketItem);
+    await market.like(_item as PublicMarketItem);
     await useItemDetailsStore().load(_item);
   } catch(e) {
     console.error(e);
   }
 }
+
+function close(_item: PublicMarketItem) {
+  toggleActive(_item);
+}
+
 </script>
 <template>
   <section class="tf-section live-auctions" v-if="items && items.length > 0">
@@ -101,13 +109,15 @@ async function like(_item: MarketItem) {
                     <!--<span class="slogan"></span>-->
                     <!--<Countdown starttime="Jul 1, 2022 15:37:25" endtime="Dec 8, 2022 16:37:25" />-->
                     <!--</div>-->
-                    <div class="button-place-bid">
+
+                    <div class="button-place-bid" v-if="!slide.fulfilled && user.address !== slide['owner']['address']">
                       <button class="sc-button style-place-bid style bag fl-button pri-3"  v-on:click="toggleActive(slide)"><span>Buy</span></button>
                     </div>
                   </div>
                   <div class="card-title">
                     <h5><router-link :to="`/card/${slide['collectionId']}/${slide['id']}`">{{slide['metadata']['name']}}</router-link></h5>
-                    <div class="tags">{{slide['metadata']['tags'] }}</div>
+
+                    <div class="tags">{{slide.fulfilled ? 'Sold' : slide['metadata']['tags'] }}</div>
                   </div>
                   <div class="meta-info" v-if="slide['creator']">
                     <div class="author">
@@ -115,7 +125,7 @@ async function like(_item: MarketItem) {
                         <img :src="slide['creator']['gravatar']" :alt="slide['creator']['username']">
                       </div>
                       <div class="info" v-if="slide['creator']['address']">
-                        <span>{{ slide['creator']['address'].slice(0, 4) + "..." + slide['creator']['address'].slice(-4) }}</span>
+                        <span>Created By</span>
                         <h6 v-if="slide['creator']['uuid']">
                           <router-link :to="`/author/${slide['creator']['uuid']}`">{{slide['creator']['username'].slice(0, 16)}}...</router-link>
                         </h6>
@@ -137,7 +147,7 @@ async function like(_item: MarketItem) {
         </div>
       </div>
     </div>
-    <modal :item="item" :isActive="isActive" />
+    <modal :item="item" :isActive="isActive" @close="close" />
   </section>
 </template>
 

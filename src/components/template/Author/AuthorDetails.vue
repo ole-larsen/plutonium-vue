@@ -3,7 +3,9 @@
 import Filter from "./Filter.vue";
 import type {MarketItem} from "@/stores/contracts/marketPlace";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import type { User } from "@/stores/auth";
+
+import type {ComputedRef} from "vue";
+
 import {computed, reactive, ref, watch, toRefs} from "vue";
 const props = defineProps(["user"]);
 const { user } = toRefs(props);
@@ -39,21 +41,32 @@ watch(
 
 const collectionsCount = computed(() => market.collectionsCount);
 // @ts-ignore
-const collections = computed(() => {
-  // @ts-ignore
-  return market.collections[user.value.address.toLowerCase()];
+const collections: ComputedRef<any> = computed(() => {
+  const ownerCollections: any = {};
+  if (market.collections) {
+    for (const id in market.collections) {
+      if (market.collections.hasOwnProperty(id)) {
+        // @ts-ignore
+        if (market.collections[id].owner === user.value.address) {
+          // @ts-ignore
+          ownerCollections[id] = market.collections[id];
+        }
+      }
+    }
+  }
+  return ownerCollections;
 });
 const categories = computed(() => {
-  const _categories: { id: string; category: string }[] = [];
+  const _collections: { id: string; collection: string }[] = [];
   if (collections?.value) {
     for (const id in collections.value) {
-      _categories.push({
+      _collections.push({
         id: id,
-        category: collections.value[id].name
+        collection: collections.value[id].name
       });
     }
   }
-  return _categories;
+  return _collections;
 });
 </script>
 <template>

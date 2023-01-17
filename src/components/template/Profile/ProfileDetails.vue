@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-
+import type {User} from "@/stores/auth";
 import Filter from "./Filter.vue";
 import Mint from "./Mint.vue";
+import type {ComputedRef} from "vue";
 import {computed, reactive, ref, watch} from "vue";
 
 import useDetectOutsideClick from "@/helpers/outside-click";
@@ -10,6 +11,7 @@ import {useProfileStore} from "@/stores/profile";
 import {useAuthStore} from "@/stores/auth";
 import {useLoaderStore} from "@/stores/loader";
 import {useNFTStore} from "@/stores/contracts/nft";
+import type {MarketItem} from "@/stores/contracts/marketPlace";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 
 const store = useProfileStore();
@@ -35,11 +37,45 @@ const wallpapers = ref([]);
 const profile = ref(null);
 const isActiveCollectionModal = computed(() => store.isActiveCollectionModal);
 const collectionsCount = computed(() => market.collectionsCount);
-// @ts-ignore
-const collections = computed(() => {
-  // @ts-ignore
-  return market.collections[user.value.address.toLowerCase()];
+const collections: ComputedRef<any> = computed(() => {
+  const ownerCollections: any = {};
+  if (market.collections && user.value) {
+    for (const id in market.collections) {
+      if (market.collections.hasOwnProperty(id)) {
+        // @ts-ignore
+        if (market.collections[id].items && market.collections[id].items.length > 0) {
+          // @ts-ignore
+          market.collections[id].items = market.collections[id].items.filter((_item: any) => {
+            return _item.owner.address === user.value.address;
+          });
+          // @ts-ignore
+          market.collections[id].items.forEach((_item: any) => {
+            if (_item.owner.address === user.value.address) {
+              // @ts-ignore
+              ownerCollections[id] = market.collections[id];
+            }
+          });
+        } else {
+          // @ts-ignore
+          if (market.collections[id].owner === user.value.address) {
+            // @ts-ignore
+            ownerCollections[id] = market.collections[id];
+          }
+        }
+
+      }
+    }
+  }
+  return ownerCollections;
 });
+
+// @ts-ignore
+const items = computed(() => {
+  if (user.value) {
+    return market.items.filter((_item: MarketItem) => (_item.owner as User).address.toLowerCase() === user.value.address.toLowerCase());
+  }
+});
+
 const item: any = ref({
   name: "",
   description: "",
@@ -53,9 +89,11 @@ const item: any = ref({
 
 const collection = ref({
   name: "",
+  symbol: "",
   description: "",
   price: 0,
-  fee: 0
+  fee: 0,
+  creator: useAuthStore().user.address
 });
 
 useDetectOutsideClick(uploadNav, () => {
@@ -67,13 +105,17 @@ useDetectOutsideClick(profile, () => {
 });
 
 const handleAvatarUpload = () => {
-  const provider = `avatar:${user.value.uuid}`
-  store.handleFileUpload(avatar.value.files[0], user.value, provider);
+  if (user.value) {
+    const provider = `avatar:${user.value.uuid}`
+    store.handleFileUpload(avatar.value.files[0], user.value, provider);
+  }
 }
 
 const handleWallpaperUpload = () => {
-  const provider = `wallpaper:${user.value.uuid}`
-  store.handleFileUpload(wallpaper.value.files[0], user.value, provider);
+  if (user.value) {
+    const provider = `wallpaper:${user.value.uuid}`
+    store.handleFileUpload(wallpaper.value.files[0], user.value, provider);
+  }
 }
 
 const handleFileUpload = () => {
@@ -84,40 +126,43 @@ const handleFileUpload = () => {
 }
 
 const wallPaperStyle = reactive({
-  background: `url(${user.value.wallpaper}) no-repeat top`,
+  background: `url(${user.value?.wallpaper}) no-repeat top`,
 });
 
 const loading = ref(false);
 
 const categories = computed(() => {
-  const _categories: { id: string; category: string }[] = [];
+  const _collections: { id: string; collection: string }[] = [];
   if (collections?.value) {
     for (const id in collections.value) {
-      _categories.push({
+      _collections.push({
         id: id,
-        category: collections.value[id].name
+        collection: collections.value[id].name
       });
     }
   }
-  return _categories;
+  return _collections;
 });
-
-watch(
-  () => user.value.wallpaper,
-  (url) => {
-    wallPaperStyle.background = `url(${url}) no-repeat top`;
-  });
+if (user.value) {
+  watch(
+    () => user.value.wallpaper,
+    (url) => {
+      wallPaperStyle.background = `url(${url}) no-repeat top`;
+    });
+}
 
 watch(
   () => categories.value,
-  (_categories) => {
-    if (_categories) {
-      for (const _category of _categories) {
-        if (!item.value.collections.map((itemCollection: { id: number; label: string }) => itemCollection.id).includes(Number(_category.id))) {
-          item.value.collections.push({
-            id: Number(_category.id),
-            label: _category.category
-          });
+  (_collections) => {
+    if (_collections) {
+      for (const _collection of _collections) {
+        if (item.value.collections) {
+          if (!item.value.collections.map((itemCollection: { id: number; label: string }) => itemCollection.id).includes(Number(_collection.id))) {
+            item.value.collections.push({
+              id: Number(_collection.id),
+              label: _collection.collection
+            });
+          }
         }
       }
     }
@@ -223,7 +268,7 @@ async function mintCollection() {
     await market.mintCollection(collection.value);
     store.handleCollectionModal();
   } catch(e) {
-    console.log(e);
+    console.error(e);
   }
 }
 </script>
@@ -306,7 +351,9 @@ async function mintCollection() {
                 <br/>
               </div>
             </div>
+
             <Mint :item="item"/>
+
             <div class="widget-social style-3" v-if="user.socials">
               <ul>
                 <li v-for="social in user.socials">
@@ -384,6 +431,9 @@ async function mintCollection() {
             <div v-show="!loading">
               <input id="collection_name" name="collection_name" tabIndex="2"  aria-required="true" type="text" v-model="collection.name"
                      placeholder="Name" />
+              <br/>
+              <input id="collection_symbol" name="collection_symbol" tabIndex="2"  aria-required="true" type="text" v-model="collection.symbol"
+                     placeholder="Symbol" />
               <br/>
               <textarea id="collection_description" name="collection_description" tabIndex="2"  aria-required="true" type="text"
                         placeholder="Description" v-model="collection.description"/>

@@ -1,19 +1,17 @@
 <script setup lang="ts">
+import type {ComputedRef} from "vue";
 import {computed, onBeforeMount} from "vue";
 import { Carousel, Slide, Navigation   } from "vue3-carousel";
+import type {SliderItem} from "@/stores/slider";
 import {useSliderStore} from "@/stores/slider";
 
 import "vue3-carousel/dist/carousel.css";
 
 const store = useSliderStore();
-const banner: any = computed(() => store.banner);
+const banner: ComputedRef<SliderItem[]> = computed(() => store.banner);
 
 onBeforeMount(async () => {
-  try {
-    await store.load(1);
-  } catch (e) {
-    throw e;
-  }
+  await store.load(1);
 });
 
 </script>

@@ -36,7 +36,6 @@ export const useAuthStore = defineStore("auth", () => {
   function updateUserAvatar(_user: {id: number; uuid: string; gravatar: string; username: string; email: string}, url: string) {
     if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
       user.value.gravatar = url;
-      console.log(url);
       localStorage.setItem(LS_KEY, JSON.stringify(user.value));
     }
   }

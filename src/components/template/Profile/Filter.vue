@@ -9,35 +9,28 @@ const props = defineProps(["collections", "categories"]);
 const { collections, categories } = toRefs(props);
 const market = useMarketPlaceStore();
 
-const isActive: any = computed(() => {
-  const _isActive: {[id: number]: boolean} = {};
-  if (collections && collections.value) {
-    for (let i = 0; i <= collections.value.length; i++) {
-      const _collection = collections.value[i];
-      if (_collection) {
-        _isActive[_collection.id] = false;
-      }
-    }
-  }
-  return _isActive;
-});
+const isActive: any = ref({});
+const isSellEvent = ref(false);
 
 const selectedCategory = ref("All");
 const item: any = ref({});
 
 function toggleActive(_item: MarketItem) {
-  if (items) {
-    item.value = _item;
-    isActive.value[_item.id] = !isActive.value[_item.id];
+  isSellEvent.value = false;
+  item.value = _item;
+  if (isActive.value[_item.id] === undefined) {
+    isActive.value[_item.id] = false;
   }
+  isActive.value[_item.id] = !isActive.value[_item.id];
 }
 
-async function buy(_item: MarketItem) {
-  try {
-    await useMarketPlaceStore().buy(_item);
-  } catch (e) {
-    console.error(e);
+function toggleSellActive(_item: MarketItem) {
+  isSellEvent.value = true;
+  item.value = _item;
+  if (isActive.value[_item.id] === undefined) {
+    isActive.value[_item.id] = false;
   }
+  isActive.value[_item.id] = !isActive.value[_item.id];
 }
 const items: any = computed(() => market.items);
 
@@ -76,28 +69,31 @@ async function like(_item: MarketItem) {
   }
 }
 
+function close(_item: MarketItem) {
+  toggleActive(_item);
+}
+
 </script>
 <template>
   <div class="filter-wrapper">
     <ul class="filter">
-        <li  v-on:click="selectedCategory ='All'" :class="{active:selectedCategory === 'All'}" > All</li>
-        <li v-for="category in categories" :key="category.id" :class="{active:selectedCategory === category.category}" v-on:click="selectedCategory = category.category" > {{category.category}} </li>
+      <li  v-on:click="selectedCategory ='All'" :class="{active:selectedCategory === 'All'}" > All</li>
+      <li v-for="category in categories" :key="category.id" :class="{active:selectedCategory === category.collection}" v-on:click="selectedCategory = category.collection" > {{category.collection}} </li>
     </ul>
     <div class="row" v-for="collection in collections" :key="'collection-' + collection.id">
-      <div  class="col-xl-3 col-lg-4 col-md-6 col-sm-6"  v-for="item in collection['items']" :key="'item-' + item.id" v-if="collection['name'] === selectedCategory || selectedCategory === 'All'">
+      <div  class="col-xl-3 col-lg-4 col-md-6 col-sm-6"  v-for="item in collection['items']" :key="'item-' + item['id']" v-if="collection['name'] === selectedCategory || selectedCategory === 'All'">
         <div class="sc-card-product explode ">
           <div class="card-media">
             <router-link :to="`/card/${collection['id']}/${item['id']}`"><img :src="item['metadata']['image']" alt="image"></router-link>
-            <div class="button-place-bid ">
-              <button class="sc-button style-place-bid style bag fl-button pri-3" v-on:click="toggleActive(item)"><span>Buy</span></button>
+
+            <div class="button-place-bid " v-if="item.fulfilled">
+              <button class="sc-button style-place-bid style bag fl-button pri-3" v-on:click="toggleSellActive(item)"><span>Sell</span></button>
             </div>
 
             <span class="wishlist-button heart" @click="like(item)">
               <span class="number-like">{{ likes[collection['id'].toString()][item['itemInCollectionId'].toString()] }}</span>
             </span>
-
           </div>
-
           <div class="card-title mg-bt-16">
             <h5><router-link :to="`/card/${collection['id']}/${item['id']}`">"{{item['metadata']['name']}}"</router-link></h5>
           </div>
@@ -109,7 +105,7 @@ async function like(_item: MarketItem) {
               <div class="info">
                 <span>Creator</span>
                 <h6>
-                  <router-link :to="`/author/${item['creator']['uuid']}`">
+                  <router-link :to="`/author/${item['creator']['username']}`">
                     {{item['creator']['username'].slice(0, 4) + "..." + item['creator']['username'].slice(-4)}}
                   </router-link>
                 </h6>
@@ -125,15 +121,15 @@ async function like(_item: MarketItem) {
                 <span>= {{item['price']}}</span>
               </div>
             </div>
-<!--            <router-link to="/activity-01" class="view-history reload">View History</router-link>-->
+            <!--            <router-link to="/activity-01" class="view-history reload">View History</router-link>-->
           </div>
         </div>
       </div>
-<!--      <div class="col-md-12 wrap-inner load-more text-center">-->
-<!--        &lt;!&ndash;<router-link to="#" id="load-more" class="sc-button loadmore fl-button pri-3" ><span>Load More</span></router-link>&ndash;&gt;-->
-<!--      </div>-->
+      <!--      <div class="col-md-12 wrap-inner load-more text-center">-->
+      <!--        &lt;!&ndash;<router-link to="#" id="load-more" class="sc-button loadmore fl-button pri-3" ><span>Load More</span></router-link>&ndash;&gt;-->
+      <!--      </div>-->
     </div>
-    <modal :item="item" :isActive="isActive"/>
+    <modal :item="item" :isActive="isActive" @close="close" :isSellEvent="isSellEvent"/>
   </div>
 </template>
 

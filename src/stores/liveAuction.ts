@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import {ref} from "vue";
 
 export const useLiveAuctionStore = defineStore("liveAuction", () => {
-  const isActive: any = ref({});
+  const isActive: Ref<{[id: number]: boolean}> = ref({});
 
   function toggleActive(itemId: number) {
 
@@ -10,7 +11,6 @@ export const useLiveAuctionStore = defineStore("liveAuction", () => {
       isActive.value[itemId] = false;
     }
 
-    // @ts-ignore
     isActive.value[itemId] = !isActive.value[itemId];
   }
 

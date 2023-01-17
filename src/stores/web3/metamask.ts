@@ -1,24 +1,26 @@
-import {getCurrentInstance, inject, toRaw} from "vue";
+import {getCurrentInstance, inject, toRaw, ref} from "vue";
 import { defineStore } from "pinia";
 import {BigNumber, ethers, utils} from "ethers";
 import axios from "axios";
 import * as ethUtil from 'ethereumjs-util';
 import {Buffer} from "buffer";
 import {useAuthStore} from "@/stores/auth";
-import {useLoaderStore} from "@/stores/loader";
 
 interface ConnectInfo {
   chainId: string;
 }
+
 interface ProviderMessage {
   type: string;
   data: unknown;
 }
+
 interface ProviderRpcError extends Error {
   message: string;
   code: number;
   data?: unknown;
 }
+
 interface AccountPermission {
   caveats: {type: string; value: string[]}[]
   date: number;
@@ -26,10 +28,12 @@ interface AccountPermission {
   invoker: string;
   parentCapability: string;
 }
+
 interface RequestArguments {
   method: string;
   params?: unknown[] | object;
 }
+
 interface Block {
   baseFeePerGas: string;
   difficulty: string;
@@ -53,6 +57,7 @@ interface Block {
   transactionsRoot: string;
   uncles: string[];
 }
+
 export const LS_KEY = "metamask:auth";
 
 export const useMetaMaskStore = defineStore({
@@ -123,12 +128,21 @@ export const useMetaMaskStore = defineStore({
         await this.register();
       });
 
-      ethereum.on("accountsChanged", this.register);
+      ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (useAuthStore().user && useAuthStore().user.address.toLowerCase() !== accounts[0].toLowerCase()) {
+          useAuthStore().removeUser(LS_KEY);
+          localStorage.removeItem("address");
+          localStorage.removeItem("user");
+          location.reload();
+        }
+        this.register();
+      });
 
       ethereum.on("chainChanged", this.register);
 
     },
     async register() {
+
       if (!this._provider) {
         return this._registered = false;
       }

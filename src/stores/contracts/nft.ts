@@ -1,31 +1,32 @@
 import {defineStore} from "pinia";
 import {ethers} from "ethers";
-
 import type {NFT} from "@/../dapp-contracts/typechain-types";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import { useWeb3Store} from "@/stores/web3/web3";
-
-import { NFTStorage, File } from 'nft.storage'
-
+import { NFTStorage } from "nft.storage";
 import {ref} from "vue";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
+
 export const useNFTStore = defineStore("nft", () => {
   const contractAddress = ref("");
   const contract = ref(null);
   const abi = ref("");
+  const metamask = useMetaMaskStore();
+  const web3 = useWeb3Store();
+  const market = useMarketPlaceStore();
 
   function loadMetamaskContract(chainID: number) {
     if (contractAddress.value) {
       // @ts-ignore
-      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), useMetaMaskStore().signer()) as NFT;
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), metamask.signer()) as NFT;
     }
   }
 
   function loadWeb3Contract(chainID: number) {
     if (contractAddress.value) {
       // @ts-ignore
-      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), useWeb3Store().getSigner()) as NFT;
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), web3.getSigner()) as NFT;
     }
   }
 
@@ -37,8 +38,8 @@ export const useNFTStore = defineStore("nft", () => {
     contractAddress.value = address;
   }
 
-  async function mint(_item: any) {
-    const { file, price, name, description, category, tags } = _item;
+  async function mint(item: any) {
+    const { file, price, name, description, category, tags } = item;
     try {
       // create a new NFTStorage client using our API key
       const nftStorage = new NFTStorage({ token: import.meta.env.VITE_NFT_STORAGE_KEY })
@@ -60,23 +61,18 @@ export const useNFTStore = defineStore("nft", () => {
       const tx = await contract.value.mint(uri);
       await tx.wait();
 
-      // const result = await client.add(JSON.stringify({ image, name, description }));
-      // console.log(result);
-      // const uri = `https://ipfs.influra.io/ipfs/${result.path}`;
-      // console.log(uri);
-
       // @ts-ignore
       const id = await contract.value.count();
 
-      const price = ethers.utils.parseEther(_item.price.toString());
+      const price = ethers.utils.parseEther(item.price.toString());
 
-      const marketplace = useMarketPlaceStore().contractAddress;
+      const marketplace = market.contractAddress;
 
       // @ts-ignore
       const approveTx = await contract.value.setApprovalForAll(marketplace, true);
       await approveTx.wait();
 
-      const createTx = await useMarketPlaceStore().createItem(contractAddress.value, id, price);
+      const createTx = await market.createItem(contractAddress.value, id, price);
       await createTx.wait();
       location.reload();
     } catch (e) {

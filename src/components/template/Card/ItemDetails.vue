@@ -22,14 +22,10 @@ const market = useMarketPlaceStore();
 const collections = computed(() => market.collections);
 
 const item: any = computed(() => {
-  for (const owner in market.collections) {
-    if (market.collections.hasOwnProperty(owner)) {
-      // @ts-ignore
-      const collection = market.collections[owner][collectionId];
-      if (collection && collection.items) {
-        return collection.items.find((item: any) => Number(item.id) === Number(id));
-      }
-    }
+  // @ts-ignore
+  const collection = market.collections[collectionId];
+  if (collection && collection.items) {
+    return collection.items.find((item: any) => Number(item.id) === Number(id));
   }
 });
 
@@ -51,7 +47,6 @@ function toggleActive() {
 
 async function like(_item: MarketItem) {
   try {
-    console.log(_item);
     await market.like(_item as MarketItem);
     await useItemDetailsStore().load(_item);
   } catch(e) {

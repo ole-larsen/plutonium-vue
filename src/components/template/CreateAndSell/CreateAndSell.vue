@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-
+import type {CreateAndSellItem} from "@/stores/createAndSell";
 import {useCreateAndSellStore} from "@/stores/createAndSell";
+import type {ComputedRef} from "vue";
 import {computed, onBeforeMount} from "vue";
 
 const store = useCreateAndSellStore();
-const items = computed(() => store.items);
+const items: ComputedRef<CreateAndSellItem[]> = computed(() => store.items);
+
 onBeforeMount(async() => {
-  try {
-    await store.load();
-  } catch (e) {
-    throw e;
-  }
+  await store.load();
 });
+
 </script>
+
 <template>
   <section class="tf-box-icon create style1 tf-section">
     <div class="themesflat-container"  v-if="items && items.length > 0">

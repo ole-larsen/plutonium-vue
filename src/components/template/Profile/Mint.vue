@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 
 import {ref, toRefs} from "vue";
-import {useNFTStore} from "@/stores/contracts/nft";
 import {useCollectionStore} from "@/stores/contracts/collection";
-import {useLoaderStore} from "@/stores/loader";
 
 const props = defineProps(["item"]);
 
@@ -16,7 +14,6 @@ const loading = ref(false);
 async function handleFileUpload () {
   if (item) {
     item.value.file = nftFile.value.files[0];
-    delete item.value.collections;
     await useCollectionStore().mint(item.value);
     loading.value = false;
   }
@@ -33,7 +30,7 @@ function mint() {
   <div class="mint-form" v-if="item && item.collections && item.collections.length > 0">
     <h3>Mint your NFT</h3>
     <div class="lds-dual-ring" v-if="loading"></div>
-    <div v-show="!loading">
+    <div>
       <div class="row-form style-2">
         <select class="form-select" aria-label="Select Collection" v-model="item.collectionId">
           <option value="0">Select Collection</option>

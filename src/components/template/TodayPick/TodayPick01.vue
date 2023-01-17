@@ -49,7 +49,7 @@ async function like(_item: MarketItem) {
 
 </script>
 <template>
-    <section class="tf-section today-pick" v-if="items !== null">
+    <section class="tf-section today-pick" v-if="items.length > 0">
       <div class="themesflat-container">
         <div class="row" >
           <div class="col-md-12">

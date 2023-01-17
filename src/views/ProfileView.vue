@@ -6,7 +6,7 @@ import {useAuthStore} from "@/stores/auth";
 const user = computed(() => useAuthStore().user);
 </script>
 <template>
-  <PageTitle v-if="user['uuid']"
+  <PageTitle v-if="user && user['uuid']"
        pageTitle="Profile"
        pageTitleActive="profile"
        :link="user['uuid']" />

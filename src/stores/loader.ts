@@ -83,12 +83,8 @@ export const useLoaderStore = defineStore("loader", () => {
     market.setFee(fee);
   }
 
-  function loadMarketName() {
-    return market.getName();
-  }
-
   function loadContractsToWeb3() {
-    if (web3.chainID) {
+    if (web3.chainID && web3.registered) {
       market.loadWeb3Contract(web3.chainID);
       nft.loadWeb3Contract(web3.chainID);
       collection.loadWeb3Contract(web3.chainID);
@@ -96,7 +92,7 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function loadContractsToMetamask() {
-    if (metamask.chainID) {
+    if (metamask.chainID && metamask.registered) {
       market.loadMetamaskContract(metamask.chainID);
       nft.loadMetamaskContract(metamask.chainID);
       collection.loadMetamaskContract(metamask.chainID);
@@ -104,10 +100,11 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function connectWeb3() {
-    return useWeb3Store().register();
+    return web3.register();
   }
+
   function connectMetamask() {
-    return useMetaMaskStore().register();
+    return metamask.register();
   }
 
   function runOnboarding() {
@@ -122,15 +119,12 @@ export const useLoaderStore = defineStore("loader", () => {
     }
   }
 
-  async function storeMarketItems(_items: { [id: string]: CollectionItem }, _metadata: {[id: string]: any}) {
-    await market.storeItems(_items, _metadata);
-  }
-  async function storeMarketCollectionsCount(collectionsCount: number) {
-    await market.storeCollectionsCount(collectionsCount);
+  function storeMarketCollectionsCount(collectionsCount: number) {
+    market.storeCollectionsCount(collectionsCount);
   }
 
-  async function storeMarketCollections(collections: { [id: string]: Collection }) {
-    await market.storeCollections(collections);
+  function storeMarketCollections(collections: { [id: string]: Collection }) {
+    market.storeCollections(collections);
   }
 
   async function load() {
@@ -145,11 +139,11 @@ export const useLoaderStore = defineStore("loader", () => {
       await storeMarketName(data.market.name);
       await storeMarketAbi(data.market.abi);
       await storeMarketFee(data.market.feePercent);
-      await storeMarketItems(data.market.items, data.market.metadata);
-      await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
-      await storeMarketCollections(data.market.collections);
-
-      // await storeMarketMetadata(data.market.metadata);
+      // await storeMarketItems(data.market.items, data.market.metadata);
+      if (data.market.collections) {
+        await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
+        await storeMarketCollections(data.market.collections);
+      }
 
       await storeNFTAddress(data.nft.address)
       await storeNFTAbi(data.nft.abi);
@@ -164,28 +158,6 @@ export const useLoaderStore = defineStore("loader", () => {
         await connectMetamask();
         await loadContractsToMetamask();
       }
-      // if (market.contract) {
-      //   await loadCollections()
-      // }
-      // console.log(collection.contract);
-      // // Load total Supply
-      // // @ts-ignore
-      // const totalSupply = await collection.contract.totalSupply();
-      // console.log(totalSupply.toNumber())
-
-      // Load Collection
-      //         collectionCtx.loadCollection(nftContract, totalSupply);
-      //
-      //         // Event subscription
-      //         nftContract.events.Transfer()
-      //         .on('data', (event) => {
-      //           collectionCtx.updateCollection(nftContract, event.returnValues.tokenId, event.returnValues.to);
-      //           collectionCtx.setNftIsLoading(false);
-      //         })
-      //         .on('error', (error) => {
-      //           console.log(error);
-      //         });
-      //
     } catch(e) {
       console.error(e);
     }

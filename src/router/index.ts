@@ -17,9 +17,6 @@ const router = createRouter({
       name: "home",
       component: Home01View,
     },
-    { path: "/home-01",        redirect: "/"},
-    { path: "/home-02",        name: "Home-02",       component: Home02View },
-    { path: "/home-03",        name: "Home-03",       component: Home03View },
     {
       path: "/card/:collectionId/:id",
       name: "card",
