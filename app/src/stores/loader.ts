@@ -139,27 +139,27 @@ export const useLoaderStore = defineStore("loader", () => {
       await storeMarketName(data.market.name);
       await storeMarketAbi(data.market.abi);
       await storeMarketFee(data.market.feePercent);
-      // // await storeMarketItems(data.market.items, data.market.metadata);
-      // if (data.market.collections) {
-      //   await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
-      //   await storeMarketCollections(data.market.collections);
-      // }
-      //
-      // await storeNFTAddress(data.nft.address)
-      // await storeNFTAbi(data.nft.abi);
-      //
-      // await storeCollectionAddress(data.collection.address)
-      // await storeCollectionAbi(data.collection.abi);
-      //
-      // if (!installed) {
-      //   await connectWeb3();
-      //   await loadContractsToWeb3();
-      // }  else {
-      //   await connectMetamask();
-      //   await loadContractsToMetamask();
-      //   console.log(market.contract);
-      //   console.log(collection.contract);
-      // }
+      // await storeMarketItems(data.market.items, data.market.metadata);
+      if (data.market.collections) {
+        await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
+        await storeMarketCollections(data.market.collections);
+      }
+
+      await storeNFTAddress(data.nft.address)
+      await storeNFTAbi(data.nft.abi);
+
+      await storeCollectionAddress(data.collection.address)
+      await storeCollectionAbi(data.collection.abi);
+
+      if (!installed) {
+        await connectWeb3();
+        await loadContractsToWeb3();
+      }  else {
+        await connectMetamask();
+        await loadContractsToMetamask();
+        console.log(market.contract);
+        console.log(collection.contract);
+      }
     } catch(e) {
       console.error(e);
     }

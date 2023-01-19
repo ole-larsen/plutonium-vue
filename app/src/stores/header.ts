@@ -40,29 +40,31 @@ export const useHeaderStore = defineStore("header", () => {
   async function load() {
     try {
       const {data: {logo, menu}} = await loadHeader();
-
+      console.log(await loadHeader());
       img.value = link(logo.attributes.url);
       attributes.value = logo.attributes;
+      if (menu && menu.attributes) {
+        menu.attributes.items.forEach((menuItem: any) => {
+          if (menuItem.attributes.link) {
+            const breadcrumbs = menuItem.attributes.link.split("/");
+            if (breadcrumbs.length === 1) {
+              menuItem.attributes.link = "/" + breadcrumbs[0]
+                .replace(/\//g, "/", "");
+            }
+            if (menuItem.attributes.items) {
+              menuItem.attributes.items.forEach((item: any) => {
+                const breadcrumbs = item.attributes.link.split("/");
+                if (breadcrumbs.length === 1) {
+                  item.attributes.link = "/" + breadcrumbs[0]
+                    .replace(/\//g, "/", "");
+                }
+              })
+            }
+          }
+        })
+        headerMenu.value = menu.attributes;
+      }
 
-      menu.attributes.items.forEach((menuItem: any) => {
-        if (menuItem.attributes.link) {
-          const breadcrumbs = menuItem.attributes.link.split("/");
-          if (breadcrumbs.length === 1) {
-            menuItem.attributes.link = "/" + breadcrumbs[0]
-              .replace(/\//g, "/", "");
-          }
-          if (menuItem.attributes.items) {
-            menuItem.attributes.items.forEach((item: any) => {
-              const breadcrumbs = item.attributes.link.split("/");
-              if (breadcrumbs.length === 1) {
-                item.attributes.link = "/" + breadcrumbs[0]
-                  .replace(/\//g, "/", "");
-              }
-            })
-          }
-        }
-      })
-      headerMenu.value = menu.attributes;
 
     } catch (e) {
       throw e;
