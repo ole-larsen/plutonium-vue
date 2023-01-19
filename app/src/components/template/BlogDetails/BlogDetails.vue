@@ -128,7 +128,7 @@ onBeforeMount(async () => {
         <div class="side-bar details">
           <div class="widget widget-recent-post mg-bt-43">
             <h3 class="title-widget mg-bt-23">Recent Post</h3>
-            <ul  v-if="recent !== []">
+            <ul  v-if="recent">
               <li
                 class="box-recent-post"
                 v-for="_blog in recent"

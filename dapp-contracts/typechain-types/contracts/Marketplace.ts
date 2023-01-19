@@ -116,6 +116,7 @@ export interface MarketplaceInterface extends utils.Interface {
     "getOwner()": FunctionFragment;
     "getUserFunds(address)": FunctionFragment;
     "revertCancelCollectible(uint256,uint256)": FunctionFragment;
+    "sellCollectible(uint256,uint256,uint256)": FunctionFragment;
     "setFee(uint256)": FunctionFragment;
     "setName(string)": FunctionFragment;
   };
@@ -138,6 +139,7 @@ export interface MarketplaceInterface extends utils.Interface {
       | "getOwner"
       | "getUserFunds"
       | "revertCancelCollectible"
+      | "sellCollectible"
       | "setFee"
       | "setName"
   ): FunctionFragment;
@@ -208,6 +210,14 @@ export interface MarketplaceInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "sellCollectible",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setFee",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -268,6 +278,10 @@ export interface MarketplaceInterface extends utils.Interface {
     functionFragment: "revertCancelCollectible",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "sellCollectible",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setName", data: BytesLike): Result;
 
@@ -278,6 +292,7 @@ export interface MarketplaceInterface extends utils.Interface {
     "CreateCollectible(uint256,uint256,uint256,uint256,address,address,bool,bool)": EventFragment;
     "CreateCollection(uint256,string,string,string,uint256,address,address)": EventFragment;
     "RevertCancelCollectible(uint256,uint256,address)": EventFragment;
+    "SellCollectible(uint256,uint256,uint256,uint256,uint256,address,address,address,bool,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BuyCollectible"): EventFragment;
@@ -286,6 +301,7 @@ export interface MarketplaceInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "CreateCollectible"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CreateCollection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevertCancelCollectible"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SellCollectible"): EventFragment;
 }
 
 export interface BuyCollectibleEventObject {
@@ -314,7 +330,7 @@ export type BuyCollectibleEvent = TypedEvent<
     boolean
   ],
   BuyCollectibleEventObject
-  >;
+>;
 
 export type BuyCollectibleEventFilter = TypedEventFilter<BuyCollectibleEvent>;
 
@@ -326,7 +342,7 @@ export interface CancelCollectibleEventObject {
 export type CancelCollectibleEvent = TypedEvent<
   [BigNumber, BigNumber, string],
   CancelCollectibleEventObject
-  >;
+>;
 
 export type CancelCollectibleEventFilter =
   TypedEventFilter<CancelCollectibleEvent>;
@@ -338,7 +354,7 @@ export interface ClaimFundsEventObject {
 export type ClaimFundsEvent = TypedEvent<
   [string, BigNumber],
   ClaimFundsEventObject
-  >;
+>;
 
 export type ClaimFundsEventFilter = TypedEventFilter<ClaimFundsEvent>;
 
@@ -364,7 +380,7 @@ export type CreateCollectibleEvent = TypedEvent<
     boolean
   ],
   CreateCollectibleEventObject
-  >;
+>;
 
 export type CreateCollectibleEventFilter =
   TypedEventFilter<CreateCollectibleEvent>;
@@ -381,7 +397,7 @@ export interface CreateCollectionEventObject {
 export type CreateCollectionEvent = TypedEvent<
   [BigNumber, string, string, string, BigNumber, string, string],
   CreateCollectionEventObject
-  >;
+>;
 
 export type CreateCollectionEventFilter =
   TypedEventFilter<CreateCollectionEvent>;
@@ -394,10 +410,40 @@ export interface RevertCancelCollectibleEventObject {
 export type RevertCancelCollectibleEvent = TypedEvent<
   [BigNumber, BigNumber, string],
   RevertCancelCollectibleEventObject
-  >;
+>;
 
 export type RevertCancelCollectibleEventFilter =
   TypedEventFilter<RevertCancelCollectibleEvent>;
+
+export interface SellCollectibleEventObject {
+  id: BigNumber;
+  collectionId: BigNumber;
+  tokenId: BigNumber;
+  price: BigNumber;
+  percent: BigNumber;
+  creator: string;
+  buyer: string;
+  owner: string;
+  fulfilled: boolean;
+  cancelled: boolean;
+}
+export type SellCollectibleEvent = TypedEvent<
+  [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    string,
+    boolean,
+    boolean
+  ],
+  SellCollectibleEventObject
+>;
+
+export type SellCollectibleEventFilter = TypedEventFilter<SellCollectibleEvent>;
 
 export interface Marketplace extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -503,6 +549,13 @@ export interface Marketplace extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    sellCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setFee(
       _fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -591,6 +644,13 @@ export interface Marketplace extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  sellCollectible(
+    _collectionId: PromiseOrValue<BigNumberish>,
+    _id: PromiseOrValue<BigNumberish>,
+    _price: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setFee(
     _fee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -674,6 +734,13 @@ export interface Marketplace extends BaseContract {
     revertCancelCollectible(
       _collectionId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    sellCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -781,6 +848,31 @@ export interface Marketplace extends BaseContract {
       id?: null,
       owner?: null
     ): RevertCancelCollectibleEventFilter;
+
+    "SellCollectible(uint256,uint256,uint256,uint256,uint256,address,address,address,bool,bool)"(
+      id?: null,
+      collectionId?: null,
+      tokenId?: null,
+      price?: null,
+      percent?: null,
+      creator?: PromiseOrValue<string> | null,
+      buyer?: PromiseOrValue<string> | null,
+      owner?: PromiseOrValue<string> | null,
+      fulfilled?: null,
+      cancelled?: null
+    ): SellCollectibleEventFilter;
+    SellCollectible(
+      id?: null,
+      collectionId?: null,
+      tokenId?: null,
+      price?: null,
+      percent?: null,
+      creator?: PromiseOrValue<string> | null,
+      buyer?: PromiseOrValue<string> | null,
+      owner?: PromiseOrValue<string> | null,
+      fulfilled?: null,
+      cancelled?: null
+    ): SellCollectibleEventFilter;
   };
 
   estimateGas: {
@@ -858,6 +950,13 @@ export interface Marketplace extends BaseContract {
     revertCancelCollectible(
       _collectionId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    sellCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -949,6 +1048,13 @@ export interface Marketplace extends BaseContract {
     revertCancelCollectible(
       _collectionId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sellCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -16,8 +16,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {},
     ganache: {
-      url: "http://ganache:8545/",
-      saveDeployments: true
+      url: "http://79.132.138.189:8545"
     }
     //goerli: {
     //  url: "https://eth-goerli.alchemyapi.io/v2/" + process..env.ALCHEMY_API_KEY,

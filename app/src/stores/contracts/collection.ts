@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {ethers} from "ethers";
-import type {NFT} from "@/../dapp-contracts/typechain-types";
+import type {NFT} from "@ploutonion/dapp-contracts/typechain-types";
 import { useWeb3Store} from "@/stores/web3/web3";
 import {ref} from "vue";
 import {useMetaMaskStore} from "@/stores/web3/metamask";

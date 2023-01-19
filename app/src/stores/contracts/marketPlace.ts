@@ -3,7 +3,7 @@ import {BigNumber, ethers} from "ethers";
 import {computed, inject, ref} from "vue";
 
 // @ts-ignore
-import type {NFTMarketplace} from "@/../dapp-contracts/typechain-types";
+import type {NFTMarketplace} from "@ploutonion/dapp-contracts/typechain-types";
 
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useWeb3Store} from "@/stores/web3/web3";

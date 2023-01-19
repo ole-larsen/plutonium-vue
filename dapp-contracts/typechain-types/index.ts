@@ -28,9 +28,7 @@ export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
 export type { Marketplace } from "./contracts/Marketplace";
 export { Marketplace__factory } from "./factories/contracts/Marketplace__factory";
-export type { NFT } from "./contracts/NFTCollection.sol/NFT";
-export { NFT__factory } from "./factories/contracts/NFTCollection.sol/NFT__factory";
-export type { NFTCollection } from "./contracts/NFTCollection.sol/NFTCollection";
-export { NFTCollection__factory } from "./factories/contracts/NFTCollection.sol/NFTCollection__factory";
-export type { NFTMarketplace } from "./contracts/NFTMarketplace";
-export { NFTMarketplace__factory } from "./factories/contracts/NFTMarketplace__factory";
+export type { NFTCollection } from "./contracts/NFTCollection";
+export { NFTCollection__factory } from "./factories/contracts/NFTCollection__factory";
+export type { NFT } from "./contracts/NTF.sol/NFT";
+export { NFT__factory } from "./factories/contracts/NTF.sol/NFT__factory";

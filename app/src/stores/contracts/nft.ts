@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {ethers} from "ethers";
-import type {NFT} from "@/../dapp-contracts/typechain-types";
+import type {NFT} from "@ploutonion/dapp-contracts/typechain-types";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import { useWeb3Store} from "@/stores/web3/web3";

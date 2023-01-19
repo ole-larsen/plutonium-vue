@@ -1,17 +1,10 @@
-FROM node:alpine AS build
-WORKDIR /server
-COPY package.json .
-COPY package-lock.json .
-COPY tsconfig.json .
-RUN npm install -g npm@latest && npm install
+# syntax = docker/dockerfile:1.0-experimental
+## production stage
+FROM nginx:stable-alpine as production-stage
+RUN apk add --update nodejs npm unzip curl && rm -rf /var/cache/apk/*
+WORKDIR /var/www/application
 COPY . .
-RUN npm run build
-
-FROM node:alpine AS production
-EXPOSE 3010
-WORKDIR /app
-COPY package.json .
-COPY --from=build /server/dist ./build
-COPY --from=build /server/node_modules ./node_modules
-RUN npm install -g npm@latest
-ENTRYPOINT npm run preview
+RUN --mount=type=cache,id=npm-cache,target=/root/.cache --mount=type=cache,id=dot-npm,target=/root/.npm npm install && npm run build
+EXPOSE 80
+EXPOSE 443
+CMD ["nginx", "-g", "daemon off;"]

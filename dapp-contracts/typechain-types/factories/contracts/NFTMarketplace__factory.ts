@@ -6,8 +6,9 @@ import {
   utils,
   Contract,
   ContractFactory,
+  BigNumberish,
+  Overrides,
 } from "ethers";
-import type { Overrides, BigNumberish } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../common";
 import type {

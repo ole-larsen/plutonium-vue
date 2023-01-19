@@ -2,11 +2,10 @@ node_modules
 .env
 coverage
 coverage.json
-#typechain
-#typechain-types
+typechain
+typechain-types
 
 #Hardhat files
 cache
-#artifacts
+artifacts
 
-/var/www/go-plutonium/composition/dist/index.html

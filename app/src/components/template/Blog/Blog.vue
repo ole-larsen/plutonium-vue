@@ -27,7 +27,7 @@ function handleButton () {
       <div class="tf-section sc-card-blog dark-style2">
         <div class="themesflat-container">
 
-        <div class="row" v-if="blogs !== []">
+        <div class="row" v-if="blogs">
           <div
             class="fl-blog fl-item2 col-lg-4 col-md-6"
             v-for="blog in blogs"
