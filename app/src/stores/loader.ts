@@ -135,10 +135,10 @@ export const useLoaderStore = defineStore("loader", () => {
       await loadUsers();
       const { data } = await loadMarketData();
       console.log(data.market);
-      // await storeMarketAddress(data.market.address);
-      // await storeMarketName(data.market.name);
-      // await storeMarketAbi(data.market.abi);
-      // await storeMarketFee(data.market.feePercent);
+      await storeMarketAddress(data.market.address);
+      await storeMarketName(data.market.name);
+      await storeMarketAbi(data.market.abi);
+      await storeMarketFee(data.market.feePercent);
       // // await storeMarketItems(data.market.items, data.market.metadata);
       // if (data.market.collections) {
       //   await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
