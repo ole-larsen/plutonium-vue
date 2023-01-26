@@ -211,6 +211,9 @@ export const useMetaMaskStore = defineStore({
     requestPermissions() {
       return this._provider.send("wallet_requestPermissions", [{ eth_accounts: {} }]);
     },
+    getBalance(address: string) {
+      return this._provider.send("eth_getBalance", [address]);
+    },
     getNonce() {
       return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/auth/wallet-connect?address=${this._address}`, {
         headers: {

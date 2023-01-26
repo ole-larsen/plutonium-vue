@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, onBeforeMount, ref, computed, toRefs} from "vue";
-import type {ComputedRef} from "vue";
+import type {ComputedRef, Ref} from "vue";
 
 import DarkMode from "@/components/template/DarkMode.vue";
 import HeaderMenu from "@/components/template/Header/HeaderMenu.vue";
@@ -8,35 +8,26 @@ import HeaderProfile from "@/components/template/Header/HeaderProfile.vue";
 import HeaderSearch from "@/components/template/Header/HeaderSearch.vue";
 import {useHeaderStore} from "@/stores/header";
 import type {PublicFile} from "@/index";
-import {useLoaderStore} from "@/stores/loader";
 
 const props = defineProps({
   user: Object,
-  name: String
+  name: String,
+  connected: Boolean
 });
 
-const { user, name } = toRefs(props);
+const { user, name, connected } = toRefs(props);
 
 const emit = defineEmits(["handleConnect"]);
 
 const store = useHeaderStore();
 
-const isSticky = ref(false),
-  isActive = computed(() => store.isActive),
-  isActiveMobile = computed(() => store.isActiveMobile),
-  search = computed(() => store.search),
-  attributes: ComputedRef<PublicFile> = computed(() => store.attributes),
-  img = computed(() => store.img),
-  menu = computed(() => store.menu),
-  connected = computed(() => useLoaderStore().connected);
-
-onBeforeMount(async () => {
-  try {
-    await store.load();
-  } catch (e) {
-    console.error(e);
-  }
-});
+const isSticky: Ref<boolean>           = ref(false),
+  isActive: ComputedRef<boolean>       = computed(() => store.isActive),
+  isActiveMobile: ComputedRef<boolean> = computed(() => store.isActiveMobile),
+  search: ComputedRef<boolean>         = computed(() => store.search),
+  attributes: ComputedRef<PublicFile>  = computed(() => store.attributes),
+  img: ComputedRef<string>             = computed(() => store.img),
+  menu                                 = computed(() => store.menu);
 
 onMounted(() => {
   window.addEventListener("scroll", () => {

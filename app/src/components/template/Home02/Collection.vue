@@ -67,7 +67,7 @@ const breakpoints = {
                         </div>
                       </div>
                       <div class="content">
-                        <h4><router-link :to="`/card/${item['collectionId']}/${item['itemInCollectionId']}`">{{item['metadata']['name']}}</router-link></h4>
+                        <h4><router-link :to="`/card/${item['collectionId']}/${item['id']}`">{{item['metadata']['name']}}</router-link></h4>
                         <div class="infor">
                           <span>Created by</span>
                           <span class="name"><router-link :to="`/author/${item['creator']['uuid']}`">{{item['creator']['username']}}</router-link></span>

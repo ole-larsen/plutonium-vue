@@ -50,6 +50,7 @@ export const useSliderStore = defineStore("slider", () => {
     }
   }
   return {
-    banner, load
+    banner,
+    load
   }
 });

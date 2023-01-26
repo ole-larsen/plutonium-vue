@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import {computed, onBeforeMount} from "vue";
+import type {User} from "@/stores/auth";
+import type {ComputedRef} from "vue";
+import {computed} from "vue";
 import { Carousel, Slide ,Navigation } from "vue3-carousel";
 
 import 'vue3-carousel/dist/carousel.css';
 import {useUsersStore} from "@/stores/users.store";
 
-const topSellers: any = computed(() => useUsersStore().users);
+const users: ComputedRef<User[]> = computed(() => useUsersStore().users.filter((user: User) => Number(user.funds) > 0));
 
 const settings = {
     loop: false,
@@ -30,7 +32,7 @@ const breakpoints = {
 </script>
 <template>
   <section class="tf-section top-seller">
-    <div class="themesflat-container" v-if="topSellers.length > 0">
+    <div class="themesflat-container" v-if="users.length > 0">
       <div class="row">
         <div class="col-md-12">
           <div class="heading-live-auctions">
@@ -41,21 +43,21 @@ const breakpoints = {
           <carousel
             :autoplay="0"
             :settings='settings'
-            :wrap-around="true"
+            :wrap-around="false"
             :breakpoints='breakpoints'>
-            <Slide v-for="seller in topSellers" :key="seller.id">
+            <Slide v-for="user in users" :key="user.id">
               <div class="sc-author-box style-2">
                 <div class="author-avatar">
-                  <img :src="seller.gravatar" alt="image" class="avatar">
+                  <img :src="user.gravatar" alt="image" class="avatar">
                   <div class="badge"></div>
                 </div>
-                <div class="author-infor">
+                <div class="author-infor" v-if="user.username">
                   <h5>
-                    <router-link :to="'/author/' + seller.uuid">
-                      {{seller.username.slice(0, 8)}}
+                    <router-link :to="'/author/' + user.uuid">
+                      {{user.username.slice(0, 8)}}
                     </router-link>
                   </h5>
-<!--                  <span class="price">{{seller.attributes.price}}</span>-->
+                  <span class="price">{{user.funds}} ETH</span>
                 </div>
               </div>
             </Slide>

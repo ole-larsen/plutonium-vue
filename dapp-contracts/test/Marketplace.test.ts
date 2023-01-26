@@ -169,6 +169,7 @@ describe("Marketplace", function() {
         let collectionSymbol = "TKN";
         let collectionDescription = "Modern Art Collection";
         let collectionFee = 1;
+        let collectionPrice = 100;
 
         // 2. Deploy contract
         let collectionContract1 = await this.CollectionContract
@@ -187,7 +188,7 @@ describe("Marketplace", function() {
         // 4. Mint Collection
         let createCollectionTx = await this.marketPlace
           .connect(this.owner)
-          .createCollection(collectionName, collectionSymbol, collectionDescription, collectionFee, collectionContract1.address);
+          .createCollection(collectionName, collectionSymbol, collectionDescription, collectionFee, collectionPrice, collectionContract1.address, this.owner.address);
 
         await createCollectionTx.wait();
 
@@ -400,7 +401,7 @@ describe("Marketplace", function() {
         collectionSymbol = "DGL";
         collectionDescription = "Brand New Digital";
         collectionFee = 2;
-
+        collectionPrice = 100;
         let collectionContract2 = await this.CollectionContract.deploy(collectionName, collectionSymbol);
         await collectionContract2.deployed();
 
@@ -413,7 +414,7 @@ describe("Marketplace", function() {
 
         createCollectionTx = await this.marketPlace
           .connect(this.seller)
-          .createCollection(collectionName, collectionSymbol, collectionDescription, collectionFee, collectionContract2.address);
+          .createCollection(collectionName, collectionSymbol, collectionDescription, collectionFee, collectionPrice, collectionContract2.address, this.seller.address);
 
         await createCollectionTx.wait();
 
@@ -1086,6 +1087,7 @@ describe("Marketplace", function() {
         console.error(e);
       }
     });
+
   });
 });
 

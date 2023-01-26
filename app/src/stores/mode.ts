@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import {ref} from "vue";
 
 export const useModeStore = defineStore("mode", () => {
-  const theme = ref("is_dark"),
-        logo = ref("../../assets/images/item-background/logo@2x.png");
+  const theme: Ref<string> = ref("is_dark"),
+        logo: Ref<string> = ref("../../assets/images/item-background/logo@2x.png");
 
   function getTheme() {
     return localStorage.getItem("user-theme");

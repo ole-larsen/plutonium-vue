@@ -13,11 +13,11 @@ const {
   isActiveMobile
 } = toRefs(props);
 
-`const emit = defineEmits([
+const emit = defineEmits([
   "isSideMenuMethod",
   "toggleActive",
   "toggleActiveMobile"
-]);`
+]);
 
 </script>
 <template>

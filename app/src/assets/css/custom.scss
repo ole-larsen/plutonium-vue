@@ -162,6 +162,7 @@
   color: #000000;
   padding: 16px;
   border-radius: 8px;
+  margin-left: 16px;
   h3 {
     padding: 0 0 16px 0;
     margin-top: 22px;
@@ -189,9 +190,6 @@
   }
 }
 .create-collection-container {
-  position: absolute;
-  margin-top: 50px;
-  right: 0;
 }
 .filter-wrapper {
   margin-top: 60px;
@@ -209,10 +207,9 @@
 .tab-authors {
   min-height: 350px;
   .mint-form-btn {
-    position: absolute;
-    bottom: 10px;
+    margin-bottom: 16px;
     border-radius: 4px;
-    right: 4%;
+    float: right;
   }
 }
 // loader
@@ -363,4 +360,9 @@
   input, textarea{
     margin-bottom: 10px;
   }
+}
+.modal-content .close {
+  width: 44px;
+  padding: 10px;
+  background: black;
 }

@@ -1,14 +1,16 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import {inject, ref, computed} from "vue";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
-import type {Collection, CollectionItem} from "@/stores/contracts/marketPlace";
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import {useNFTStore} from "@/stores/contracts/nft";
+import type {Collection, PublicMarketItem,} from "@/stores/contracts/marketPlace";
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 import {useAuthStore} from "@/stores/auth";
 import {useUsersStore} from "@/stores/users.store";
 import {useWeb3Store} from "@/stores/web3/web3";
 import {useCollectionStore} from "@/stores/contracts/collection";
+import {useHeaderStore} from "@/stores/header";
+import {useItemDetailsStore} from "@/stores/itemDetails";
 
 export type Item = {
   metadata?: Metadata;
@@ -32,15 +34,31 @@ export type Metadata = {
 export const useLoaderStore = defineStore("loader", () => {
   const axios: any = inject("axios");  // inject axios
   const market = useMarketPlaceStore();
-  const nft = useNFTStore();
   const metamask = useMetaMaskStore();
   const web3 = useWeb3Store();
   const collection = useCollectionStore();
+  const auth = useAuthStore();
 
-  const connected = computed(() => !!useAuthStore().user);
+  const loading: Ref<boolean> = ref(true);
+
+  const connected: Ref<boolean> = computed(() => !!auth.user);
 
   function loadUsers() {
     return useUsersStore().load();
+  }
+
+  function loadHeader() {
+    return useHeaderStore().load();
+  }
+
+  function loadLikes() {
+    market.items.forEach(async (_item: PublicMarketItem) => {
+      try {
+        await useItemDetailsStore().load(_item);
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
 
   function loadMarketData() {
@@ -49,22 +67,6 @@ export const useLoaderStore = defineStore("loader", () => {
         "X-Token": import.meta.env.VITE_X_TOKEN
       }
     });
-  }
-
-  function storeCollectionAbi(abi: string) {
-    collection.setAbi(abi);
-  }
-
-  function storeCollectionAddress(address: string) {
-    collection.setAddress(address);
-  }
-
-  function storeNFTAbi(abi: string) {
-    nft.setAbi(abi);
-  }
-
-  function storeNFTAddress(address: string) {
-    nft.setAddress(address);
   }
 
   function storeMarketName(name: string) {
@@ -83,19 +85,31 @@ export const useLoaderStore = defineStore("loader", () => {
     market.setFee(fee);
   }
 
-  function loadContractsToWeb3() {
+  function storeMarketOwner(owner: string) {
+    market.setOwner(owner);
+  }
+
+  function loadMarketContractsToWeb3() {
     if (web3.chainID && web3.registered) {
       market.loadWeb3Contract(web3.chainID);
-      nft.loadWeb3Contract(web3.chainID);
-      collection.loadWeb3Contract(web3.chainID);
     }
   }
 
-  function loadContractsToMetamask() {
+  function loadMarketContractToMetamask() {
     if (metamask.chainID && metamask.registered) {
       market.loadMetamaskContract(metamask.chainID);
-      nft.loadMetamaskContract(metamask.chainID);
-      collection.loadMetamaskContract(metamask.chainID);
+    }
+  }
+
+  function loadCollectionContractsToWeb3(_collections: { [id: string]: {abi: string; address: string; name: string}}) {
+    if (web3.chainID && web3.registered) {
+      collection.loadWeb3Contracts(web3.chainID, _collections);
+    }
+  }
+
+  function loadCollectionContractsToMetamask(_collections: { [id: string]: {abi: string; address: string; name: string}}) {
+    if (metamask.chainID && metamask.registered) {
+      collection.loadMetaMaskContracts(metamask.chainID, _collections);
     }
   }
 
@@ -107,18 +121,6 @@ export const useLoaderStore = defineStore("loader", () => {
     return metamask.register();
   }
 
-  function runOnboarding() {
-    const currentUrl = new URL(window.location.href);
-    const forwarderOrigin = currentUrl.hostname === 'localhost' ? 'http://localhost:3000' : undefined;
-
-    try {
-      const metaMaskOnboarding = new MetaMaskOnboarding({ forwarderOrigin });
-      metaMaskOnboarding.startOnboarding();
-    } catch (e) {
-      throw(e);
-    }
-  }
-
   function storeMarketCollectionsCount(collectionsCount: number) {
     market.storeCollectionsCount(collectionsCount);
   }
@@ -128,44 +130,52 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   async function load() {
+    loading.value = true;
     const { isMetaMaskInstalled } = MetaMaskOnboarding;
     const installed = isMetaMaskInstalled();
 
     try {
-      await loadUsers();
       const { data } = await loadMarketData();
       console.log(data.market);
       await storeMarketAddress(data.market.address);
       await storeMarketName(data.market.name);
       await storeMarketAbi(data.market.abi);
-      await storeMarketFee(data.market.feePercent);
-      // await storeMarketItems(data.market.items, data.market.metadata);
+      await storeMarketFee(data.market.fee);
+      await storeMarketOwner(data.market.owner);
+
       if (data.market.collections) {
         await storeMarketCollectionsCount(Object.keys(data.market.collections).length);
         await storeMarketCollections(data.market.collections);
       }
 
-      await storeNFTAddress(data.nft.address)
-      await storeNFTAbi(data.nft.abi);
-
-      await storeCollectionAddress(data.collection.address)
-      await storeCollectionAbi(data.collection.abi);
+      await loadLikes();
 
       if (!installed) {
         await connectWeb3();
-        await loadContractsToWeb3();
-      }  else {
+        await loadMarketContractsToWeb3();
+        if (data.collections) {
+          await loadCollectionContractsToWeb3(data.collections);
+        }
+      } else {
         await connectMetamask();
-        await loadContractsToMetamask();
-        console.log(market.contract);
-        console.log(collection.contract);
+        await loadMarketContractToMetamask();
+        if (data.collections) {
+          await loadCollectionContractsToMetamask(data.collections);
+        }
       }
+      await loadUsers();
+      await loadHeader();
     } catch(e) {
       console.error(e);
     }
+    loading.value = false;
   }
   return {
     load,
-    connected
+    connected,
+    user: computed(() => auth.user),
+    name: computed(() => market.name),
+    loading: loading,
+    login: metamask.login
   }
 });

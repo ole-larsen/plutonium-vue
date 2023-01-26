@@ -7,8 +7,8 @@ import {computed, onBeforeMount} from "vue";
 const store = useCreateAndSellStore();
 const items: ComputedRef<CreateAndSellItem[]> = computed(() => store.items);
 
-onBeforeMount(async() => {
-  await store.load();
+onBeforeMount(() => {
+  store.load();
 });
 
 </script>

@@ -37,13 +37,14 @@ const items: any = computed(() => market.items);
 const likes = computed(() => {
   const _likes: any = {};
   items.value.forEach((_item: MarketItem) => {
+
     if (!_likes[_item.collectionId]) {
       _likes[_item.collectionId] = {};
     }
-    if (!_likes[_item.collectionId][_item.itemInCollectionId]) {
-      _likes[_item.collectionId][_item.itemInCollectionId] = 0;
+    if (!_likes[_item.collectionId][_item.tokenId]) {
+      _likes[_item.collectionId][_item.tokenId] = 0;
     }
-    _likes[_item.collectionId][_item.itemInCollectionId] = useItemDetailsStore().likes(_item);
+    _likes[_item.collectionId][_item.tokenId] = useItemDetailsStore().likes(_item);
   });
   return _likes;
 });
@@ -73,6 +74,9 @@ function close(_item: MarketItem) {
   toggleActive(_item);
 }
 
+function viewHistory(_item: MarketItem) {
+  console.log(_item);
+}
 </script>
 <template>
   <div class="filter-wrapper">
@@ -84,18 +88,18 @@ function close(_item: MarketItem) {
       <div  class="col-xl-3 col-lg-4 col-md-6 col-sm-6"  v-for="item in collection['items']" :key="'item-' + item['id']" v-if="collection['name'] === selectedCategory || selectedCategory === 'All'">
         <div class="sc-card-product explode ">
           <div class="card-media">
-            <router-link :to="`/card/${collection['id']}/${item['id']}`"><img :src="item['metadata']['image']" alt="image"></router-link>
+            <router-link :to="`/card/${collection['id']}/${item['tokenId']}`"><img :src="item['metadata']['image']" alt="image"></router-link>
 
             <div class="button-place-bid " v-if="item.fulfilled">
               <button class="sc-button style-place-bid style bag fl-button pri-3" v-on:click="toggleSellActive(item)"><span>Sell</span></button>
             </div>
 
             <span class="wishlist-button heart" @click="like(item)">
-              <span class="number-like">{{ likes[collection['id'].toString()][item['itemInCollectionId'].toString()] }}</span>
+              <span class="number-like">{{ likes[collection['id']][item['tokenId'].toString()] }}</span>
             </span>
           </div>
           <div class="card-title mg-bt-16">
-            <h5><router-link :to="`/card/${collection['id']}/${item['id']}`">"{{item['metadata']['name']}}"</router-link></h5>
+            <h5><router-link :to="`/card/${collection['id']}/${item['tokenId']}`">"{{item['metadata']['name']}}"</router-link></h5>
           </div>
           <div class="meta-info" v-if="item && item['creator']">
             <div class="author">
@@ -106,7 +110,22 @@ function close(_item: MarketItem) {
                 <span>Creator</span>
                 <h6>
                   <router-link :to="`/author/${item['creator']['username']}`">
-                    {{item['creator']['username'].slice(0, 4) + "..." + item['creator']['username'].slice(-4)}}
+                    {{item['creator']['username'].length > 10 ? item['creator']['username'].slice(0, 4) + "..." + item['creator']['username'].slice(-4) : item['creator']['username']}}
+                  </router-link>
+                </h6>
+              </div>
+            </div>
+          </div>
+          <div class="meta-info" v-if="item && item['owner']">
+            <div class="author">
+              <div class="avatar">
+                <img :src="item['owner']['gravatar']" :alt="item['owner']['username']">
+              </div>
+              <div class="info">
+                <span>Owner</span>
+                <h6>
+                  <router-link :to="`/author/${item['owner']['username']}`">
+                    {{item['owner']['username'].length > 10 ? item['owner']['username'].slice(0, 4) + "..." + item['owner']['username'].slice(-4) : item['owner']['username']}}
                   </router-link>
                 </h6>
               </div>
@@ -121,7 +140,7 @@ function close(_item: MarketItem) {
                 <span>= {{item['price']}}</span>
               </div>
             </div>
-            <!--            <router-link to="/activity-01" class="view-history reload">View History</router-link>-->
+            <router-link to="#" @click.prevent="viewHistory(item)" class="view-history reload">View History</router-link>
           </div>
         </div>
       </div>

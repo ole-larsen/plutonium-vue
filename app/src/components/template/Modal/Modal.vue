@@ -4,9 +4,10 @@ import {toRefs} from "vue";
 import type {MarketItem} from "@/stores/contracts/marketPlace";
 
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
+import {useLoaderStore} from "@/stores/loader";
 
 const props = defineProps(["item", "isActive", "isSellEvent"]);
-const emit = defineEmits(["close"])
+const emit = defineEmits(["close", "buy", "sell"])
 const { item, isActive, isSellEvent } = toRefs(props);
 const market = useMarketPlaceStore();
 
@@ -15,17 +16,16 @@ function toggleActive(_item: MarketItem) {
 }
 async function buy(_item: MarketItem) {
   try {
-    const tx = await market.buy(_item);
-    await tx.wait();
+    await market.buy(Object.assign({}, _item));
     toggleActive(_item);
+    location.reload();
   } catch (e) {
     console.error(e);
   }
 }
 async function sell(_item: MarketItem) {
   try {
-    const tx = await market.sell(_item);
-    console.log(await tx.wait());
+    await market.sell(Object.assign({}, _item));
     toggleActive(_item);
   } catch (e) {
     console.error(e);
@@ -75,22 +75,7 @@ async function sell(_item: MarketItem) {
             <input type="text" class="form-control"
                    :placeholder="item.price + ' ETH'" v-model="item.price"/>
             <div class="hr"></div>
-            <div class="d-flex justify-content-between">
-              <p>Price:</p>
-              <p class="text-right price color-popup"> {{ item.total }} ETH </p>
-            </div>
 
-            <div class="d-flex justify-content-between">
-              <p> Service free:</p>
-              <p class="text-right price color-popup"> {{ item.fee }} ETH </p>
-            </div>
-            <div class="d-flex justify-content-between">
-              <p class="text-right price color-popup"> {{ item.feePercent }} % </p>
-            </div>
-            <div class="d-flex justify-content-between">
-              <p> Total amount:</p>
-              <p class="text-right price color-popup"> {{ item.total }} ETH </p>
-            </div>
             <button class="sc-button style-place-bid style bag fl-button pri-3" v-on:click="sell(item)"><span>Sell</span></button>
           </template>
         </div>

@@ -47,10 +47,10 @@ const likes = computed(() => {
     if (!_likes[_item.collectionId]) {
       _likes[_item.collectionId] = {};
     }
-    if (!_likes[_item.collectionId][_item.itemInCollectionId]) {
-      _likes[_item.collectionId][_item.itemInCollectionId] = 0;
+    if (!_likes[_item.collectionId][_item.id]) {
+      _likes[_item.collectionId][_item.id] = 0;
     }
-    _likes[_item.collectionId][_item.itemInCollectionId] = useItemDetailsStore().likes(_item);
+    _likes[_item.collectionId][_item.id] = useItemDetailsStore().likes(_item);
   });
   return _likes;
 });
@@ -93,7 +93,7 @@ async function like(_item: MarketItem) {
             </div>
 
             <span class="wishlist-button heart" @click="like(item)">
-              <span class="number-like">{{ likes[collection['id'].toString()][item['itemInCollectionId'].toString()] }}</span>
+              <span class="number-like">{{ likes[collection['id'].toString()][item['id'].toString()] }}</span>
             </span>
 
           </div>
@@ -110,7 +110,7 @@ async function like(_item: MarketItem) {
                 <span>Creator</span>
                 <h6>
                   <router-link :to="`/author/${item['creator']['uuid']}`">
-                    {{item['creator']['username'].slice(0, 4) + "..." + item['creator']['username'].slice(-4)}}
+                    {{item['creator']['username'].length > 10 ? item['creator']['username'].slice(0, 4) + "..." + item['creator']['username'].slice(-4) : item['creator']['username']}}
                   </router-link>
                 </h6>
               </div>

@@ -12,8 +12,9 @@ const { user } = toRefs(props);
 const market = useMarketPlaceStore();
 
 const items = computed(() => market.items.filter((_item: MarketItem) => {
+  return true;
   // @ts-ignore
-  return _item.creator.address.toLowerCase() === user.value.address.toLowerCase();
+  //return _item.creator.address.toLowerCase() === user.value.address.toLowerCase();
 }));
 
 const wallpaper: any = ref(null);
@@ -42,19 +43,20 @@ watch(
 const collectionsCount = computed(() => market.collectionsCount);
 // @ts-ignore
 const collections: ComputedRef<any> = computed(() => {
-  const ownerCollections: any = {};
-  if (market.collections) {
-    for (const id in market.collections) {
-      if (market.collections.hasOwnProperty(id)) {
-        // @ts-ignore
-        if (market.collections[id].owner === user.value.address) {
-          // @ts-ignore
-          ownerCollections[id] = market.collections[id];
-        }
-      }
-    }
-  }
-  return ownerCollections;
+  return market.collections;
+  // const ownerCollections: any = {};
+  // if (market.collections) {
+  //   for (const id in market.collections) {
+  //     if (market.collections.hasOwnProperty(id)) {
+  //       // @ts-ignore
+  //       if (market.collections[id].owner === user.value.address) {
+  //         // @ts-ignore
+  //         ownerCollections[id] = market.collections[id];
+  //       }
+  //     }
+  //   }
+  // }
+  // return ownerCollections;
 });
 const categories = computed(() => {
   const _collections: { id: string; collection: string }[] = [];

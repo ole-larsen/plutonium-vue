@@ -13,6 +13,7 @@ export type User = {
   username: string;
   uuid: string;
   wallpaper: string;
+  funds: string;
 }
 export const useAuthStore = defineStore("auth", () => {
   const user = ref(localStorage.getItem(LS_KEY) ? JSON.parse(localStorage.getItem(LS_KEY) as string) : undefined);

@@ -1,10 +1,11 @@
 <script setup lang="ts">
+  import type {ComputedRef} from "vue";
   import {computed, onMounted} from "vue";
   import {useModeStore} from "@/stores/mode";
 
   const
     modeStore = useModeStore(),
-    userTheme = computed(() => modeStore.theme),
+    userTheme: ComputedRef<string> = computed(() => modeStore.theme),
     toggleTheme = modeStore.toggleTheme;
 
   onMounted(() => {

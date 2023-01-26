@@ -37,63 +37,70 @@ const wallpapers = ref([]);
 const profile = ref(null);
 const isActiveCollectionModal = computed(() => store.isActiveCollectionModal);
 const collectionsCount = computed(() => market.collectionsCount);
-const collections: ComputedRef<any> = computed(() => {
-  const ownerCollections: any = {};
-  if (market.collections && user.value) {
-    for (const id in market.collections) {
-      if (market.collections.hasOwnProperty(id)) {
-        // @ts-ignore
-        if (market.collections[id].items && market.collections[id].items.length > 0) {
-          // @ts-ignore
-          market.collections[id].items = market.collections[id].items.filter((_item: any) => {
-            return _item.owner.address === user.value.address;
-          });
-          // @ts-ignore
-          market.collections[id].items.forEach((_item: any) => {
-            if (_item.owner.address === user.value.address) {
-              // @ts-ignore
-              ownerCollections[id] = market.collections[id];
-            }
-          });
-        } else {
-          // @ts-ignore
-          if (market.collections[id].owner === user.value.address) {
-            // @ts-ignore
-            ownerCollections[id] = market.collections[id];
-          }
-        }
-
-      }
-    }
-  }
-  return ownerCollections;
+const error = ref("");
+const collections: ComputedRef<{[id: string]: any}> = computed(() => {
+  return market.collections;
+  // const userCollections: {[id: string]: any} = {};
+  // if (!user.value) {
+  //   return userCollections;
+  // }
+  // for (const collectionId in market.collections) {
+  //   if (market.collections.hasOwnProperty(collectionId)) {
+  //     // @ts-ignore
+  //     const collection = market.collections[collectionId];
+  //     if (collection.owner.toLowerCase() === user.value.address.toLowerCase() ||
+  //       collection.creator.toLowerCase() === user.value.address.toLowerCase()) {
+  //       userCollections[collectionId] = collection;
+  //     } else {
+  //       const items: any[] = [];
+  //       if (collection.items) {
+  //         for (const item of collection.items) {
+  //           if (item.owner?.address?.toLowerCase() === user.value.address.toLowerCase() ||
+  //             item.creator?.address?.toLowerCase() === user.value.address.toLowerCase()) {
+  //             items.push(item);
+  //           }
+  //         }
+  //       }
+  //       if (items.length > 0) {
+  //         userCollections[collectionId] = collection;
+  //         userCollections[collectionId].items = items;
+  //       }
+  //     }
+  //   }
+  // }
+  // return userCollections;
 });
 
 // @ts-ignore
 const items = computed(() => {
   if (user.value) {
-    return market.items.filter((_item: MarketItem) => (_item.owner as User).address.toLowerCase() === user.value.address.toLowerCase());
+    return market.items
+      //.filter((_item: MarketItem) => (_item.owner as User).address.toLowerCase() === user.value.address.toLowerCase());
   }
 });
 
 const item: any = ref({
-  name: "",
-  description: "",
-  price: 0,
+  name: [],
+  description: [],
+  price: [],
   file: undefined,
   collectionId: 0,
   collections: [],
-  tags: "",
-  count: 1
+  tags: [],
+  count: 1,
+  owner: user?.value?.address,
+  creator: user?.value?.address,
+  auction: false,
 });
 
 const collection = ref({
   name: "",
   symbol: "",
   description: "",
-  price: 0,
+  price: "",
   fee: 0,
-  creator: useAuthStore().user.address
+  owner: user?.value?.address,
+  useGas: import.meta.env.VITE_USE_GAS === "true"
 });
 
 useDetectOutsideClick(uploadNav, () => {
@@ -143,6 +150,7 @@ const categories = computed(() => {
   }
   return _collections;
 });
+
 if (user.value) {
   watch(
     () => user.value.wallpaper,
@@ -265,11 +273,26 @@ function handleCloseCollectionModal() {
 
 async function mintCollection() {
   try {
-    await market.mintCollection(collection.value);
+    error.value = "";
+    if (collection && collection.value) {
+
+      if (!collection.value.name) {
+        error.value = "name is required";
+        return;
+      }
+
+      if (!collection.value.fee) {
+        error.value = "fee is required";
+        return;
+      }
+      loading.value = true;
+    }
+    await market.mintCollection(Object.assign(collection.value, {}));
     store.handleCollectionModal();
   } catch(e) {
     console.error(e);
   }
+  loading.value = false;
 }
 </script>
 
@@ -374,6 +397,23 @@ async function mintCollection() {
         </div>
       </div>
     </section>
+    <section class="tf-section authors profile" v-else>
+      <div class="themesflat-container">
+        <div class="flat-tabs tab-authors">
+          <div class="author-profile flex">
+            <div class="feature-profile"></div>
+            <div class="infor-profile">
+              <div class="infor-profile-username">
+                <h2 class="title">Please Login</h2>
+              </div>
+
+              <div class="infor-profile-email"></div>
+            </div>
+          </div>
+          <div class="create-collection-container container"></div>
+        </div>
+      </div>
+    </section>
 
     <div class="modal" id="popup_avatar" tabIndex="-1" role="dialog" aria-hidden="true"  :class="{ show: isActiveModal }" ref="avatarModal">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -444,6 +484,7 @@ async function mintCollection() {
               <input id="collection_fee" name="collection_fee" tabIndex="2"  aria-required="true" type="text"
                      placeholder="Collection Fee" v-model="collection.fee"/>
               <br/>
+              <p v-if="error" class="alert alert-danger" v-html="error"></p>
               <button type="button"
                       class="min-form-btn"
                       @click.prevent="mintCollection">

@@ -36,6 +36,7 @@ export const useCreateAndSellStore = defineStore("createAndSell", () => {
       }
     });
   }
+
   async function load() {
     try {
       const response = await getData();

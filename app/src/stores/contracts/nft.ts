@@ -72,8 +72,8 @@ export const useNFTStore = defineStore("nft", () => {
       const approveTx = await contract.value.setApprovalForAll(marketplace, true);
       await approveTx.wait();
 
-      const createTx = await market.createItem(contractAddress.value, id, price);
-      await createTx.wait();
+      //const createTx = await market.createItem(contractAddress.value, id, price);
+      //await createTx.wait();
       location.reload();
     } catch (e) {
       console.error(e);

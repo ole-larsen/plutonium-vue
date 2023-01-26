@@ -10,8 +10,8 @@ import "vue3-carousel/dist/carousel.css";
 const store = useSliderStore();
 const banner: ComputedRef<SliderItem[]> = computed(() => store.banner);
 
-onBeforeMount(async () => {
-  await store.load(1);
+onBeforeMount(() => {
+  store.load(1);
 });
 
 </script>

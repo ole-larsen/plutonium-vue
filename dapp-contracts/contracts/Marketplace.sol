@@ -77,6 +77,7 @@ contract Marketplace is ReentrancyGuard {
         string        description;
         NFTCollection nftCollection;
         uint          fee;
+        uint          price;
         address       payable owner;
         address       payable creator;
         bool          fulfilled;
@@ -100,8 +101,10 @@ contract Marketplace is ReentrancyGuard {
         string  symbol,
         string  description,
         uint    fee,
+        uint    price,
         address indexed collection,
-        address indexed creator
+        address indexed creator,
+        address indexed owner
     );
 
     // collections getters
@@ -135,7 +138,7 @@ contract Marketplace is ReentrancyGuard {
     // collection setters
 
     // everybody can create unique collection
-    function createCollection(string memory _name, string memory _symbol, string memory _description, uint _fee, address _nftCollection) external nonReentrant {
+    function createCollection(string memory _name, string memory _symbol, string memory _description, uint _fee, uint _price, address _nftCollection, address payable _owner) external nonReentrant {
         require(bytes(_name).length != 0);
         require(bytes(_symbol).length != 0);
         require(!_collectionNameExists[_name], "Collection must have unique name");
@@ -151,7 +154,8 @@ contract Marketplace is ReentrancyGuard {
             _description,
             NFTCollection(_nftCollection),
             _fee,
-            payable(msg.sender),
+            _price,
+            payable(_owner),
             payable(msg.sender),
             false,
             false
@@ -165,7 +169,65 @@ contract Marketplace is ReentrancyGuard {
         _collectionsSymbols[_symbol] = _collectionsCount;
 
         // create new event
-        emit CreateCollection(_collectionsCount, _name, _symbol, _description, _fee, _nftCollection, msg.sender);
+        emit CreateCollection(_collectionsCount, _name, _symbol, _description, _fee, _price, _nftCollection, msg.sender, _owner);
+    }
+
+    event EditCollection(
+        uint    id,
+        string  name,
+        string  symbol,
+        string  description,
+        uint    fee,
+        uint    price,
+        address indexed collection,
+        address indexed creator,
+        address indexed owner
+    );
+
+    function stringsEquals(string memory s1, string memory s2) private pure returns (bool) {
+        bytes memory b1 = bytes(s1);
+        bytes memory b2 = bytes(s2);
+        uint256 l1 = b1.length;
+        if (l1 != b2.length) return false;
+        for (uint256 i=0; i<l1; i++) {
+            if (b1[i] != b2[i]) return false;
+        }
+        return true;
+    }
+
+    function editCollection(uint _id, string memory _name, string memory _symbol, string memory _description, uint _fee, uint _price, address _nftCollection, address payable _owner)  external nonReentrant {
+        require(bytes(_name).length != 0);
+        require(bytes(_symbol).length != 0);
+        require(_collectionNameExists[_name], "Collection must have unique name");
+        require(_collectionSymbolExists[_symbol], "Collection must have unique symbol");
+        require(_collectionAddressExists[_nftCollection], "Collection must be not deployed before");
+        require(msg.sender == _owner, "Only owner can change data");
+
+        // find collection
+        Collection storage collection = _collections[_id];
+
+        require(bytes(collection.name).length != 0);
+
+        if (!stringsEquals(collection.name, _name)) {
+            collection.name = _name;
+        }
+
+        if (!stringsEquals(collection.symbol, _symbol)) {
+            collection.symbol =_symbol;
+        }
+
+        if (!stringsEquals(collection.description, _description)) {
+            collection.description = _description;
+        }
+
+        if (collection.fee != _fee) {
+            collection.fee = _fee;
+        }
+
+        if (collection.price != _price) {
+            collection.price = _price;
+        }
+        emit EditCollection(_id, _name, _symbol, _description, _fee, _price, _nftCollection, msg.sender, _owner);
     }
 
     // collectibles
@@ -178,6 +240,7 @@ contract Marketplace is ReentrancyGuard {
         address payable creator;
         bool fulfilled;
         bool cancelled;
+        bool auction;
     }
 
     mapping(uint => uint) private _collectionCollectibleCount;
@@ -191,7 +254,8 @@ contract Marketplace is ReentrancyGuard {
         address indexed owner,
         address indexed creator,
         bool    fulfilled,
-        bool    cancelled
+        bool    cancelled,
+        bool    auction
     );
 
     // get tokens count from collection
@@ -208,7 +272,7 @@ contract Marketplace is ReentrancyGuard {
     }
 
     // add tokens to collection
-    function createCollectible(uint _tokenId, uint _collectionId, uint _price) external nonReentrant {
+    function createCollectible(uint _tokenId, uint _collectionId, uint _price, bool _auction) external nonReentrant {
         require(_tokenId > 0, "Must have token");
         require(_collectionId > 0, "Must have collection");
         require(_price > 0, "Price must be greater than 0");
@@ -232,7 +296,8 @@ contract Marketplace is ReentrancyGuard {
             payable(msg.sender),
             payable(msg.sender),
             false,
-            false
+            false,
+            _auction
         );
 
         emit CreateCollectible(
@@ -243,7 +308,8 @@ contract Marketplace is ReentrancyGuard {
             msg.sender,
             msg.sender,
             false,
-            false
+            false,
+            _auction
         );
     }
 

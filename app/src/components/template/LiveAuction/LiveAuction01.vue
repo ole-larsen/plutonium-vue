@@ -6,6 +6,7 @@ import {useLiveAuctionStore} from "@/stores/liveAuction";
 import Modal from "@/components/template/Modal/Modal.vue";
 
 import "vue3-carousel/dist/carousel.css";
+
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 
 import type {PublicMarketItem} from "@/stores/contracts/marketPlace";
@@ -14,38 +15,25 @@ import {useAuthStore} from "@/stores/auth";
 
 const store = useLiveAuctionStore();
 const market = useMarketPlaceStore();
+const details = useItemDetailsStore();
 
-const item: Ref<any> = ref({});
+const item = ref({});
 
 const isActive: ComputedRef<{[id: number]: boolean}> = computed(() => store.isActive);
 
-const itemCount: ComputedRef<number> = computed(() => market.itemCount);
-
-const items: ComputedRef<PublicMarketItem[]> = computed(() => market.items);
+const items: ComputedRef<PublicMarketItem[]> = computed(() => market.items.filter((_item: PublicMarketItem) => _item.auction));
 
 const likes = computed(() => {
   return items.value.map((_item: PublicMarketItem) => {
-    return useItemDetailsStore().likes(_item);
+    return details.likes(_item);
   });
 });
 
 const user = computed(() => useAuthStore().user);
 
-watch(() => items.value, (_items: PublicMarketItem[]) => {
-  if (_items) {
-    _items.map(async (_item: PublicMarketItem) => {
-      try {
-        await useItemDetailsStore().load(_item);
-      } catch (e) {
-        console.error(e);
-      }
-
-    });
-  }
-}, { deep: true });
-
 const settings = {
-  itemsToShow: 1
+  itemsToShow: 3,
+  snapAlign: "left",
 };
 
 const breakpoints = {
@@ -98,24 +86,24 @@ function close(_item: PublicMarketItem) {
               <Slide v-for="(slide, index) in items.slice(0,6)" :key="slide.id">
                 <div class="sc-card-product">
                   <div class="card-media">
-                    <router-link :to="`/card/${slide['collectionId']}/${slide['id']}`">
+                    <router-link :to="`/card/${slide['collectionId']}/${slide['tokenId']}`">
                       <img :src="slide['metadata']['image']" alt="image">
                     </router-link>
                     <span class="wishlist-button heart" @click="like(slide)">
                       <span class="number-like">{{ likes ? likes[index] : 0 }}</span>
                     </span>
 
-                    <!--<div class="featured-countdown">-->
-                    <!--<span class="slogan"></span>-->
-                    <!--<Countdown starttime="Jul 1, 2022 15:37:25" endtime="Dec 8, 2022 16:37:25" />-->
-                    <!--</div>-->
+                    <div class="featured-countdown">
+                    <span class="slogan"></span>
+                    <Countdown starttime="Jul 1, 2022 15:37:25" endtime="Dec 8, 2022 16:37:25" />
+                    </div>
 
-                    <div class="button-place-bid" v-if="!slide.fulfilled && user.address !== slide['owner']['address']">
+                    <div class="button-place-bid" v-if="slide['owner'] && !slide.fulfilled && user && user.address !== slide['owner']['address']">
                       <button class="sc-button style-place-bid style bag fl-button pri-3"  v-on:click="toggleActive(slide)"><span>Buy</span></button>
                     </div>
                   </div>
                   <div class="card-title">
-                    <h5><router-link :to="`/card/${slide['collectionId']}/${slide['id']}`">{{slide['metadata']['name']}}</router-link></h5>
+                    <h5><router-link :to="`/card/${slide['collectionId']}/${slide['tokenId']}`">{{slide['metadata']['name']}}</router-link></h5>
 
                     <div class="tags">{{slide.fulfilled ? 'Sold' : slide['metadata']['tags'] }}</div>
                   </div>
@@ -136,6 +124,19 @@ function close(_item: PublicMarketItem) {
                       <h5> {{slide['price']}}</h5>
                     </div>
                   </div>
+                  <div class="meta-info" v-if="slide['owner']">
+                    <div class="author">
+                      <div class="avatar" v-if="slide['owner']['gravatar']">
+                        <img :src="slide['owner']['gravatar']" :alt="slide['owner']['username']">
+                      </div>
+                      <div class="info" v-if="slide['owner']['address']">
+                        <span>Owned By</span>
+                        <h6 v-if="slide['owner']['uuid']">
+                          <router-link :to="`/author/${slide['owner']['uuid']}`">{{slide['owner']['username'].slice(0, 16)}}...</router-link>
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </Slide>
 
@@ -147,7 +148,7 @@ function close(_item: PublicMarketItem) {
         </div>
       </div>
     </div>
-    <modal :item="item" :isActive="isActive" @close="close" />
+    <modal :item="item" :isActive="isActive" @close="close"/>
   </section>
 </template>
 

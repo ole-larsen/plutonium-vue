@@ -1,17 +1,18 @@
 import { defineStore } from "pinia";
+import type {Ref} from "vue";
 import { ref, inject } from "vue";
 import type {PublicFile} from "@/index";
 
 export const useHeaderStore = defineStore("header", () => {
   const axios: any = inject("axios");  // inject axios
   const
-    isSticky = ref(false),
-    isActive = ref(false),
-    isActiveMobile = ref(false),
-    search = ref(false),
-    img = ref(""),
-    attributes = ref(<PublicFile>{}),
-    headerMenu = ref(null);
+    isSticky: Ref<boolean>       = ref(false),
+    isActive: Ref<boolean>       = ref(false),
+    isActiveMobile: Ref<boolean> = ref(false),
+    search: Ref<boolean>         = ref(false),
+    img: Ref<string>             = ref(""),
+    attributes: Ref<PublicFile>  = ref(<PublicFile>{}),
+    headerMenu                   = ref(null);
 
   function toggleActive() {
     isActive.value = !isActive.value;
@@ -40,7 +41,7 @@ export const useHeaderStore = defineStore("header", () => {
   async function load() {
     try {
       const {data: {logo, menu}} = await loadHeader();
-      console.log(await loadHeader());
+
       img.value = link(logo.attributes.url);
       attributes.value = logo.attributes;
       if (menu && menu.attributes) {
@@ -64,8 +65,6 @@ export const useHeaderStore = defineStore("header", () => {
         })
         headerMenu.value = menu.attributes;
       }
-
-
     } catch (e) {
       throw e;
     }
