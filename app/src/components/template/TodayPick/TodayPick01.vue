@@ -34,6 +34,7 @@ async function like(_item: PublicMarketItem) {
     console.error(e);
   }
 }
+
 function close(_item: PublicMarketItem) {
   toggleActive(_item);
 }

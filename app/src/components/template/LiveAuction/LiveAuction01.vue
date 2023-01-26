@@ -32,7 +32,7 @@ const likes = computed(() => {
 const user = computed(() => useAuthStore().user);
 
 const settings = {
-  itemsToShow: 3,
+  itemsToShow: 1,
   snapAlign: "left",
 };
 

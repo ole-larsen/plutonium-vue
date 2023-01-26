@@ -4,11 +4,12 @@ import {inject, ref, toRaw} from "vue";
 import type {User} from "@/stores/auth";
 import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
 import {ethers} from "ethers";
+import axios from "axios";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useWeb3Store} from "@/stores/web3/web3";
 
 export const useUsersStore = defineStore("users", () => {
-  const axios: any = inject("axios");  // inject axios
+  //const axios: any = inject("axios");  // inject axios
 
   const users: Ref<User[]> = ref([]);
 
