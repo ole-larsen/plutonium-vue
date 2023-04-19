@@ -1,37 +1,27 @@
 <script setup lang="ts">
-import { onBeforeMount, computed } from "vue";
 import { RouterView } from "vue-router";
-import Loader from "@/components/template/Loader.vue";
-import Header from "@/components/template/Header/Header.vue";
-import Footer from "@/components/template/Footer/Footer.vue";
-import BackToTop from "@/components/template/BackToTop.vue";
-import {useLoaderStore} from "@/stores/loader";
-import {useHeaderStore} from "@/stores/header";
+import Loader from "@/components/Header/Loader.vue";
+import Header from "@/components/Header/Header.vue";
+import Footer from "@/components/Footer/Footer.vue";
+
+import { useLoaderStore } from "@/stores/loader/store";
+import { onBeforeMount } from "vue";
+import { error } from "@/helpers";
 
 const store = useLoaderStore();
-const loading = computed(() => store.loading);
-const name = computed(() => store.name);
-const user = computed(() => store.user);
-const connected = computed(() => store.connected);
 
-function handleConnect() {
-  store.login();
-}
-
-onBeforeMount(() => {
-  store.load();
+onBeforeMount(async () => {
+  try {
+    await store.load();
+  } catch(e) {
+    error(e);
+  }
 });
 </script>
 
 <template>
-  <Loader v-if="loading" :loading="loading"/>
-  <Header
-    @handleConnect="handleConnect"
-    :user="user"
-    :name="name"
-    :connected="connected"
-  />
+  <Loader/>
+  <Header/>
   <RouterView />
   <Footer />
-  <BackToTop />
 </template>

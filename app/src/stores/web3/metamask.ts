@@ -1,274 +1,189 @@
-import {getCurrentInstance, inject, toRaw, ref} from "vue";
 import { defineStore } from "pinia";
-import {BigNumber, ethers, utils} from "ethers";
-import axios from "axios";
-import * as ethUtil from 'ethereumjs-util';
-import {Buffer} from "buffer";
-import {useAuthStore} from "@/stores/auth";
+import type { Ref } from "vue";
+import type { ConnectInfo, ProviderRpcError } from "@/types";
 
-interface ConnectInfo {
-  chainId: string;
-}
+import MetaMaskOnboarding from "@metamask/onboarding";
+import { getCurrentInstance, ref, toRaw } from "vue";
 
-interface ProviderMessage {
-  type: string;
-  data: unknown;
-}
+import { error, log } from "@/helpers";
+import { BigNumber } from "ethers";
+import { useLoaderStore } from "@/stores/loader/store";
+import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
+import { useAuthStore } from "@/stores/auth/store";
 
-interface ProviderRpcError extends Error {
-  message: string;
-  code: number;
-  data?: unknown;
-}
+export const useMetaMaskStore = defineStore("metamask", () => {
+  const loader = useLoaderStore();
+  const market = useMarketPlaceStore();
+  const auth = useAuthStore();
+  const installed = MetaMaskOnboarding.isMetaMaskInstalled();
+  const provider = getCurrentInstance()?.appContext.config.globalProperties.$ethereum;
+  const signer = ref(getCurrentInstance()?.appContext.config.globalProperties.$ethereum);
 
-interface AccountPermission {
-  caveats: {type: string; value: string[]}[]
-  date: number;
-  id: string;
-  invoker: string;
-  parentCapability: string;
-}
 
-interface RequestArguments {
-  method: string;
-  params?: unknown[] | object;
-}
+  const registered: Ref<boolean>   = ref(false);
+  const connected:  Ref<boolean>   = ref(false);
+  const chainID:    Ref<number>    = ref(0);
+  const nodeInfo:   Ref<string>    = ref("");
+  const accounts:   Ref<string[]>  = ref([]);
+  const address:    Ref<string>    = ref("");
+  const balance:    Ref<BigNumber> = ref(BigNumber.from("0"));
+  const networkID:  Ref<string>    = ref("");
 
-interface Block {
-  baseFeePerGas: string;
-  difficulty: string;
-  extraData: string;
-  gasLimit: string;
-  gasUsed: string;
-  hash: string;
-  logsBloom: string;
-  miner: string;
-  mixHash: string;
-  nonce: string;
-  number: string;
-  parentHash: string;
-  receiptsRoot: string;
-  sha3Uncles: string;
-  size: string;
-  stateRoot: string;
-  timestamp: string;
-  totalDifficulty: string;
-  transactions: string[];
-  transactionsRoot: string;
-  uncles: string[];
-}
+  function _getChainId() {
+    return provider.send("eth_chainId");
+  }
 
-export const LS_KEY = "metamask:auth";
+  function _getNodeInfo() {
+    return provider.send("web3_clientVersion");
+  }
 
-export const useMetaMaskStore = defineStore({
-  id: "metamask",
-  state: () => ({
-    _provider: getCurrentInstance()?.appContext.config.globalProperties.$ethereum,
-    _registered: false,
-    _connected:  false,
-    _accounts:   [""],
-    _address:    "",
-    _chainID:    0,
-    _networkId:  "",
-    _nodeInfo:   "",
-    _balance: BigNumber.from("0"),
-    _publicKey: "",
-    _signer: getCurrentInstance()?.appContext.config.globalProperties.$ethereum,
-    _accountsPermission: {},
-    _blockByNumber: {}
-  }),
-  getters: {
-    registered:     (state) => state._registered,
-    connected:      (state) => toRaw(state._provider).provider.isConnected(),
-    isMetaMask:     (state) => toRaw(state._provider).provider.isMetaMask,
-    chainID:        (state) => state._chainID,
-    networkID:      (state) => state._networkId,
-    accounts:       (state) => state._accounts,
-    nodeInfo:       (state) => state._nodeInfo,
-    balance:        (state) => utils.formatEther(state._balance),
-    address:        (state) => state._address,
-    provider:       (state) => state._provider,
-    signer:         (state) => state._signer,
-    publicKey:      (state) => state._publicKey
-  },
-  actions: {
-    watchAsset(address: string, symbol: string, imgUrl: string) {
-      toRaw(this._provider).provider
-        .request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: address,
-              symbol: symbol,
-              decimals: 18,
-              image: imgUrl
-            },
-          },
-        })
-        .then((success: boolean) => {
-          if (success) {
-            console.log(`${symbol} successfully added to wallet!`);
-          } else {
-            throw new Error('Something went wrong.');
-          }
-        })
-        .catch(console.error);
-    },
-    async setupHandlers() {
-      const { provider: ethereum } = toRaw(this._provider);
-      ethereum.removeListener("accountsChanged", this.register);
+  function _getAccounts() {
+    return provider.send("eth_requestAccounts");
+  }
 
-      ethereum.on("connect", async (connectInfo: ConnectInfo) => {
-        this._chainID = parseInt(connectInfo.chainId, 16);
-        console.log("connected to web3", this._chainID, this._nodeInfo);
-      });
+  function _getAddress() {
+    return signer.value().getAddress();
+  }
 
-      ethereum.on("disconnect", async (e: ProviderRpcError) => {
-        await this.register();
-      });
+  function _getBalance() {
+    return signer.value().getBalance();
+  }
 
-      ethereum.on('accountsChanged', (accounts: string[]) => {
-        if (useAuthStore().user && useAuthStore().user.address.toLowerCase() !== accounts[0].toLowerCase()) {
-          useAuthStore().removeUser(LS_KEY);
-          localStorage.removeItem("address");
-          localStorage.removeItem("user");
-          location.reload();
-        }
-        this.register();
-      });
+  function _getNetworkId() {
+    return provider.send("net_version");
+  }
 
-      ethereum.on("chainChanged", this.register);
+  function _isConnected() {
+    return toRaw(provider).provider.isConnected();
+  }
 
-    },
-    async register() {
+  function _recover(msg: string, signature: string) {
+    return provider.send("personal_ecRecover", [msg, signature]);
+  }
 
-      if (!this._provider) {
-        return this._registered = false;
+  function _personalSign(msg: string, from: string) {
+    return provider.send("personal_sign", [msg, from, '']);
+  }
+
+  function _disconnect() {
+    localStorage.removeItem("address");
+    localStorage.removeItem("user");
+    connected.value = false;
+    registered.value = false;
+    auth.removeUser();
+    location.reload();
+  }
+
+  async function _setupHandlers() {
+    const { provider: ethereum } = toRaw(provider);
+
+    ethereum.removeListener("accountsChanged", register);
+
+    ethereum.on("connect", async (connectInfo: ConnectInfo) => {
+      chainID.value = parseInt(connectInfo.chainId, 16);
+      log(`connected to web3  ${chainID.value} ${nodeInfo.value}`);
+    });
+
+    ethereum.on("disconnect", async (e: ProviderRpcError) => {
+      error(e);
+      _disconnect();
+      await register();
+    });
+
+    ethereum.on('accountsChanged', async (accounts: string[]) => {
+      _disconnect();
+      await register();
+    });
+
+    ethereum.on("chainChanged", async () => {
+      _disconnect();
+      await register();
+    });
+  }
+
+  async function register() {
+    if (!provider) {
+      registered.value = false;
+    }
+    try {
+      await _setupHandlers();
+      signer.value     = provider.getSigner.bind(provider);
+      chainID.value    = parseInt(await _getChainId(), 16);
+      nodeInfo.value   = await _getNodeInfo();
+      accounts.value   = await _getAccounts();
+      address.value    = (await _getAddress()).toLowerCase();
+      balance.value    = await _getBalance();
+      networkID.value  = await _getNetworkId();
+      registered.value = true;
+      connected.value  = _isConnected();
+
+      const previousAddress = localStorage.getItem("address");
+      if (previousAddress !== address.value) {
+        _disconnect();
+        localStorage.setItem("address", address.value);
       }
-      try {
-        console.log("trying to connect to metamask....");
 
-        await this.setupHandlers();
+      console.log(chainID.value, nodeInfo.value, accounts.value, address.value, balance.value, networkID.value);
 
-        const provider = toRaw(this._provider);
-
-        this._signer = provider.getSigner.bind(provider);
-
-        this._chainID = parseInt(await this.storeChainId(), 16);
-
-        this._nodeInfo = await this.storeNodeInfo();
-        this._accounts = await this.storeAccounts();
-
-        const address = await this.storeAddress();
-        this._address  = address.toLowerCase();
-        this._balance  = await this.storeBalance();
-        this._blockByNumber = await this.storeBlockByNumber();
-        this._networkId = await this.storeNetworkId();
-        // this._accountsPermission = await this.requestPermissions();
-        this._registered = true;
-        this._connected = this.isConnected();
-        const previousAddress = localStorage.getItem("address");
-        if (previousAddress !== this._address) {
-          localStorage.setItem("address", this._address);
-          localStorage.removeItem("user");
-        }
-      } catch (e) {
-        this._registered = false;
-        this._connected = false;
-        localStorage.removeItem("address");
-        localStorage.removeItem("user");
-        console.error(e);
-      }
-    },
-    isConnected() {
-      return toRaw(this._provider).provider.isConnected();
-    },
-    storeAddress() {
-      return this._signer().getAddress();
-    },
-    storeBalance() {
-      return this._signer().getBalance();
-    },
-    storeAccounts() {
-      return this._provider.send("eth_requestAccounts");
-    },
-    storeChainId() {
-      return this._provider.send("eth_chainId");
-    },
-    storeNodeInfo() {
-      return this._provider.send("web3_clientVersion");
-    },
-    getNewAccounts() {
-      return this._provider.send("eth_requestAccounts");
-    },
-    storeNetworkId() {
-      return this._provider.send("net_version");
-    },
-    storeBlockByNumber() {
-      return this._provider.send("eth_getBlockByNumber", ['latest', false]);
-    },
-    requestPermissions() {
-      return this._provider.send("wallet_requestPermissions", [{ eth_accounts: {} }]);
-    },
-    getBalance(address: string) {
-      return this._provider.send("eth_getBalance", [address]);
-    },
-    getNonce() {
-      return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/auth/wallet-connect?address=${this._address}`, {
-        headers: {
-          "X-Token": import.meta.env.VITE_X_TOKEN
-        }
-      });
-    },
-    verify(msg: string, signature: string, address: string) {
-      return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/auth/wallet-connect`, {
-        msg,
-        signature,
-        address
-      }, {
-        withCredentials: true
-      });
-    },
-
-    recover(msg: string, signature: string) {
-      return this._provider.send("personal_ecRecover", [msg, signature]);
-    },
-    personalSign(data: {address: string; nonce: string; uuid: string}, from: string) {
-      // const msg = `0x${ethUtil.keccak256(Buffer.from(JSON.stringify(data), "utf8")).toString('hex')}`;
-      const msg = `0x${Buffer.from(JSON.stringify(data), "utf8").toString('hex')}`;
-      return this._provider.send("personal_sign", [msg, from, '']);
-    },
-    storePublicKey(msg: string, signature: string) {
-      const msgBuffer = ethUtil.toBuffer(msg);
-      const msgHash = ethUtil.hashPersonalMessage(msgBuffer)
-      const signatureParams = ethUtil.fromRpcSig(signature);
-      const publicKey = ethUtil.ecrecover(
-        msgHash,
-        signatureParams.v,
-        signatureParams.r,
-        signatureParams.s
-      );
-      this._publicKey = ethUtil.bufferToHex(publicKey);
-    },
-    async login() {
-      try {
-        const { data } = await this.getNonce();
-        const signature = await this.personalSign(data, this._address);
-        const msg = `0x${Buffer.from(JSON.stringify(data), "utf8").toString("hex")}`;
-        // const msg = `0x${ethUtil.keccak256(Buffer.from(JSON.stringify(data), "utf8")).toString('hex')}`;
-        const address = await this.recover(msg, signature);
-        if (address.toLowerCase() === this._address.toLowerCase()) {
-          const { data } = await this.verify(msg, signature, address);
-
-          useAuthStore().storeUser(LS_KEY, data);
-        } else {
-          console.log(LS_KEY);
-          useAuthStore().removeUser(LS_KEY);
-        }
-      } catch(e) {
-        console.error(e);
-      }
+    } catch (e) {
+      _disconnect();
+      throw e;
     }
   }
+
+  async function personalSign() {
+    try {
+      const { data } = await loader.getNonce(address.value);
+
+      const message = "\nWelcome to " + market.getName() + "!\n\n" +
+        "Click to sign in and accept the " + market.getName() + " Terms of Service:\n" +
+        "https://" + import.meta.env.VITE_DOMAIN + "/tos\n\n\n" +
+        "This request will not trigger a blockchain transaction or cost any gas fees.\n\n" +
+        "Your authentication status will reset after 24 hours.\n\n" +
+        "Wallet address:\n" +
+        data.address + "\n\n" +
+        "Nonce:\n" +
+        data.nonce;
+
+      const msg = `0x${Buffer.from(message, "utf8").toString("hex")}`;
+
+      const signature = await _personalSign(msg, address.value);
+
+      const recovered = await _recover(msg, signature);
+
+      if (recovered.toLowerCase() === address.value.toLowerCase()) {
+        const {data} = await loader.verify(msg, signature, address.value);
+        auth.storeUser(data);
+      } else {
+        auth.removeUser();
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  function getChainID() {
+    return chainID.value;
+  }
+
+  function getBalance() {
+    return balance.value;
+  }
+
+  function getAddress() {
+    return address.value;
+  }
+
+  return {
+    installed,
+    registered,
+    register,
+    personalSign,
+    signer,
+    getChainID,
+    getBalance,
+    getAddress,
+  }
+
 });
+

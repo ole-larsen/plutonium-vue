@@ -1,173 +1,163 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home01View from "../views/Home01View.vue";
-import Home02View from "../views/Home02View.vue";
-import Home03View from "../views/Home03View.vue";
 
-import Blog from "../components/template/Blog/Blog.vue";
-import BlogDetails from "../components/template/BlogDetails/BlogDetails.vue";
+import PageView      from "@/views/PageView.vue";
+import Home          from "@/components/Pages/Home.vue";
+import ContactUs     from "@/components/Pages/ContactUs.vue";
+import Faq           from "@/components/Pages/Faq.vue";
+import WalletConnect from "@/components/Pages/WalletConnect.vue";
+import HelpCenter    from "@/components/Pages/HelpCenter.vue";
+import Blog          from "@/components/Pages/Blog.vue";
+import BlogDetails   from "@/components/Pages/BlogDetails.vue";
+import Profile       from "@/components/Pages/Profile.vue";
+import Collection    from "@/components/Pages/Collection.vue";
+import Category      from "@/components/Pages/Category.vue";
+import CreateERC721  from "@/components/Pages/CreateERC721.vue";
 
-import {useBlogStore} from "@/stores/blog";
-import {usePageStore} from "@/stores/page";
-import {useAuthorStore} from "@/stores/author";
+import {usePageStore} from "@/stores/template/page";
+import {error} from "@/helpers";
+import {useProfileStore} from "@/stores/template/profile";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
       name: "home",
-      component: Home01View,
-    },
-    {
-      path: "/card/:collectionId/:id",
-      name: "card",
-      // route level code-splitting
-      // this generates a separate chunk (ItemDetails.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../components/template/Card/ItemDetails.vue"),
-    },
-    {
-      path: "/profile/:uuid",
-      name: "profile",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/ProfileView.vue"),
-    },
-    {
-      path: "/author/:uuid",
-      name: "author",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/AuthorView.vue"),
-    },
-    {
-      path: "/contact-us",
-      name: "ContactUs",
-      component: () => import("../views/ContactUsView.vue"),
-    },
-    {
-      path: "/wallet-connect",
-      name: "WalletConnect",
-      component: () => import("../views/WalletConnectView.vue"),
-    },
-    {
-      path: "/faq",
-      name: "Faq",
-      component: () => import("../views/FaqView.vue"),
-    },
-    {
-      path: "/help-center",
-      name: "HelpCenter",
-      component: () => import("../views/HelpCenterView.vue"),
-    },
-    {
-      path: "/blog",
-      name: "Blog",
-      component: () => import("../views/BlogView.vue"),
+      component: PageView,
       children: [
-        { path: "",                 name: "Blog",        component: Blog },
-        { path: "/blog/:slug",      name: "BlogDetails", component: BlogDetails },
+        {
+          path: "/",
+          name: "Home",
+          component: Home
+        },
+        {
+          path: "/contact-us",
+          name: "ContactUs",
+          component: ContactUs
+        },
+        {
+          path: "/faq",
+          name: "Faq",
+          component: Faq
+        },
+        {
+          path: "/wallet-connect",
+          name: "WalletConnect",
+          component: WalletConnect
+        },
+        {
+          path: "/help-center",
+          name: "HelpCenter",
+          component: HelpCenter
+        },
+        {
+          path: "/blog",
+          name: "Blog",
+          component: Blog
+        },
+        {
+          path: "/blog/:slug",
+          name: "BlogDetails",
+          component: BlogDetails
+        },
+        {
+          path: "/profile/:uuid",
+          name: "profile",
+          component: Profile,
+        },
+        {
+          path: "/profile/:uuid/create/erc721",
+          name: "CreateERC721",
+          component: CreateERC721
+        },
+        {
+          path: "/collection/:slug",
+          name: "collection",
+          component: Collection,
+        },
+        {
+          path: "/category/:slug",
+          name: "category",
+          component: Category,
+        },
       ]
-    },
-    {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/AboutView.vue"),
-    },
+    }
   ],
 });
 
 router.beforeResolve(async (to, from, next) => {
   const pageStore = usePageStore();
-  const blogStore = useBlogStore();
-  const authorStore = useAuthorStore();
+  const profileStore = useProfileStore();
 
   let path = to.path.split("/").filter(segment => segment !== "");
 
-  if (path.includes("blog") && path.length > 1) {
-    const slug = path[path.length - 1];
-
-    blogStore.setPath(slug);
-    // @ts-ignore
-    authorStore.setPath(null);
-    // @ts-ignore
+  console.log(path);
+  // home
+  if (path.length === 0) {
+    profileStore.setPath(null);
     pageStore.setPath(null);
+    return next();
+  }
 
-    if (!blogStore.blog(slug)) {
+  // pages
+  if (path.length === 1) {
+    const slug = path.join("/");
+    profileStore.setPath(null);
+    pageStore.setPath(slug);
+
+    if (!pageStore.getPage(slug)) {
       try {
-        await blogStore.loadBlog(slug);
+        await pageStore.loadPage(slug);
       } catch(e) {
-        console.error(e);
+        error(e);
       }
     }
-    if (!blogStore.blog(slug)) {
-      // @ts-ignore
-      blogStore.setPath(null);
+
+    return next();
+  }
+
+  // profile
+  if (path.length === 2) {
+    if (path.includes("profile")) {
+      const slug = path[path.length - 1];
+      pageStore.setPath(null);
+      profileStore.setPath(slug);
+
+      return next();
     }
-    return next();
-  }
-
-  if (path.includes("author") && path.length > 1) {
-    const slug = path[path.length - 1];
-
-    authorStore.setPath(slug);
-    // @ts-ignore
-    blogStore.setPath(null);
-    // @ts-ignore
-    pageStore.setPath(null);
-
-    // if (!authorStore.author(slug)) {
-    //   try {
-    //     await authorStore.loadAuthor(slug);
-    //   } catch(e) {
-    //     console.error(e);
-    //   }
-    // }
-
-    if (!authorStore.author(slug)) {
-      // @ts-ignore
-      authorStore.setPath(null);
+    if (path.includes("collection")) {
+      const slug = path[path.length - 1];
+      pageStore.setPath(null);
+      profileStore.setPath(null);
+      return next();
     }
-
-    return next();
-  }
-
-  if (path.includes("profile") && path.length > 1) {
-    const slug = path[path.length - 1];
-
-    // @ts-ignore
-    authorStore.setPath(null);
-    // @ts-ignore
-    blogStore.setPath(null);
-    // @ts-ignore
-    pageStore.setPath("profile");
-
-    return next();
-  }
-
-  if (path.includes("card") && path.length > 1) {
-    return next();
-  }
-
-  const strPath = path.join("/");
-  pageStore.setPath(strPath);
-  // @ts-ignore
-  authorStore.setPath(null);
-  // @ts-ignore
-  blogStore.setPath(null);
-
-  if (!pageStore.page(strPath)) {
-    try {
-      await pageStore.loadPage(strPath);
-    } catch(e) {
-      console.error(e);
+    if (path.includes("category")) {
+      const slug = path[path.length - 1];
+      pageStore.setPath(null);
+      profileStore.setPath(null);
+      return next();
     }
   }
-  return next();
+  if (path.length === 3) {
+    if (path.includes("profile")) {
+      const slug = path[path.length - 2];
+      pageStore.setPath(null);
+      profileStore.setPath(slug);
+
+      return next();
+    }
+  }
+  // create erc721
+  if (path.length === 4) {
+    if (path.includes("profile")) {
+      const slug = path[path.length - 3];
+      pageStore.setPath(null);
+      profileStore.setPath(slug);
+
+      return next();
+    }
+  }
+
+
 });
-
 export default router;

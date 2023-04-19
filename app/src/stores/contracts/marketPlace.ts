@@ -1,157 +1,116 @@
 import {defineStore} from "pinia";
-import {BigNumber, ethers} from "ethers";
-import {computed, inject, ref} from "vue";
-import type {Ref} from "vue";
-// @ts-ignore
-import type {NFTMarketplace} from "@ploutonion/dapp-contracts/typechain-types";
-
+import type {ComputedRef, Ref} from "vue";
+import {computed, ref} from "vue";
+import type {
+  CollectibleDTO,
+  CollectionDTO,
+  PublicCategory,
+  PublicCategoryCollection,
+  PublicCategoryCollectionCollectible,
+  PublicContract,
+  PublicFile,
+  PublicMarketItem,
+  PublicUser
+} from "@/types";
+import type {Marketplace} from "@ploutonion/dapp-contracts/typechain-types/contracts/Marketplace";
+import {error, link, slugify} from "@/helpers";
+import type {BigNumber} from "ethers";
+import {ethers} from "ethers";
 import {useMetaMaskStore} from "@/stores/web3/metamask";
 import {useWeb3Store} from "@/stores/web3/web3";
-import type {User} from "@/stores/auth";
-import {useAuthStore} from "@/stores/auth";
-import {useLoaderStore} from "@/stores/loader";
-import {NFTStorage} from "nft.storage";
+import axios from "axios";
 import {useCollectionStore} from "@/stores/contracts/collection";
-
-export type PublicMarketItem = {
-  id: number;
-  tokenId: number;
-  collectionId: number;
-
-  fulfilled: boolean;
-  cancelled: boolean;
-
-  owner: User;
-  creator: User;
-
-  fee: string | BigNumber;
-  feePercent: BigNumber;
-
-  price: string | BigNumber;
-  total: string | BigNumber;
-  auction?: boolean;
-  metadata: {
-    collection: string;
-    description: string;
-    image: string;
-    name: string;
-    tags: string;
-  };
-  comingsoon?: boolean;
-  tags?: string;
-}
-
-export type MarketItem = {
-  id: number;
-  tokenId: number;
-  collectionId: number;
-
-  fulfilled: boolean;
-  cancelled: boolean;
-
-  owner: string | User;
-  creator: string | User;
-
-  fee: string | BigNumber;
-  feePercent: BigNumber;
-
-  price: string | BigNumber;
-  total: string | BigNumber;
-
-  metadata: {
-    collection: string;
-    description: string;
-    image: string;
-    name: string;
-    tags: string;
-  };
-  auction?: boolean;
-  useGas?: boolean;
-  comingsoon?: boolean;
-}
-
-export type CollectionItem = {
-  Id: number;
-  TokenId: number;
-  CollectionId: number;
-  Fulfilled: boolean;
-  Cancelled: boolean;
-  Creator: string;
-  Owner: string;
-  Price: number;
-}
-
-export type Collection = {
-  cancelled: boolean;
-  creator: string;
-  description: string;
-  fee: BigNumber;
-  fulfilled: boolean;
-  id: number;
-  name: string;
-  owner: string;
-  price: number;
-  items?: any[];
-}
+import {useAuthStore} from "@/stores/auth/store";
+import {useLoaderStore} from "@/stores/loader/store";
+import {NFTStorage} from "nft.storage";
+import {useAuctionStore} from "@/stores/contracts/auction";
+import moment from "moment";
 
 export const useMarketPlaceStore = defineStore("marketPlace", () => {
-  const axios: any = inject("axios");  // inject axios
-  const name = ref("");
-  const contractAddress = ref(""),
-    contract: Ref<any> = ref(null),
-    abi = ref(""),
-    collectionsCount = ref(0),
-    collections = ref({}),
-    itemCount = ref(0),
-    items = ref([]),
-    fee = ref(0),
-    owner = ref(""),
-    user = computed(() => useAuthStore().user);
+  const loader   = useLoaderStore();
   const metamask = useMetaMaskStore();
-  const web3 = useWeb3Store();
-  const loader = useLoaderStore();
+  const web3     = useWeb3Store();
+  const auth     = useAuthStore();
+  const auction  = useAuctionStore();
 
-  function loadMetamaskContract(chainID: number) {
-    // @ts-ignore
-    contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), metamask.signer()) as NFTMarketplace;
+  const contract: Ref<any> = ref(null);
+  const contractAddress = ref("");
+  const name  = ref("");
+  const abi   = ref("");
+  const fee   = ref(0);
+  const owner = ref("");
+
+  const categories: Ref<PublicCategory[]> = ref([]);
+
+  const collections: Ref<PublicCategoryCollection[]> = ref([]);
+
+  const user: ComputedRef<PublicUser> = computed(() => auth.getUser());
+
+  function storeContract(contract: PublicContract): void {
+    contractAddress.value = contract.address;
+    name.value  = contract.name;
+    abi.value   = contract.abi;
+    fee.value   = contract.fee;
+    owner.value = contract.owner;
   }
 
-  function loadWeb3Contract(chainID: number) {
-    // @ts-ignore
-    contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), web3.getSigner()) as NFTMarketplace;
+  function storeCategories(_categories: PublicCategory[]): void {
+    categories.value = _categories.map((_category: PublicCategory) => {
+      if (_category.attributes.image) {
+        _category.attributes.image.attributes.url = link(_category.attributes.image.attributes.url);
+      }
+      if (_category.attributes.collections) {
+        _category.attributes.collections = _category.attributes.collections.map((collection: PublicCategoryCollection) => {
+          if (collection.attributes.logo) {
+            collection.attributes.logo.attributes.url = link(collection.attributes.logo.attributes.url);
+          }
+          if (collection.attributes.featured) {
+            collection.attributes.featured.attributes.url = link(collection.attributes.featured.attributes.url);
+          }
+          if (collection.attributes.banner) {
+            collection.attributes.banner.attributes.url = link(collection.attributes.banner.attributes.url);
+          }
+          collection.attributes.category = {
+            title: _category.attributes.title,
+            url: _category.attributes.slug
+          };
+
+          return collection;
+        });
+      }
+      return _category;
+    });
   }
 
-  function getName() {
-    // @ts-ignore
-    return contract.value.getName();
+  function storeCollections(_categories: PublicCategory[]) {
+    collections.value = categories.value.reduce((total: PublicCategoryCollection[], next: PublicCategory) => total.concat(next.attributes.collections), []);
   }
 
-  function getFeePercent() {
-    // @ts-ignore
-    return contract.value.getFeePercent();
+  function getCategories(): PublicCategory[] {
+    return categories.value;
   }
 
-  function setAddress(address: string) {
-    contractAddress.value = address;
+  function getName(): string {
+    return name.value;
   }
 
-  function setName(_name: string) {
-    name.value = _name;
+  function getCollections(): PublicCategoryCollection[] {
+    return collections.value;
   }
 
-  function setAbi(_abi: string) {
-    abi.value = _abi;
+  function loadMetamaskContract() {
+    if (metamask.registered) {
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), metamask.signer()) as Marketplace;
+    }
   }
 
-  function setFee(_fee: number) {
-    fee.value = _fee;
+  function loadWeb3Contract() {
+    if (web3.registered) {
+      contract.value = new ethers.Contract(contractAddress.value, JSON.parse(abi.value), web3.signer()) as Marketplace;
+    }
   }
 
-  function setOwner(_owner: string) {
-    owner.value = _owner;
-  }
-
-  async function approve(_item: MarketItem) {
+  async function approve(_item: PublicMarketItem) {
     // deprecated: approve moved to backend
     try {
       const approveTx = await useCollectionStore()
@@ -162,36 +121,39 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
       throw e;
     }
   }
-  async function buy(_item: MarketItem) {
+
+  async function buy(_item:PublicMarketItem) {
     try {
-      _item.owner = (_item.owner as User).address;
-      _item.creator = (_item.creator as User).address;
+      _item.owner = (_item.owner as PublicUser).address;
+      _item.creator = (_item.creator as PublicUser).address;
 
       _item.useGas = import.meta.env.VITE_USE_GAS === "true";
-      if (owner.value === _item.owner) {
-        _item.useGas = false;
-      }
+      // if (owner.value === _item.owner) {
+      //   _item.useGas = false;
+      // }
+      console.log(_item, _item.metadata.total, Number(_item.metadata.total_wei),
+        ethers.utils.parseUnits(Number(_item.metadata.total_wei).toString(), 'wei').toString())
       if (_item.useGas) {
-        await approve(_item);
         let collectible = await contract.value.getCollectible(_item.collectionId, _item.id);
-        console.log(collectible.owner);
-        console.log(collectible.creator);
-        console.log("----------------------")
+
+        const totalWei = ethers.utils.parseUnits(Number(_item.metadata.total_wei).toString(), 'wei');
+
+        await approve(_item);
+
         const tx = await contract.value
           .buyCollectible(collectible.collectionId, collectible.id, {
-            value: ethers.utils.parseUnits(_item.total.toString(), "ether")
+            value: totalWei
           });
-        await tx.wait();
+        console.log(await tx.wait());
 
         collectible = await contract.value.getCollectible(_item.collectionId, _item.id);
-        console.log(collectible.owner);
-        console.log(collectible.creator);
+
         await buyCollectible({
           id: collectible.id.toNumber(),
           collectionId: collectible.collectionId.toNumber(),
           tokenId: collectible.tokenId.toNumber(),
           price: collectible.price.toString(),
-          total: ethers.utils.parseUnits(_item.total.toString(), "ether").toString(),
+          total: Number(_item.metadata.total_wei).toString(),
           owner: collectible.owner,
           creator: collectible.creator,
           buyer: user.value.address,
@@ -224,10 +186,10 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     });
   }
 
-  async function sell(_item: MarketItem) {
+  async function sell(_item: PublicMarketItem) {
     try {
-      _item.owner = (_item.owner as User).address;
-      _item.creator = (_item.creator as User).address;
+      _item.owner = (_item.owner as PublicUser).address;
+      _item.creator = (_item.creator as PublicUser).address;
 
       _item.useGas = import.meta.env.VITE_USE_GAS === "true";
       if (owner.value === _item.owner) {
@@ -238,7 +200,7 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
         await approve(_item);
         let collectible = await contract.value.getCollectible(_item.collectionId, _item.id);
 
-        const tx = await contract.value.sellCollectible(collectible.collectionId, collectible.id, ethers.utils.parseUnits(_item.price.toString(), "ether"));
+        const tx = await contract.value.sellCollectible(collectible.collectionId, collectible.id, ethers.utils.parseUnits(_item.metadata.price.toString(), "ether"));
         await tx.wait();
 
         collectible = await contract.value.getCollectible(_item.collectionId, _item.id);
@@ -247,7 +209,7 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
           id: collectible.id.toNumber(),
           collectionId: collectible.collectionId.toNumber(),
           tokenId: collectible.tokenId.toNumber(),
-          price: ethers.utils.parseEther(_item.price.toString()).toString(),
+          price: ethers.utils.parseEther(_item.metadata.price.toString()).toString(),
           owner: collectible.owner,
           creator: collectible.creator,
           fulfilled: collectible.fulfilled,
@@ -279,50 +241,98 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     });
   }
 
-  function like(item: MarketItem) {
-    if (user.value) {
-      return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/like`, {
-        userId: user.value.id,
-        tokenId: item.tokenId,
-        collectionId: item.collectionId
-      }, {
-        withCredentials: true
-      });
+  async function editCollection(collection: CollectionDTO) {
+    if (contract.value) {
+      if (collection.owner) {
+        try {
+          const exist = await contract.value.getCollection(collection.id);
+
+          if (exist.nftCollection !== "0x0000000000000000000000000000000000000000") {
+            // convert price and fee to wei for using as floats
+            const collectionFee = ethers.utils.parseEther(collection.fee.toString());
+            const collectionPrice = collection.price ? ethers.utils.parseEther(collection.price.toString()) : 0;
+            const {data} = await loader.updateCollection({
+              id: collection.id,
+              categoryId: collection.categoryId,
+              name: collection.name,
+              symbol: collection.symbol,
+              description: collection.description,
+              price: collectionPrice.toString(),
+              fee: collectionFee.toString(),
+              slug: collection.slug,
+              url: collection.url,
+              owner: collection.owner,
+              logo: (collection.logo as PublicFile).id,
+              featured: (collection.featured as PublicFile).id,
+              banner: (collection.banner as PublicFile).id
+            });
+
+            if (data.address) {
+              const tx = await contract.value
+                .editCollection(
+                  collection.id,
+                  collection.name,
+                  collection.symbol,
+                  collection.description,
+                  collectionFee,
+                  collectionPrice,
+                  data.address,
+                  collection.owner,
+                );
+              console.log(await tx.wait());
+              // location.reload();
+            }
+          }
+          await loader.load();
+        } catch (e) {
+          error(e);
+        }
+      } else {
+        location.reload();
+      }
     }
+    return;
   }
 
-  async function mintCollection(collection: {
-    name: string;
-    symbol: string;
-    description: string;
-    price: string;
-    fee: number;
-    owner: string;
-    useGas?: boolean;
-  }) {
+  async function mintCollection(collection: CollectionDTO) {
     if (contract.value) {
       if (collection.owner) {
         try {
           const exist = await contract.value.getCollectionByName(collection.name);
           if (exist.nftCollection === "0x0000000000000000000000000000000000000000") {
-            collection.useGas = import.meta.env.VITE_USE_GAS === "true";
-            if (owner.value === collection.owner) {
-              collection.useGas = false;
-            }
-            const {data} = await deployCollection(collection);
 
-            if (collection.useGas) {
+            // convert price and fee to wei for using as floats
+            const collectionFee = ethers.utils.parseEther(collection.fee.toString());
+            const collectionPrice = collection.price ? ethers.utils.parseEther(collection.price.toString()) : 0;
+
+            const {data} = await loader.deployCollection({
+              categoryId: collection.categoryId,
+              name: collection.name,
+              symbol: collection.symbol,
+              description: collection.description,
+              price: collectionPrice.toString(),
+              fee: collectionFee.toString(),
+              slug: collection.slug,
+              url: collection.url,
+              owner: collection.owner,
+              logo: collection.logo as number,
+              featured: collection.featured as number,
+              banner: collection.banner as number
+            });
+
+            if (data.address) {
               const tx = await contract.value
                 .createCollection(
                   collection.name,
                   collection.symbol,
                   collection.description,
-                  Number(collection.fee),
-                  Number(collection.price),
+                  collectionFee,
+                  collectionPrice,
                   data.address,
                   data.owner,
-              );
-              await tx.wait();
+                );
+              await tx.wait()
+              location.reload();
             }
           }
           await loader.load();
@@ -336,196 +346,154 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     return;
   }
 
-  function deployCollection(_collection: {
-    name: string;
-    symbol: string;
-    description: string;
-    price: string;
-    fee: number;
-    owner: string;
-    useGas?: boolean;
-  }) {
-    return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/collections`, _collection, {
-      withCredentials: true
-    });
+  function getCollection(_collectionId: number) {
+    return contract.value.getCollection(_collectionId);
   }
 
-  function storeCollectionsCount(_collectionsCount: number) {
-    collectionsCount.value = _collectionsCount;
-  }
-
-  async function storeCollections(_collections: {[id: string]: Collection}) {
-    items.value = [];
-    for (const id in _collections) {
-      if (_collections.hasOwnProperty(id)) {
-        const collection = _collections[id];
-        if (collection.items) {
-          collection.items.map((_item: MarketItem) => {
-            // @ts-ignore
-            items.value.push(_item);
-            // @ts-ignore
-            return _item;
-          });
-          // @ts-ignore
-          collections.value[id] = collection;
-        }
-      }
-    }
-  }
-
-  async function mintCollectible(_item: {
-    collectionId: number;
-    count: number;
-    description: string[];
-    file: File,
-    name: string[];
-    price: number[];
-    tags: string[];
-    owner: string;
-    creator: string;
-    collections?: { id: number; label: string };
-    image: string;
-    useGas?: boolean;
-    uri?: string[];
-    auction: boolean;
-    fulfilled: boolean;
-    cancelled: boolean;
-  }) {
-    if (!_item.owner) {
+  async function mintERC721(collectible: CollectibleDTO) {
+    if (!collectible.owner) {
       location.reload();
-    }
-    _item.useGas = import.meta.env.VITE_USE_GAS === "true";
-
-    if (owner.value === _item.owner) {
-      _item.useGas = false;
     }
 
     try {
-
-      const collectionContract = useCollectionStore().contract[_item.collectionId];
-      const collection = await getCollection(_item.collectionId);
+      const collectionContract = useCollectionStore().contract[collectible.collectionId];
+      const collectionAddress = useCollectionStore().contractAddress[collectible.collectionId];
+      const collection = await getCollection(collectible.collectionId);
 
       if (collectionContract && collection) {
-
         // create a new NFTStorage client using our API key
         const nftStorage = new NFTStorage({token: import.meta.env.VITE_NFT_STORAGE_KEY})
+        const slug = slugify(collectible.name as string);
+        const metadata: {
+          name:          string;
+          description:   string;
+          image:         File;
+          external_url: string;
+          attributes?: {
+            trait_type: string;
+            value:      string;
+          }[];
+        } = {
+          name:        collectible.name as string,
+          description: collectible.description as string,
+          image:       collectible.file as File,
+          external_url: `/assets/ethereum/${collection.nftCollection}/${slug}`,
+          // attributes:  [
+          //   {
+          //     "trait_type": "tag",
+          //     "value": _item.tags
+          //   },
+          //   {
+          //     "trait_type": "collection",
+          //     "value": collection.name
+          //   }
+          // ]
+        };
 
-        for (let i = 1; i <= _item.count; i++) {
-          const token = {
-            image:       _item.file,
-            name:        _item.name[i],
-            description: _item.description[i],
-            collection:  collection.name,
-            tags:        _item.tags[i],
-            number:      i
-          };
-          let result = await nftStorage.store(token);
-          if (!_item.uri) {
-            _item.uri = [];
+        const result = await nftStorage.store(metadata);
+
+        collectible.uri = result.url;
+
+        let tx: any;
+        if (collectible.quantity > 1) {
+          tx = await collectionContract.mint(collectible.uri, collectible.quantity);
+        } else {
+          tx = await collectionContract.safeMint(collectible.uri);
+        }
+        const txResponse = await tx.wait();
+        console.log(txResponse);
+        if (txResponse && txResponse.events) {
+          const approveTx = await useCollectionStore()
+            .contract[collectible.collectionId]
+            .setApprovalForAll(contractAddress.value, true);
+
+          await approveTx.wait();
+          const events = txResponse.events;
+          const tokenIds = [];
+
+          for (const event of events) {
+            const args = event.args;
+            tokenIds.push(args.tokenId);
           }
-          _item.uri[i] = result.url;
 
-
-            // await deployCollectible({
-            //   auction: _item.auction,
-            //   collectionId: _item.collectionId,
-            //   creator: _item.creator,
-            //   owner: _item.owner,
-            //   price: _item.price[i].toString(),
-            //   useGas: _item.useGas,
-            //   tokenId: 0,
-            //   uri: _item.uri[i]
-            // });
-
-          if (_item.useGas) {
-
-            const tx = await collectionContract.safeMint(_item.uri[i]);
-
-            let response = await tx.wait();
-
-            if (response && response.events) {
-              let args = response.events[0].args;
-              if (args) {
-
-
-                const approveTx = await useCollectionStore()
-                  .contract[_item.collectionId]
-                  .setApprovalForAll(contractAddress.value, true);
-                await approveTx.wait();
-
-                const createTx = await contract.value
-                  .createCollectible(args.tokenId.toNumber(), collection.id.toNumber(),
-                    ethers.utils.parseEther(_item.price[i].toString()), _item.auction, { from: _item.owner });
-
-                await createTx.wait();
-
-                const id = await contract.value.getCollectibleCount(collection.id);
-
-                const collectible = await contract.value.getCollectible(collection.id, id);
-
-                await deployCollectible({
-                  id: id.toNumber(),
-                  auction: _item.auction,
-                  collectionId: _item.collectionId,
-                  creator: collectible.creator.toLowerCase(),
-                  owner: collectible.owner.toLowerCase(),
-                  price: _item.price[i].toString(),
-                  tokenId: args.tokenId.toNumber(),
-                  useGas: _item.useGas,
-                });
-              }
-            }
+          if (!collectible.startTime) {
+            collectible.startTime = moment().unix();
           }
+
+          if (!collectible.endTime) {
+            collectible.endTime = moment().add(1, 'years').unix();
+          }
+
+          collectible.tokenIds = tokenIds.map((tokenId: BigNumber) => tokenId.toNumber());
+
+          const lastCollectibleId = await contract.value.getCollectibleCount(collection.id);
+
+          collectible.id = lastCollectibleId.add(1).toNumber();
+
+          console.log(collectible);
+          const response = await loader.deployCollectible(collectible);
+          console.log(response.data);
+          const createTx = await contract.value.createCollectible(tokenIds, collection.id, collectible.auction, response.data.auction, { from: collectible.owner });
+          console.log(await createTx.wait());
         }
       }
       await loader.load();
     } catch (e) {
-      console.error(e);
+      throw e;
     }
   }
 
-  function deployCollectible(_item: {
-    id: number;
-    tokenId: number;
-    collectionId: number;
-    price: string;
-    owner: string;
-    creator: string;
-    useGas?: boolean;
-    auction: boolean;
-    uri?: string;
-  }) {
-      return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/collectibles`, _item, {
-        withCredentials: true
-      });
+  async function placeBid(collectible: PublicCategoryCollectionCollectible) {
+    const contract = auction.contract["auction_" + collectible.attributes.collectionId + ":" + collectible.attributes.itemId];
+
+    try {
+      // benefeciary is the current nft collection address
+      if (collectible.attributes.details.total_wei) {
+
+        // const tx = await contract.bid({ value: collectible.attributes.details.total_wei });
+        // console.log(await tx.wait());
+        console.log(await contract.highestBidder());
+        console.log(await contract.highestBid());
+        const timestamp = (await contract.auctionEndTime());
+        console.log(new Date(timestamp.toNumber() * 1000));
+        console.log(collectible.attributes.details.total_wei);
+        console.log(user.value.address);
+      }
+      // console.log(await tx.wait());
+      // console.log(await contract.highestBidder());
+      // console.log(await contract.highestBid());
+    } catch(e) {
+      console.log(e);
+    }
+    // console.log());
+    // console.log(await loader.deployAuction(collectible, biddingTime));
+
   }
 
-  function createCollectible(_tokenId: BigNumber, _collectionId: BigNumber, _price: BigNumber, _owner: string, _auction: boolean) {
-    // @ts-ignore
-    return contract.value
-      .createCollectible(_tokenId, _collectionId, _price, _auction, { from: _owner });
+  function getOwner() {
+    return owner.value;
   }
 
-  function getCollectibleCount(collectionId: BigNumber) {
-    // @ts-ignore
-    return contract.value.getCollectibleCount(collectionId);
+  function startAuction(collectionId: number, itemId: number) {
+    return contract.value.startAuction(collectionId, itemId)
   }
-
-  function getCollectible(collectionId: BigNumber, id: BigNumber) {
-    // @ts-ignore
-    return contract.value.getCollectible(collectionId, id);
-  }
-
-  function getCollection(_collectionId: number) {
-    // @ts-ignore
-    return contract.value.getCollection(_collectionId);
-  }
-
   return {
-    name, contractAddress, contract, collectionsCount, storeCollectionsCount, storeCollections, collections,
-    mintCollection, createCollectible, fee, getCollection,
-    loadWeb3Contract, loadMetamaskContract, getName, setName, setFee, setAddress,
-    setAbi, getFeePercent, buy, like, items, itemCount, mintCollectible, sell, setOwner, getCollectibleCount
+    storeContract,
+    storeCategories,
+    getCategories,
+    storeCollections,
+    getCollections,
+    getName,
+    getOwner,
+    contractAddress,
+    startAuction,
+    loadMetamaskContract,
+    loadWeb3Contract,
+    mintCollection,
+    editCollection,
+    mintERC721,
+    placeBid
   }
+
 });
 

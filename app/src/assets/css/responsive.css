@@ -157,7 +157,7 @@
   
 }
 @media only screen and (max-width :1430px) {
-  .authors-2 .filter {
+  .filter {
     padding: 0 2% 0 4.5%;
   }
   .tab-authors .author-profile {
@@ -400,8 +400,8 @@
 .sc-explore-2 .react-tabs__tab-panel .sc-card-product {
   width: calc(33.33% - 30px);
 }
-.authors-2 .filter li {
-  padding: 2.2% 54px 2.5%;
+.filter li {
+  padding: 2.2% 24px 2.5%;
 }
 .home-1 .sc-box-icon-inner {
   margin-left: -30px;
@@ -1057,8 +1057,8 @@ background-color: #14141F;
   .sc-explore-2 .react-tabs__tab-panel .sc-card-product {
     width: calc(50% - 30px);
   } 
-  .authors-2 .filter li {
-    padding: 2.2% 33px 2.5%;
+  .filter li {
+    padding: 2.2% 24px 2.5%;
   }
 
   .carousel__prev, .carousel__next {
@@ -1130,7 +1130,7 @@ background-color: #14141F;
     justify-content: center;
   }
 
-  .authors-2 .filter li {
+  .filter li {
     padding: 4.2% 35px 4.5%;
     width: 100%;
     text-align: center;
@@ -1591,7 +1591,7 @@ background-color: #14141F;
   .flat-accordion2 .accordion-item {
     padding: 20px 30px 4.5px 30px;
   }
-  .authors-2 .filter li.active::after {
+  .filter li.active::after {
     display: none;
   }
   

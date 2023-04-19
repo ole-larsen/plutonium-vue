@@ -3,9 +3,13 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "./NFTAuction.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract NFTCollection is ERC721, ERC721Enumerable {
-  string[] public tokenURIs;
+  using SafeMath for uint256;
+  string[]   public tokenURIs;
   mapping(string => bool) _tokenURIExists;
   mapping(uint => string) _tokenIdToTokenURI;
 
@@ -26,10 +30,27 @@ contract NFTCollection is ERC721, ERC721Enumerable {
 
   function safeMint(string memory _tokenURI) public {
     require(!_tokenURIExists[_tokenURI], 'The token URI should be unique');
-    tokenURIs.push(_tokenURI);    
-    uint _id = tokenURIs.length;
+    tokenURIs.push(_tokenURI);
+    uint _id = totalSupply().add(1);
     _tokenIdToTokenURI[_id] = _tokenURI;
     _safeMint(msg.sender, _id);
+    _tokenURIExists[_tokenURI] = true;
+  }
+
+  /**
+    * @dev Mints Multiple NFT
+    */
+  function mint(string memory _tokenURI, uint256 _numberOfNfts) public payable {
+    require(!_tokenURIExists[_tokenURI], 'The token URI should be unique');
+    require(_numberOfNfts > 0, "numberOfNfts cannot be 0");
+
+    for (uint i = 0; i < _numberOfNfts; i++) {
+      uint _id = totalSupply().add(1);
+      _tokenIdToTokenURI[_id] = _tokenURI;
+      _safeMint(msg.sender, _id);
+    }
+
+    tokenURIs.push(_tokenURI);
     _tokenURIExists[_tokenURI] = true;
   }
 }

@@ -38,6 +38,7 @@ const app = createApp(App);
 
 // add metamask library
 // A Web3Provider wraps a standard Web3 provider, which is what MetaMask injects as window.ethereum into each page
+// @ts-ignore
 if (typeof window.ethereum !== 'undefined') {
   const { ethereum } = window;
   app.config.globalProperties.$ethereum = new ethers.providers.Web3Provider(ethereum as ethers.providers.ExternalProvider);
