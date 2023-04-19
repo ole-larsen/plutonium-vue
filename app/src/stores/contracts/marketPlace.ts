@@ -424,9 +424,9 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
           if (!collectible.endTime) {
             collectible.endTime = moment().add(1, 'years').unix();
           }
-
+          console.log(tokenIds);
           collectible.tokenIds = tokenIds.map((tokenId: BigNumber) => tokenId.toNumber());
-
+          console.log(collectible);
           const lastCollectibleId = await contract.value.getCollectibleCount(collection.id);
 
           collectible.id = lastCollectibleId.add(1).toNumber();
