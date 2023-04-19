@@ -298,6 +298,7 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
     if (contract.value) {
       if (collection.owner) {
         try {
+          console.log(collection, contract.value);
           const exist = await contract.value.getCollectionByName(collection.name);
           if (exist.nftCollection === "0x0000000000000000000000000000000000000000") {
 
