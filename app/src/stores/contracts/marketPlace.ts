@@ -299,14 +299,14 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
       if (collection.owner) {
         try {
           const exist = await contract.value.getCollectionIdByName(collection.name);
-          console.log(collection, exist);
-          if (exist.nftCollection === "0x0000000000000000000000000000000000000000") {
+          console.log(collection, exist.toNumber());
+          if (exist.toNumber() === 0) {
 
             // convert price and fee to wei for using as floats
             const collectionFee = ethers.utils.parseEther(collection.fee.toString());
             const collectionPrice = collection.price ? ethers.utils.parseEther(collection.price.toString()) : 0;
 
-            const {data} = await loader.deployCollection({
+            const { data } = await loader.deployCollection({
               categoryId: collection.categoryId,
               name: collection.name,
               symbol: collection.symbol,
