@@ -402,7 +402,7 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
           tx = await collectionContract.safeMint(collectible.uri);
         }
         const txResponse = await tx.wait();
-        console.log(txResponse);
+
         if (txResponse && txResponse.events) {
           const approveTx = await useCollectionStore()
             .contract[collectible.collectionId]
@@ -424,17 +424,17 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
           if (!collectible.endTime) {
             collectible.endTime = moment().add(1, 'years').unix();
           }
-          console.log(tokenIds);
           collectible.tokenIds = tokenIds.map((tokenId: BigNumber) => tokenId.toNumber());
-          console.log(collectible);
-          const lastCollectibleId = await contract.value.getCollectibleCount(collection.id);
+          const collectionId = await contract.value.getCollectionIdByName(collection.name);
+
+          const lastCollectibleId = await contract.value.getCollectibleCount(collectionId);
 
           collectible.id = lastCollectibleId.add(1).toNumber();
 
           console.log(collectible);
           const response = await loader.deployCollectible(collectible);
           console.log(response.data);
-          const createTx = await contract.value.createCollectible(tokenIds, collection.id, collectible.auction, response.data.auction, { from: collectible.owner });
+          const createTx = await contract.value.createCollectible(tokenIds, collectionId, collectible.auction, response.data.auction, { from: collectible.owner });
           console.log(await createTx.wait());
         }
       }

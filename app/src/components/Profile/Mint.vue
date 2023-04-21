@@ -25,6 +25,16 @@ async function handleFileUpload () {
       if (!collectible.value.price) {
         collectible.value.price = ethers.utils.parseEther("0").toString();
       }
+      if (!collectible.value.startPrice) {
+        collectible.value.startPrice = ethers.utils.parseEther("0").toString();
+      }
+      if (!collectible.value.reservePrice) {
+        collectible.value.reservePrice = ethers.utils.parseEther("0").toString();
+      }
+      if (!collectible.value.quantity) {
+        collectible.value.quantity = 0;
+      }
+
       await market.mintERC721(Object.assign(collectible.value, {}));
     }
 
@@ -84,7 +94,9 @@ const price = ref(0);
 watch(() => price.value,
   (_price: number) => {
     if (collectible) {
-      collectible.value.price = ethers.utils.parseEther(price.value.toString()).toString();
+      if (_price) {
+        collectible.value.price = ethers.utils.parseEther(_price.toString()).toString();
+      }
     }
   });
 
@@ -93,7 +105,9 @@ const startPrice = ref(0);
 watch(() => startPrice.value,
   (_startPrice: number) => {
     if (collectible) {
-      collectible.value.startPrice = ethers.utils.parseEther(startPrice.value.toString()).toString();
+      if (_startPrice) {
+        collectible.value.startPrice = ethers.utils.parseEther(_startPrice.toString()).toString();
+      }
     }
   });
 
@@ -101,7 +115,9 @@ const reservePrice = ref(0);
 watch(() => reservePrice.value,
   (_reservePrice: number) => {
     if (collectible) {
-      collectible.value.reservePrice = ethers.utils.parseEther(reservePrice.value.toString()).toString();
+      if (_reservePrice) {
+        collectible.value.reservePrice = ethers.utils.parseEther(_reservePrice.toString()).toString();
+      }
     }
   });
 </script>
