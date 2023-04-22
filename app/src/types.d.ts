@@ -226,7 +226,8 @@ export type SliderItem = {
   btnText2:    string;
   description: string;
   heading:     string;
-  image: PublicFile
+  image:       PublicFile;
+  bg:          PublicFile;
 }
 
 export type CreateAndSellItem = {
