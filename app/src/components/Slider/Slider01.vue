@@ -77,3 +77,8 @@ onBeforeMount(() => {
   </div>
 </template>
 
+<style>
+.mainslider {
+  margin-top: 96px;
+}
+</style>
