@@ -59,7 +59,7 @@ onBeforeMount(() => {
                 </div>
                 <template v-if="slide['image'] && slide['image']['attributes']">
                   <div class="image">
-                    <img class="img-bg" src="../../assets/images/backgroup-section/img-bg-sliderhome2.png" alt="img-bg-sliderhome2">
+                    <img class="img-bg" src="../../assets/images/backgroup-section/bg_slide_1.png" alt="img-bg-sliderhome2">
                     <img :src="slide['image']['attributes']['url']" :alt="slide['image']['attributes']['alt']">
                   </div>
                 </template>
