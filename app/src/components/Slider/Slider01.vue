@@ -78,7 +78,7 @@ onBeforeMount(() => {
 </template>
 
 <style>
-.mainslider {
-  margin-top: 96px;
+.carousel {
+  padding-top: 96px;
 }
 </style>
