@@ -8,8 +8,9 @@ import Collection from "@/components/Collection/Collection01.vue";
 </script>
 
 <template>
-  <Categories />
   <Slider/>
+  <Categories />
+
   <LiveAuction />
   <CreateAndSell/>
 
