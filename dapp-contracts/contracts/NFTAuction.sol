@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import "hardhat/console.sol";
 contract NFTAuction is ERC721Holder, ReentrancyGuard {
     using SafeMath for uint256;
 

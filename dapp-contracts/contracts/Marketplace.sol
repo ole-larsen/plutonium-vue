@@ -2,14 +2,13 @@
 pragma solidity >=0.4.22 <0.9.0;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "./NFTCollection.sol";
 
 contract Marketplace is ReentrancyGuard {
     using SafeMath for uint256;
 
     address payable private immutable _owner;
-    string private _name;
+    string  private _name;
     uint256 private _fee;
     uint256 private _collectionCounter;
 
@@ -27,12 +26,9 @@ contract Marketplace is ReentrancyGuard {
         bool isLocked;
     }
 
-    // search maps
     mapping(string => uint256)     private _collectionsNames;
-
     mapping(uint256 => Collection) private _collections;
-   
-    mapping(address => bool) private _collectionAddressExists;
+    mapping(address => bool)       private _collectionAddressExists;
 
     event CreateCollection(
         uint256 id,
