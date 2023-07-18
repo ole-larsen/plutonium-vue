@@ -15,138 +15,139 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Marketplace", function() {
   async function getFixtures() {
-    try {
-      const marketName = "Ploutonion";
-      const marketFee = ethers.utils.parseEther("2.5");
+    const marketName = "Ploutonion";
+    const marketFee = ethers.utils.parseEther("2.5");
 
-      const [owner, seller, buyer, author] = await ethers.getSigners();
+    const [owner, seller, buyer, author] = await ethers.getSigners();
 
-      const MarketplaceFactory = await ethers.getContractFactory("Marketplace", owner);
-      const marketPlace = await MarketplaceFactory.deploy(marketName, marketFee);
-      await marketPlace.deployed();
+    const MarketplaceFactory = await ethers.getContractFactory("Marketplace", owner);
+    const marketPlace = await MarketplaceFactory.deploy(marketName, marketFee);
+    await marketPlace.deployed();
 
-      const CollectionFactory = await ethers.getContractFactory("NFTCollection", owner);
+    const CollectionFactory = await ethers.getContractFactory("NFTCollection", owner);
 
-      const collection1Name = "Monsters";
-      const collection1Symbol = "MST";
+    const collectionName = "Monsters";
+    const collectionSymbol = "MST";
 
-      const collection1 = await CollectionFactory.deploy(collection1Name, collection1Symbol);
-      await collection1.deployed();
+    const collection = await CollectionFactory.deploy(collectionName, collectionSymbol);
+    await collection.deployed();
 
-      const collection2Name = "Samurai";
-      const collection2Symbol = "SMR";
+    const AuctionFactory = await ethers.getContractFactory("NFTAuction", owner);
 
-      const collection2 = await CollectionFactory.deploy(collection2Name, collection2Symbol);
-      await collection2.deployed();
-
-      const AuctionFactory = await ethers.getContractFactory("NFTAuction", owner);
-
-      return { owner, seller, buyer, author, marketPlace, collection1, collection2, AuctionFactory }
-
-    } catch(e) {
-      throw e;
-    }
+    return { owner, seller, buyer, author, marketPlace, collection, AuctionFactory }
   }
 
   before(async function () {
-    try {
-      const { owner, seller, buyer, author, marketPlace, collection1, collection2, AuctionFactory } = await loadFixture(getFixtures);
+    const { owner, seller, buyer, author, marketPlace, collection, AuctionFactory } = await loadFixture(getFixtures);
 
-      this.owner = owner;
-      this.seller = seller;
-      this.buyer = buyer;
-      this.author = author;
-      this.marketPlace = marketPlace;
-      this.collection1 = collection1;
-      this.collection2 = collection2;
-      this.AuctionFactory = AuctionFactory;
-    } catch (e) {
-      console.error(e);
-    }
+    this.owner = owner;
+    this.seller = seller;
+    this.buyer = buyer;
+    this.author = author;
+    this.marketPlace = marketPlace;
+    this.collection = collection;
+    this.AuctionFactory = AuctionFactory;
+
+    this.ownerBalance       = await ethers.provider.getBalance(this.owner.address);
+    this.sellerBalance      = await ethers.provider.getBalance(this.seller.address);
+    this.buyerBalance       = await ethers.provider.getBalance(this.buyer.address);
+    this.authorBalance      = await ethers.provider.getBalance(this.author.address);
+    this.marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
   });
 
   // nest describe calls to create subsections.
-  describe("Deployment Market", function () {
-    it("1. Should have address", async function () {
-      try {
-        const address = this.marketPlace.address;
-        expect(address).not.to.equal("");
-        expect(address).not.to.equal(0x0);
-        expect(address).not.to.equal(null);
-        expect(address).not.to.equal(undefined);
-      } catch (e) {
-        console.error(e);
-      }
+  describe("1. Test marketPlace getters", function () {
+    it("1.1 MarketPlace should have valid address", async function () {
+      const address = this.marketPlace.address;
+
+      expect(address).not.to.equal("");
+      expect(address).not.to.equal(0x0);
+      expect(address).not.to.equal(null);
+      expect(address).not.to.equal(undefined);
     });
 
-    it("2. Should have name", async function () {
-      try {
-        const name = await this.marketPlace.getName();
-        expect(name).not.to.equal("");
-        expect(name).not.to.equal(null);
-        expect(name).not.to.equal(undefined);
-        expect(name).to.equal("Ploutonion");
-      } catch (e) {
-        console.error(e);
-      }
+    it("1.2 MarketPlace should have valid name", async function () {
+      const name = await this.marketPlace.getName();
+      expect(name).not.to.equal("");
+      expect(name).not.to.equal(null);
+      expect(name).not.to.equal(undefined);
+      expect(name).to.equal("Ploutonion");
     });
 
-    it("3. Should have fee", async function () {
-      try {
-        const fee = await this.marketPlace.getFee();
-        expect(fee).not.to.equal(0);
-        expect(fee).to.equal(ethers.utils.parseEther("2.5"));
-      } catch (e) {
-        console.error(e);
-      }
+    it("1.3 MarketPlace should have valid fee in wei", async function () {
+      const fee = await this.marketPlace.getFee();
+      expect(fee).not.to.equal(0);
+      expect(fee).to.equal(ethers.utils.parseEther("2.5"));
     });
 
-    it("4. Should have owner", async function () {
-      // This test expects the owner variable stored in the contract to be
-      // equal to our Signer's owner.
+    it("1.4 MarketPlace should have valid owner. This test expects the owner variable stored in the contract to be equal to our Signer's owner", async function () {
       expect(await this.marketPlace.getOwner()).to.equal(this.owner.address);
     });
 
-    it("5. Should change name", async function () {
-      try {
-        const setNameTx = await this.marketPlace.setName("Plutonium 2.0");
-        await setNameTx.wait();
-        const name = await this.marketPlace.getName();
-
-        expect(name).to.equal("Plutonium 2.0");
-        expect(name).not.to.equal("");
-        expect(name).not.to.equal(null);
-        expect(name).not.to.equal(undefined);
-      } catch (e) {
-        console.error(e);
-      }
+    it("1.5 MarketPlace should have 0 ETH balance", async function () {
+      expect(Math.floor(+ethers.utils.formatEther(this.marketPlaceBalance))).to.be.equal(0);
     });
 
-    it("6. Should revert empty name", async function () {
+    it("1.6 Other accounts must have positive balance", async function () {
+      expect(Math.floor(+ethers.utils.formatEther(this.ownerBalance))).to.be.equal(9999);
+      expect(Math.floor(+ethers.utils.formatEther(this.sellerBalance))).to.be.equal(10000);
+      expect(Math.floor(+ethers.utils.formatEther(this.buyerBalance))).to.be.equal(10000);
+      expect(Math.floor(+ethers.utils.formatEther(this.authorBalance))).to.be.equal(10000);
+    });
+
+    it("1.7 MarketPlace userFunds initial test", async function () {
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+    });
+
+    it("1.8 MarketPlace have no collections", async function () {
+      expect(
+        await this.marketPlace.getCollectionCounter()
+      ).to.equal(0);
+    });
+  });
+
+  describe("2. Test marketPlace setters", function () {
+    it("2.1 MarketPlace change name", async function () {
+      const newName = "Plutonium 2.0";
+      expect(await this.marketPlace.getName()).to.be.not.equal(newName);
+
+      const setNameTx = await this.marketPlace.setName(newName);
+      await setNameTx.wait();
+      const name = await this.marketPlace.getName();
+
+      expect(name).to.equal(newName);
+      expect(name).not.to.equal("");
+      expect(name).not.to.equal(null);
+      expect(name).not.to.equal(undefined);
+    });
+
+    it("2.2 MarketPlace revert change empty name", async function () {
       await expect(
         this.marketPlace.setName("")
-      ).to.be.revertedWith("name should be not empty");
+      ).to.be.reverted;
     });
 
-    it("7. Should revert name with no owner", async function () {
+    it("2.3 MarketPlace revert change name from incorrect account", async function () {
       await expect(
-        this.marketPlace.connect(this.buyer).setName("")
-      ).to.be.revertedWith("only owner can change market name");
+        this.marketPlace.connect(this.buyer).setName("Bla-Bla")
+      ).to.be.reverted;
     });
 
-    it("8. Should revert zero fee", async function () {
-      await expect(
-        this.marketPlace.setFee(0)
-      ).to.be.revertedWith("market fee should be greater than zero");
-    });
-
-    it("9. Should revert fee with no owner", async function () {
-      await expect(
-        this.marketPlace.connect(this.buyer).setFee(0)
-      ).to.be.revertedWith("only owner can change market fee");
-    });
-
-    it("10. Should change fee", async function () {
+    it("2.4 MarketPlace change fee", async function () {
       const marketFee = ethers.utils.parseEther("2.5");
       expect(
         await this.marketPlace.getFee()
@@ -161,13 +162,281 @@ describe("Marketplace", function() {
       ).to.equal(newMarketFee);
     });
 
-    it("11. Should have no collections", async function () {
-      expect(
-        await this.marketPlace.getCollectionCounter()
-      ).to.equal(0);
+    it("2.5 MarketPlace revert change zero fee", async function () {
+      await expect(
+        this.marketPlace.setFee(0)
+      ).to.be.reverted;
     });
 
-    it("12. Should have no funds on market balance", async function () {
+    it("2.6 MarketPlace revert change fee from incorrect account", async function () {
+      await expect(
+        this.marketPlace.connect(this.buyer).setFee(10)
+      ).to.be.reverted;
+    });
+  });
+
+  describe("3. Test marketPlace collections contract getters", function () {
+    it("3.1 Collection contract should have address", async function () {
+      const address = this.collection.address;
+      expect(address).not.to.equal("");
+      expect(address).not.to.equal(0x0);
+      expect(address).not.to.equal(null);
+      expect(address).not.to.equal(undefined);
+    });
+    it("3.2 Collection contract have name", async function () {
+      expect(
+        await this.collection.name()
+      ).to.be.equal("Monsters");
+    });
+    it("3.2 Collection contract have symbol", async function () {
+      expect(
+        await this.collection.symbol()
+      ).to.be.equal("MST");
+    });
+  });
+
+  describe("4. Test marketPlace collection", function () {
+    it("4.1 MarketPlace createCollection", async function () {
+      const name        = await this.collection.name();
+      const symbol      = await this.collection.symbol();
+      const description = "My Monster Collection";
+      const fee         = ethers.utils.parseEther("4.25"); 
+
+      const tx = await this.marketPlace
+          .connect(this.owner)
+          .createCollection(
+            name,
+            symbol,
+            description,
+            fee,
+            this.collection.address,
+            this.owner.address
+          );
+
+      await tx.wait();
+
+      const collectionId = await this.marketPlace.getCollectionCounter();
+      expect(collectionId).to.be.equal(1);
+
+      let collection = await this.marketPlace.getCollection(collectionId);
+
+      expect(collection.name).to.equal(name);
+      expect(collection.symbol).to.equal(symbol);
+      expect(collection.description).to.equal(description);
+      expect(collection.nftCollection).to.equal(this.collection.address);
+      expect(collection.owner).to.equal(this.owner.address);
+      expect(collection.creator).to.equal(this.owner.address);
+      expect(collection.isApproved).to.equal(true); // approved by default
+      expect(collection.isLocked).to.equal(false);
+
+      expect(await this.collection.totalSupply()).to.equal(0); // no tokens in collection
+    });
+
+    it("4.2 MarketPlace collection safeMint by owner", async function () {
+      const token = await this.collection
+      .connect(this.owner)
+      .safeMint("testURI-1");
+
+      await token.wait();
+
+      expect(await this.collection.totalSupply()).to.equal(1);
+    });
+
+    it("4.3 MarketPlace collection safeMint by seller", async function () {
+      const token = await this.collection
+      .connect(this.seller)
+      .safeMint("testURI-2");
+
+      await token.wait();
+
+      expect(await this.collection.totalSupply()).to.equal(2);
+    });
+
+    it("4.4 MarketPlace collection safeMint by buyer", async function () {
+      const token = await this.collection
+      .connect(this.buyer)
+      .safeMint("testURI-3");
+
+      await token.wait();
+
+      expect(await this.collection.totalSupply()).to.equal(3);
+    });
+
+    it("4.5 MarketPlace collection safeMint by author", async function () {
+      const token = await this.collection
+      .connect(this.author)
+      .safeMint("testURI-4");
+
+      await token.wait();
+
+      expect(await this.collection.totalSupply()).to.equal(4);
+    });
+
+    it("4.6 MarketPlace balances before create collectibles. All tokens are belong to their creators", async function () {
+      
+      // check token balance before create collectible
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.owner.address);
+      expect(await this.collection.ownerOf(2)).to.be.equal(this.seller.address);
+      expect(await this.collection.ownerOf(3)).to.be.equal(this.buyer.address);
+      expect(await this.collection.ownerOf(4)).to.be.equal(this.author.address);
+
+      let ownerBalance  = await ethers.provider.getBalance(this.owner.address);
+      let sellerBalance = await ethers.provider.getBalance(this.seller.address);
+      let buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
+      let authorBalance  = await ethers.provider.getBalance(this.author.address);
+      let marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
+
+      // some balance was used for gas
+      expect(this.ownerBalance).to.be.greaterThan(ownerBalance);
+      expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
+      this.ownerBalance = ownerBalance;
+
+      expect(this.sellerBalance).to.be.greaterThan(sellerBalance);
+      expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
+      this.sellerBalance = sellerBalance;
+
+      expect(this.buyerBalance).to.be.greaterThan(buyerBalance);
+      expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
+      this.buyerBalance = buyerBalance;
+
+      expect(this.authorBalance).to.be.greaterThan(authorBalance);
+      expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(9999);
+      this.authorBalance = authorBalance ;
+
+      expect(Math.floor(+ethers.utils.formatEther(marketPlaceBalance))).to.be.equal(0);
+      expect(this.marketPlaceBalance).to.be.equal(marketPlaceBalance);
+    });
+
+    it("4.7 MarketPlace editCollection", async function () {
+      const name = await this.collection.name();
+      const symbol = await this.collection.symbol();
+      const description = "My Cutiest Creatures";
+      const fee = ethers.utils.parseEther("0.4");
+     
+      const collectionId = await this.marketPlace.getCollectionIdByName(name);
+      const collectionBeforeEdit = await this.marketPlace.getCollection(collectionId);
+      expect(collectionBeforeEdit.name).to.be.equal(name);
+      expect(collectionBeforeEdit.symbol).to.be.equal(symbol);
+
+      const tx = await this.marketPlace
+        .connect(this.owner)
+        .editCollection(
+          collectionId,
+          name,
+          symbol,
+          description,
+          fee,
+          this.collection.address,
+          this.owner.address,
+          true,
+          false
+        );
+      await tx.wait();
+
+      const collectionIdAfterEdit = await this.marketPlace.getCollectionIdByName(name);
+      const collectionAfterEdit = await this.marketPlace.getCollection((collectionIdAfterEdit))
+      expect(collectionAfterEdit.name).to.be.equal(name);
+      expect(collectionAfterEdit.symbol).to.be.equal(symbol);
+      expect(collectionAfterEdit.description).to.be.equal(description);
+      expect(collectionAfterEdit.fee).to.be.equal(fee);
+    });
+  });
+
+  describe("5. Test marketPlace collectibles", function () {
+    it("5.1 MarketPlace balances before create collectibles. All tokens are belong to their creators", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1);
+
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.owner.address);
+
+      expect(await this.collection.ownerOf(2)).to.be.equal(this.seller.address);
+      expect(await this.collection.ownerOf(3)).to.be.equal(this.buyer.address);
+      expect(await this.collection.ownerOf(4)).to.be.equal(this.author.address);
+    });
+    
+    it("5.2 MarketPlace owner createCollectible from first token", async function () {
+      const collection = await this.marketPlace.getCollection(1);
+
+      const collectionId = await this.marketPlace.getCollectionIdByName(collection.name);
+
+      const collectibleCountInCollection = await this.marketPlace.getCollectibleCount(collectionId);
+
+      expect(collectibleCountInCollection).to.be.equal(0);
+
+      await this.collection.connect(this.owner)
+        .setApprovalForAll(this.marketPlace.address, true);
+
+      const CONSTANT_PRICE = 500.5;
+      
+      const price = BigNumber.from((CONSTANT_PRICE * Number(ethers.constants.WeiPerEther.toString())).toString());
+
+      let createTx = await this.marketPlace
+        .connect(this.owner)
+        .createCollectible([1], collectionId, false, price, { from: this.owner.address });
+      
+      await createTx.wait();
+          
+      expect(await this.marketPlace.getCollectibleCount(collectionId)).to.be.equal(1);
+    });
+
+    it("5.3 MarketPlace moves tokens after createCollectible. Token moved from owner to marketplace", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(1);
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.marketPlace.address);
+    });
+
+    it("5.4 MarketPlace getCollectible", async function () {
+      const collectible = await this.marketPlace.getCollectible(1, 1);
+      const CONSTANT_PRICE = 500.5;
+      
+      const price = BigNumber.from((CONSTANT_PRICE * Number(ethers.constants.WeiPerEther.toString())).toString());
+
+      expect(collectible.owners.length).to.be.equal(collectible.tokenIds.length);
+
+      for (let owner of collectible.owners) {
+        expect(owner).to.be.equal(this.owner.address);
+      }
+      
+      expect(collectible.tokenIds.length).to.be.equal(1);
+      expect(collectible.fulfilled.length).to.be.equal(collectible.tokenIds.length);
+      expect(collectible.creator).to.be.equal(collectible.owners[0]);
+      expect(collectible.isAuction).to.be.equal(false);
+      expect(collectible.price).to.be.equal(price);
+
+      for (let fulfilled of collectible.fulfilled) {
+        expect(fulfilled).to.be.equal(false);
+      }
+    });
+
+    it("5.5 MarketPlace collection balance check before buy operation", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0); 
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(1); 
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.marketPlace.address);
+
       expect(
         await this.marketPlace.getUserFunds(this.owner.address)
       ).to.be.equal(0);
@@ -179,1663 +448,717 @@ describe("Marketplace", function() {
       expect(
         await this.marketPlace.getUserFunds(this.seller.address)
       ).to.be.equal(0);
-    });
-  });
 
-  describe("Deployment Collections", function () {
-    it("1. New collection should have address", async function () {
-      try {
-        const address = this.collection1.address;
-        expect(address).not.to.equal("");
-        expect(address).not.to.equal(0x0);
-        expect(address).not.to.equal(null);
-        expect(address).not.to.equal(undefined);
-      } catch (e) {
-        console.error(e);
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    });
+    
+    it("5.6 MarketPlace buy collectible by buyer from owner", async function () {
+      
+      const collection = await this.marketPlace.getCollection(1);
+      
+      let collectible = await this.marketPlace.getCollectible(1, 1);
+
+      const quantity = 1;
+
+      const fee = +collection.fee.toString() / +ethers.constants.WeiPerEther.toString();
+      
+      const percent = +collectible.price.toString() * fee / 100; 
+      
+      const total = +collectible.price.toString() + +percent;
+     
+      let tx = await this.marketPlace.connect(this.buyer).buy(collectible.collectionId, collectible.id, quantity, {
+        value: BigNumber.from((total * quantity).toString())
+      });
+      await tx.wait();
+
+      collectible = await this.marketPlace.getCollectible(1, 1); 
+
+      expect(collectible.isAuction).to.be.equal(false);
+
+      for (const owner of collectible.owners) {
+        expect(owner).to.be.equal(this.buyer.address);
       }
+
+      for (let fulfilled of collectible.fulfilled) {
+        expect(fulfilled).to.be.equal(true);;
+      }
+      expect(collectible.creator).to.be.equal(this.owner.address);
+    });
+    
+    it("5.7 MarketPlace collection balance check after buy collectible by buyer from owner", async function () {
+      const collectible = await this.marketPlace.getCollectible(1, 1);
+      
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0); 
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(2); 
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0); 
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.buyer.address);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(collectible.price);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+      
+    });
+    
+    it("5.8 MarketPlace userFunds after buy collectible by buyer from owner", async function () {
+      const collectible = await this.marketPlace.getCollectible(1, 1);
+      const quantity = 1;
+      const funds = await this.marketPlace.getUserFunds(this.owner.address);
+
+      expect(funds).to.be.equal(collectible.price.mul(quantity));
+
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1);
     });
 
-    it("2. Mint collection 1 after deploy", async function() {
-      await (async () => {
-        // 4. Mint Collection
-        expect(
-          await this.collection1.name()
-        ).to.be.equal("Monsters");
+    it("5.9 MarketPlace claimFunds", async function () {
+      const collectible = await this.marketPlace.getCollectible(1, 1);
 
-        expect(
-          await this.collection1.symbol()
-        ).to.be.equal("MST");
-
-        const name = await this.collection1.name();
-        const symbol = await this.collection1.symbol();
-        const description = "My Cuties";
-        const fee = ethers.utils.parseEther("1.25");
-        const price = 100;
-
-        const tx = await this.marketPlace
-          .connect(this.owner)
-          .createCollection(
-            name,
-            symbol,
-            description,
-            fee,
-            price,
-            this.collection1.address,
-            this.owner.address
-          );
-
-        await tx.wait();
-        const id = 1;
-        expect(
-          await this.marketPlace.getCollectionCounter()
-        ).to.equal(id);
-
-        let collection = await this.marketPlace.getCollection(id);
-
-        expect(collection.name).to.equal(name);
-        expect(collection.symbol).to.equal(symbol);
-        expect(collection.description).to.equal(description);
-        expect(collection.nftCollection).to.equal(this.collection1.address);
-        expect(collection.owner).to.equal(this.owner.address);
-        expect(collection.creator).to.equal(this.owner.address);
-        expect(collection.isApproved).to.equal(false);
-        expect(collection.isLocked).to.equal(false);
-      })();
-      await (async () => {
-        // 4. Mint Collection
-        expect(
-          await this.collection2.name()
-        ).to.be.equal("Samurai");
-
-        expect(
-          await this.collection2.symbol()
-        ).to.be.equal("SMR");
-
-        const name   = await this.collection2.name();
-        const symbol = await this.collection2.symbol();
-        const description = "My Anime";
-        const fee = ethers.utils.parseEther("4.25");
-        const price = 1000;
-
-        const tx = await this.marketPlace
-          .connect(this.owner)
-          .createCollection(
-            name,
-            symbol,
-            description,
-            fee,
-            price,
-            this.collection2.address,
-            this.owner.address
-          );
-
-        await tx.wait();
-        const id = 2;
-        expect(
-          await this.marketPlace.getCollectionCounter()
-        ).to.equal(id);
-
-        let collection = await this.marketPlace.getCollection(id);
-
-        expect(collection.name).to.equal(name);
-        expect(collection.symbol).to.equal(symbol);
-        expect(collection.description).to.equal(description);
-        expect(collection.nftCollection).to.equal(this.collection2.address);
-        expect(collection.owner).to.equal(this.owner.address);
-        expect(collection.creator).to.equal(this.owner.address);
-        expect(collection.isApproved).to.equal(false);
-        expect(collection.isLocked).to.equal(false);
-
-      })();
-
-      expect(await this.marketPlace.getCollectionCounter()).to.equal(2);
-      expect(await this.collection1.totalSupply()).to.equal(0);
-      expect(await this.collection2.totalSupply()).to.equal(0);
-
-      await(async () => {
-        const token = await this.collection1
-          .connect(this.owner)
-          .safeMint("testURI-1");
-
-        await token.wait();
-
-        expect(await this.collection1.totalSupply()).to.equal(1);
-      })();
-
-      await(async () => {
-        const token = await this.collection1
-          .connect(this.buyer)
-          .safeMint("testURI-2");
-
-        await token.wait();
-
-        expect(await this.collection1.totalSupply()).to.equal(2);
-      })();
-
-      await(async () => {
-        const token = await this.collection1
-          .connect(this.seller)
-          .safeMint("testURI-3");
-
-        await token.wait();
-
-        expect(await this.collection1.totalSupply()).to.equal(3);
-      })();
-
-      await(async () => {
-        const token = await this.collection2
-          .connect(this.owner)
-          .safeMint("testURI-1");
-
-        await token.wait();
-
-        expect(await this.collection2.totalSupply()).to.equal(1);
-      })();
-
-      await(async () => {
-        const token = await this.collection2
-          .connect(this.buyer)
-          .safeMint("testURI-2");
-
-        await token.wait();
-
-        expect(await this.collection2.totalSupply()).to.equal(2);
-      })();
-
-      await(async () => {
-        const token = await this.collection2
-          .connect(this.seller)
-          .safeMint("testURI-3");
-
-        await token.wait();
-
-        expect(await this.collection2.totalSupply()).to.equal(3);
-      })();
-
-      expect(await this.collection1.totalSupply()).to.equal(3);
-      expect(await this.collection2.totalSupply()).to.equal(3);
-
-      // check token balance before create collectible
-      expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(1);
-      expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-      expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(1);
-
-      expect(await this.collection1.ownerOf(1)).to.be.equal(this.owner.address);
-      expect(await this.collection1.ownerOf(2)).to.be.equal(this.buyer.address);
-      expect(await this.collection1.ownerOf(3)).to.be.equal(this.seller.address);
-
-      expect(await this.collection2.balanceOf(this.owner.address)).to.be.equal(1);
-      expect(await this.collection2.balanceOf(this.buyer.address)).to.be.equal(1);
-      expect(await this.collection2.balanceOf(this.seller.address)).to.be.equal(1);
-
-      expect(await this.collection2.ownerOf(1)).to.be.equal(this.owner.address);
-      expect(await this.collection2.ownerOf(2)).to.be.equal(this.buyer.address);
-      expect(await this.collection2.ownerOf(3)).to.be.equal(this.seller.address);
-
-      let ownerBalance  = await ethers.provider.getBalance(this.owner.address);
+      let ownerBalance = await ethers.provider.getBalance(this.owner.address);
       let sellerBalance = await ethers.provider.getBalance(this.seller.address);
       let buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
       let authorBalance  = await ethers.provider.getBalance(this.author.address);
+      let marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
 
-      expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
-      expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
-      expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
-      expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(10000);
+      console.log("\t######################### Before Claim Funds after buy token for " + ethers.utils.formatEther(collectible.price) + " ################################");
+      console.log("\tOwner balance:", ethers.utils.formatEther(ownerBalance));
+      console.log("\tBuyer balance:", ethers.utils.formatEther(buyerBalance));
+      console.log("\tSeller balance:", ethers.utils.formatEther(sellerBalance));
+      console.log("\tAuthor balance:", ethers.utils.formatEther(authorBalance));
+      console.log("\tMarket balance:", ethers.utils.formatEther(marketPlaceBalance));
 
-
-      const name = await this.collection1.name();
-      const symbol = await this.collection1.symbol();
-      const description = "My Cutiest Creatures";
-      const fee = ethers.utils.parseEther("4");
-      const price = 1000;
-      const collectionId = await this.marketPlace.getCollectionIdByName(name);
-      const collectionBeforeEdit = await this.marketPlace.getCollection(collectionId);
-      expect(collectionBeforeEdit.name).to.be.equal(name);
-      expect(collectionBeforeEdit.symbol).to.be.equal(symbol);
-
-      // test edit collection
-      const tx = await this.marketPlace
-        .connect(this.owner)
-        .editCollection(
-          collectionId,
-          name,
-          symbol,
-          description,
-          fee,
-          price,
-          this.collection1.address,
-          this.owner.address
-        );
+      this.ownerBalance = ownerBalance;
+      this.buyerBalance = buyerBalance;
+      this.sellerBalance = sellerBalance;
+      this.authorBalance = authorBalance;
+      this.marketPlaceBalance = marketPlaceBalance;
+      
+      const quantity = 1;
+      const tx = await this.marketPlace.connect(this.owner).claimFunds();
       await tx.wait();
 
-      const collectionIdAfterEdit = await this.marketPlace.getCollectionIdByName(name);
-      const collectionAfterEdit = await this.marketPlace.getCollection((collectionIdAfterEdit))
-      expect(collectionAfterEdit.name).to.be.equal(name);
-      expect(collectionAfterEdit.symbol).to.be.equal(symbol);
-      expect(collectionAfterEdit.description).to.be.equal(description);
-      expect(collectionAfterEdit.fee).to.be.equal(fee);
-      expect(collectionAfterEdit.price).to.be.equal(price);
-
-      // test create collectible
-      // ####################################################################
-
-      await(async () => {
-        const collection = await this.marketPlace.getCollection(1);
-
-        const collectionId = await this.marketPlace.getCollectionIdByName(collection.name);
-
-        //   name: 'Monsters',
-        //   symbol: 'MST',
-        //   description: 'My Cutiest Creatures',
-        //   nftCollection: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-        //   fee: BigNumber { value: "4000000000000000000" },
-        //   price: BigNumber { value: "1000" },
-        //   owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-        //   creator: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-        //   isApproved: false,
-        //   isLocked: false
-
-        const startTime = moment().unix();
-        const endTime = moment().add(3, 'days').unix();
-
-        const startPrice = ethers.utils.parseEther("1.2");
-        const reservePrice = ethers.utils.parseEther("1.5");
-
-        const collectibleCountInCollection = await this.marketPlace.getCollectibleCount(collectionId);
-
-        expect(collectibleCountInCollection).to.be.equal(0);
-        const itemId = collectibleCountInCollection.add(1);
-
-        const auction = await this.AuctionFactory.deploy(this.marketPlace.address,
-          collectionId, itemId, startPrice, reservePrice, startTime, endTime);
-
-        await auction.deployed();
-
-        expect(collection.owner).to.be.equal(this.owner.address);
-        expect(await auction.beneficiary()).to.be.equal(collection.owner);
-
-        await this.collection1.connect(this.owner)
-          .setApprovalForAll(this.marketPlace.address, true);
-
-        let createTx = await this.marketPlace
-          .connect(this.owner)
-          .createCollectible([1], collectionId, true, auction.address, { from: this.owner.address });
-        await createTx.wait();
-
-        expect(await this.marketPlace.getCollectibleCount(collectionId)).to.be.equal(1);
-
-        // token moved from owner to marketplace after creating collectible
-        expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-        expect(await this.collection1.ownerOf(1)).to.be.equal(this.marketPlace.address);
-
-        // check balances before auction
-        let ownerBalance  = await ethers.provider.getBalance(this.owner.address);
-        let sellerBalance = await ethers.provider.getBalance(this.seller.address);
-        let buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
-        let authorBalance  = await ethers.provider.getBalance(this.author.address);
-
-        expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
-        expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
-        expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
-        expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(10000);
-
-        const collectible = await this.marketPlace.getCollectible(1, 1);
-        expect(collectible.isAuction).to.be.equal(true);
-        expect(collectible.owner).to.be.equal(this.owner.address);
-        expect(collectible.creator).to.be.equal(this.owner.address);
-        expect(collectible.nftAuction).to.be.equal(auction.address);
-
-        const auctionStartTime = await auction.auctionStartTime();
-        const auctionEndTime = await auction.auctionEndTime();
-        const now = moment(new Date()).unix();
-        expect(auctionEndTime.toNumber()).greaterThan(now);
-        //console.log(now, new Date(now * 1000));
-        //console.log(auctionStartTime.toNumber(), new Date(auctionStartTime.toNumber() * 1000));
-        //console.log(auctionEndTime.toNumber(), new Date(auctionEndTime.toNumber() * 1000));
-        expect(await auction.collectionId()).to.be.equal(collectionId);
-        expect(await auction.highestBid()).to.be.equal(0);
-        expect(await auction.highestBidder()).to.be.equal("0x0000000000000000000000000000000000000000");
-        expect(await auction.isStarted()).to.be.equal(false);
-        expect(await auction.isEnded()).to.be.equal(false);
-
-        expect(await auction.itemId()).to.be.equal(collectible.id);
-
-        expect(await auction.isStarted()).to.be.equal(false);
-
-        const tx = await this.marketPlace.startAuction(collectible.collectionId, collectible.id);
-        await tx.wait();
-
-        expect(await auction.isStarted()).to.be.equal(true);
-
-        // nothing changed after starting auction
-        expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-        expect(await this.collection1.ownerOf(1)).to.be.equal(this.marketPlace.address);
-
-        const bidTx = await auction.connect(this.buyer).placeBid({ from: this.buyer.address, value: reservePrice.mul(2)});
-        await bidTx.wait();
-
-        expect(await auction.highestBidder()).to.be.equal(this.buyer.address);
-        expect(await auction.highestBid()).to.be.equal(reservePrice.mul(2));
-
-        // check balances after first bid
-        // check balances after auction start
-        ownerBalance  = await ethers.provider.getBalance(this.owner.address);
-        sellerBalance = await ethers.provider.getBalance(this.seller.address);
-        buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
-        authorBalance  = await ethers.provider.getBalance(this.author.address);
-
-        expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
-        expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
-
-        // buyer balance decreased to reservePrice.mul(2) value
-        expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9996);
-        expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(10000);
-
-        const bid2Tx = await auction.connect(this.seller).placeBid({ from: this.seller.address, value: reservePrice.mul(3)});
-        await bid2Tx.wait();
-
-        ownerBalance  = await ethers.provider.getBalance(this.owner.address);
-        sellerBalance = await ethers.provider.getBalance(this.seller.address);
-        buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
-        authorBalance  = await ethers.provider.getBalance(this.author.address);
-
-        expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
-
-        // seller balance descreased, because was made made bid
-        expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9995);
-
-        // buyer balance return because there is another bid hiher = to reservePrice.mul(3) value
-        expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
-        expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(10000);
-
-        expect(await auction.highestBidder()).to.be.equal(this.seller.address);
-        expect(await auction.highestBid()).to.be.equal(reservePrice.mul(3));
-
-        const bid3Tx = await auction.connect(this.author).placeBid({ from: this.author.address, value: reservePrice.mul(4)});
-        await bid3Tx.wait();
-
-        ownerBalance  = await ethers.provider.getBalance(this.owner.address);
-        sellerBalance = await ethers.provider.getBalance(this.seller.address);
-        buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
-        authorBalance  = await ethers.provider.getBalance(this.author.address);
-
-        expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(9999);
-
-        // seller balance increased, because somebody  was made made bid
-        expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
-
-        // buyer balance return because there is another bid hiher = to reservePrice.mul(3) value
-        expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
-
-        // author balance descreased, because was made made bid
-        expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(9993);
-
-        expect(await auction.highestBidder()).to.be.equal(this.author.address);
-        expect(await auction.highestBid()).to.be.equal(reservePrice.mul(4));
-
-        const endTx = await this.marketPlace.endAuction(collectionId, collectible.id);
-        await endTx.wait();
-
-        expect(await auction.isStarted()).to.be.equal(false);
-        expect(await auction.isEnded()).to.be.equal(true);
-
-        expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-        expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(1);
-        expect(await this.collection1.balanceOf(this.author.address)).to.be.equal(0); // winner
-        expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-        expect(await this.collection1.ownerOf(1)).to.be.equal(this.marketPlace.address);
-
-        ownerBalance  = await ethers.provider.getBalance(this.owner.address);
-        sellerBalance = await ethers.provider.getBalance(this.seller.address);
-        buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
-        authorBalance  = await ethers.provider.getBalance(this.author.address);
-
-        // owner received auction.highestBid()
-        expect(Math.floor(+ethers.utils.formatEther(ownerBalance))).to.be.equal(10005);
-
-        // seller balance increased, because somebody  was made made bid
-        expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
-
-        // buyer balance return because there is another bid higher = to reservePrice.mul(3) value
-        expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9999);
-
-        // author balance descreased, because was made made bid
-        expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(9993);
-      })();
-
-      await(async () => {
-        expect(await this.collection1.totalSupply()).to.equal(3);
-        expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-        expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(1);
-        expect(await this.collection1.balanceOf(this.author.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-        const token = await this.collection1
-          .connect(this.seller)
-          .mint("testURI-multiple", 100);
-
-        await token.wait();
-
-        expect(await this.collection1.totalSupply()).to.equal(103);
-        expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-        expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(101);
-        expect(await this.collection1.balanceOf(this.author.address)).to.be.equal(0);
-        expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-      })();
-
-      // mint 100 tokens
-
-      let previousTotalSupply = await this.collection1.totalSupply();
-      let token = await this.collection1
-        .connect(this.owner)
-        .mint("testURIMultiple", 100);
-
-      let result = await token.wait();
-
-      let totalSupply = await this.collection1.totalSupply();
-
-      expect(totalSupply).to.equal(previousTotalSupply.add(100));
-      expect(result.to).to.be.equal(this.collection1.address);
-      expect(result.from).to.be.equal(this.owner.address);
-
-      // owner now has a lot of tokens in contract
-      expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(100);
-      expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-      const tokenIds = result.events.map((event: {
-        args: {
-          tokenId: number;
-        }
-      }) => event.args.tokenId);
-      expect(tokenIds.length).to.be.equal(100);
-
-      expect(await this.collection1.totalSupply()).to.equal(203);
-      expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(100);
-      expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-      expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(101);
-      expect(await this.collection1.balanceOf(this.author.address)).to.be.equal(0);
-      expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-      let collectiblePriceWei = ethers.utils.parseUnits("0.25", "ether");
-
-      expect(collectiblePriceWei).to.be.equal("250000000000000000");
+      ownerBalance = await ethers.provider.getBalance(this.owner.address);
+      sellerBalance = await ethers.provider.getBalance(this.seller.address);
+      buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
+      authorBalance  = await ethers.provider.getBalance(this.author.address);
+      marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
+
+      console.log("\t######################### After Claim Funds ################################");
+      console.log("\tOwner balance:", ethers.utils.formatEther(ownerBalance));
+      console.log("\tBuyer balance:", ethers.utils.formatEther(buyerBalance));
+      console.log("\tSeller balance:", ethers.utils.formatEther(sellerBalance));
+      console.log("\tAuthor balance:", ethers.utils.formatEther(authorBalance));
+      console.log("\tMarket balance:", ethers.utils.formatEther(marketPlaceBalance));
+
+      
+      expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9999);
+      expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9497); // balance decreased
+      expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(9999);
+      expect(+ethers.utils.formatEther(marketPlaceBalance)).to.be.equal(0);
+
+      expect(Math.floor(+ethers.utils.formatEther(ownerBalance)))
+        .to.be.equal(Math.floor(+ethers.utils.formatEther(this.ownerBalance.add(collectible.price))));
+
+      expect(this.marketPlaceBalance.sub(marketPlaceBalance)).to.be.equal(collectible.price);  
+
+      expect(sellerBalance).to.be.equal(this.sellerBalance);
+      expect(authorBalance).to.be.equal(this.authorBalance);
+      
+
+      this.ownerBalance = ownerBalance;
+      this.buyerBalance = buyerBalance;
+      this.sellerBalance = sellerBalance;
+      this.authorBalance = authorBalance;
+      this.marketPlaceBalance = marketPlaceBalance; 
+      
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+      
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    });
+
+    it("5.10 MarketPlace author wants to sell collectible belongs to buyer (reverted)", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      
+      const collectible = await this.marketPlace.getCollectible(1, 1);
+
+      expect(collectible.tokenIds.length).to.be.equal(1);
+      expect(collectible.owners[0]).to.be.equal(this.buyer.address);
+      expect(collectible.fulfilled[0]).to.be.equal(true);
+      expect(collectible.creator).to.be.equal(this.owner.address);
+
+      const quantityToSell = 1;
+      
+      await expect(this.marketPlace.connect(this.author).sell(1, collectible.id, quantityToSell)).to.be.revertedWith("Can sell only tokens that belongs to owner");
+    });
+
+    it("5.11 MarketPlace buyer wants to sell collectible belongs to buyer", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0); 
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(2); 
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0); 
+
+      let collectible = await this.marketPlace.getCollectible(1, 1);
+
+      expect(collectible.tokenIds.length).to.be.equal(1);
+      expect(collectible.owners[0]).to.be.equal(this.buyer.address);
+      expect(collectible.fulfilled[0]).to.be.equal(true);
+      expect(collectible.creator).to.be.equal(this.owner.address);
+
+      const quantityToSell = 1;
+      
+      await this.collection.connect(this.buyer)
+        .setApprovalForAll(this.marketPlace.address, true);
+
+      const tx = await this.marketPlace.connect(this.buyer).sell(1, collectible.id, quantityToSell);
+
+      await tx.wait();
+      
+      collectible = await this.marketPlace.getCollectible(1, 1);
+
+      // all sold
+      for (let i = 0; i < quantityToSell; i++) {
+        expect(collectible.owners[i]).to.be.equal(this.buyer.address); // after sell, set new price and reset fulfilled
+        expect(collectible.fulfilled[i]).to.be.equal(false);
+      }      
+    });
+  
+    it("5.12 MarketPlace collection balance check after sell operation", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0); 
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(1); 
+
+      expect(await this.collection.ownerOf(1)).to.be.equal(this.marketPlace.address);
+    });
+    
+    it("5.13 MarketPlace seller is buying sold collectibles", async function () {
+      const collection = await this.marketPlace.getCollection(1);
+
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      
+      let collectible = await this.marketPlace.getCollectible(1, 1);
+
+      expect(collectible.tokenIds.length).to.be.equal(1);
+      expect(collectible.owners[0]).to.be.equal(this.buyer.address);
+      expect(collectible.fulfilled[0]).to.be.equal(false);
+      expect(collectible.creator).to.be.equal(this.owner.address);
+
+    
+      const quantity = 1;
+
+      const fee = +collection.fee.toString() / +ethers.constants.WeiPerEther.toString();
+      
+      const percent = +collectible.price.toString() * fee / 100; 
+      
+      const total = +collectible.price.toString() + +percent;
+     
+      let tx = await this.marketPlace.connect(this.seller).buy(collectible.collectionId, collectible.id, quantity, {
+        value: BigNumber.from((total * quantity).toString())
+      });
+
+      await tx.wait();
+
+      collectible = await this.marketPlace.getCollectible(1, 1); 
+
+      expect(collectible.isAuction).to.be.equal(false);
+
+      for (const owner of collectible.owners) {
+        expect(owner).to.be.equal(this.seller.address);
+      }
+
+      for (let fulfilled of collectible.fulfilled) {
+        expect(fulfilled).to.be.equal(true);;
+      }
+      expect(collectible.creator).to.be.equal(this.owner.address);
+    });
+    
+    it("5.14 MarketPlace userFunds after buy collectible by seller from buyer", async function () {
+      const collectible = await this.marketPlace.getCollectible(1, 1);
+ 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(collectible.price);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+
+      let ownerBalance = await ethers.provider.getBalance(this.owner.address);
+      let sellerBalance = await ethers.provider.getBalance(this.seller.address);
+      let buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
+      let authorBalance  = await ethers.provider.getBalance(this.author.address);
+      let marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
+
+      console.log("\t######################### Before Claim Funds after buy token by seller for " + ethers.utils.formatEther(collectible.price) + " ################################");
+      console.log("\tOwner balance:", ethers.utils.formatEther(ownerBalance));
+      console.log("\tBuyer balance:", ethers.utils.formatEther(buyerBalance));
+      console.log("\tSeller balance:", ethers.utils.formatEther(sellerBalance));
+      console.log("\tAuthor balance:", ethers.utils.formatEther(authorBalance));
+      console.log("\tMarket balance:", ethers.utils.formatEther(marketPlaceBalance));
+
+      this.ownerBalance = ownerBalance;
+      this.buyerBalance = buyerBalance;
+      this.sellerBalance = sellerBalance;
+      this.authorBalance = authorBalance;
+      this.marketPlaceBalance = marketPlaceBalance;
+      
+      const quantity = 1;
+      const tx = await this.marketPlace.connect(this.buyer).claimFunds();
+      await tx.wait();
+
+      ownerBalance = await ethers.provider.getBalance(this.owner.address);
+      sellerBalance = await ethers.provider.getBalance(this.seller.address);
+      buyerBalance  = await ethers.provider.getBalance(this.buyer.address);
+      authorBalance  = await ethers.provider.getBalance(this.author.address);
+      marketPlaceBalance = await ethers.provider.getBalance(this.marketPlace.address);
+
+      console.log("\t######################### After Claim Funds ################################");
+      console.log("\tOwner balance:", ethers.utils.formatEther(ownerBalance));
+      console.log("\tBuyer balance:", ethers.utils.formatEther(buyerBalance));
+      console.log("\tSeller balance:", ethers.utils.formatEther(sellerBalance));
+      console.log("\tAuthor balance:", ethers.utils.formatEther(authorBalance));
+      console.log("\tMarket balance:", ethers.utils.formatEther(marketPlaceBalance));
+
+      
+      expect(Math.floor(+ethers.utils.formatEther(sellerBalance))).to.be.equal(9497);
+      expect(Math.floor(+ethers.utils.formatEther(buyerBalance))).to.be.equal(9997);
+      expect(Math.floor(+ethers.utils.formatEther(authorBalance))).to.be.equal(9999);
+      expect(+ethers.utils.formatEther(marketPlaceBalance)).to.be.equal(0);
+
+      // expect(Math.floor(+ethers.utils.formatEther(ownerBalance)))
+      //   .to.be.equal(Math.floor(+ethers.utils.formatEther(this.ownerBalance.add(collectible.price))));
+
+      expect(this.marketPlaceBalance.sub(marketPlaceBalance)).to.be.equal(collectible.price);  
+
+      expect(sellerBalance).to.be.equal(this.sellerBalance);
+      expect(authorBalance).to.be.equal(this.authorBalance);
+      
+
+      this.ownerBalance = ownerBalance;
+      this.buyerBalance = buyerBalance;
+      this.sellerBalance = sellerBalance;
+      this.authorBalance = authorBalance;
+      this.marketPlaceBalance = marketPlaceBalance; 
+      
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    }); 
+  });
+    
+  describe("6. MarketPlace multiple tokens collectible", function () {
+    
+    it("6.1 MarketPlace check created tokens in collection", async function () {
+      expect(await this.marketPlace.getCollectionCounter()).to.be.equal(1);
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+      expect(await this.marketPlace.getCollectibleCount(1)).to.be.equal(1);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0); 
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2); 
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); 
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0); 
+    });
+    
+    it("6.2 MarketPlace author mint 100 tokens", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(4);
+
+      const tokenTx = await this.collection
+      .connect(this.author)
+      .mint("multiple-testURI", 100);
+        
+      await tokenTx.wait();
+
+      expect(await this.collection.totalSupply()).to.be.equal(104);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(101); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+    });
+    
+    it("6.3 MarketPlace create collectible from 100 minted tokens", async function () {
+      expect(await this.collection.totalSupply()).to.be.equal(104);
+      const multipleTokenIds = [];
+    
+      for (let i = 5; i <= await this.collection.totalSupply(); i++) {
+        expect(await this.collection.ownerOf(i)).to.be.equal(this.author.address);
+        multipleTokenIds.push(i);
+      }
+      const collectionId = 1;
+
+      let collectiblesInCollection = await this.marketPlace.getCollectibleCount(collectionId);
+
+      expect(collectiblesInCollection).to.be.equal(1);
+      
+      const itemId = collectiblesInCollection.add(1);
+
+      await this.collection.connect(this.author)
+        .setApprovalForAll(this.marketPlace.address, true);
+
+      const price = BigNumber.from((9.5 * +ethers.constants.WeiPerEther.toString()).toString());
+      
+      let createTx = await this.marketPlace
+        .connect(this.author)
+        .createCollectible(multipleTokenIds, collectionId, false, price, { from: this.author.address });
+      await createTx.wait();
+    
+      collectiblesInCollection = await this.marketPlace.getCollectibleCount(collectionId);
+
+      expect(collectiblesInCollection).to.be.equal(2);
+
+      const collectible = await this.marketPlace.getCollectible(collectionId, itemId);
+      
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === false).length).to.be.equal(100);
+      expect(collectible.owners.filter((owner: string) => owner === this.author.address).length).to.be.equal(100);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    });
+
+    it("6.4 MarketPlace buyer buy collectible belongs to author with part of 100 minted tokens", async function () {
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(100);
 
       const collection = await this.marketPlace.getCollection(1);
-      expect(collectionId).to.be.equal(1);
-      expect(await this.marketPlace.getCollectibleCount(collectionId)).to.be.equal(1);
-
-      //   console.log(collection);
-      //   id: BigNumber { value: "1" },
-      //   name: 'Monsters',
-      //   symbol: 'MST',
-      //   description: 'My Cutiest Creatures',
-      //   nftCollection: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      //   fee: BigNumber { value: "4000000000000000000" },
-      //   price: BigNumber { value: "1000" },
-      //   owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      //   creator: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      //   fulfilled: false,
-      //   cancelled: false
-
-      const startTime = moment().unix();
-      const endTime = moment().add(3, 'days').unix();
-
-      const startPrice = ethers.utils.parseEther("1.2");
-      const reservePrice = ethers.utils.parseEther("1.5");
-
-      const auction = await this.AuctionFactory.deploy(this.marketPlace.address,
-        collectionId, 1, startPrice, reservePrice, startTime, endTime);
-      await auction.deployed();
-
-      expect(collection.owner).to.be.equal(this.owner.address);
-      expect(await auction.beneficiary()).to.be.equal(collection.owner);
-
-      await this.collection1.connect(this.owner)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      let createTx = await this.marketPlace
-        .connect(this.owner)
-        .createCollectible(tokenIds, collectionId, true, auction.address, { from: this.owner.address });
-
-      result = await createTx.wait();
-
-      expect(result.to).to.be.equal(this.marketPlace.address);
-      expect(result.from).to.be.equal(this.owner.address);
-
-      // // after add token to market balance must change (token is going to market)
-      expect(await this.collection1.totalSupply()).to.equal(203);
-      expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-      expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(1);
-      expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(101);
-      expect(await this.collection1.balanceOf(this.author.address)).to.be.equal(0);
-      expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(101);
-      for (const tokenId of tokenIds) {
-        expect(await this.collection1.ownerOf(tokenId)).to.be.equal(this.marketPlace.address);
-      }
-
-      const collectibleId = await this.marketPlace.getCollectibleCount(collectionId);
-      expect(collectibleId).to.be.equal(2);
-
-      const collectible = await this.marketPlace.getCollectible(collectionId, collectibleId);
-
-      // ###################################################
-
-
-      /*
-      // ----------------------------------------------
-      startTime = moment().unix();
-      endTime = moment().add(3, 'days').unix();
-
-      startPrice = ethers.utils.parseEther("1.2");
-      reservePrice = ethers.utils.parseEther("1.5");
-
-      auction = await this.AuctionFactory.deploy(
-        collection1.id, 2, startPrice, reservePrice, startTime, endTime, this.buyer.address);
-      await auction.deployed();
-
-      expect(await auction.beneficiary()).to.be.equal(this.buyer.address);
-
-      await this.collection1.connect(this.buyer)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      createTx = await this.marketPlace
-        .connect(this.buyer)
-        .createCollectible(2, collection1.id, true, auction.address, { from: this.buyer.address });
-
-      await createTx.wait();
-
-      // ----------------------------------------------
-      startTime = moment().unix();
-      endTime = moment().add(3, 'days').unix();
-
-      startPrice = ethers.utils.parseEther("1.2");
-      reservePrice = ethers.utils.parseEther("1.5");
-
-      auction = await this.AuctionFactory.deploy(
-        collection1.id, 3, startPrice, reservePrice, startTime, endTime, this.seller.address);
-      await auction.deployed();
-
-      expect(await auction.beneficiary()).to.be.equal(this.seller.address);
-
-      await this.collection1.connect(this.seller)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      createTx = await this.marketPlace
-        .connect(this.seller)
-        .createCollectible(3, collection1.id, true, auction.address, { from: this.seller.address });
-
-      await createTx.wait();
-
-      // ----------------------------------------------
-      const collection2 = await this.marketPlace.getCollection(2);
-      expect(collection2.id).to.be.equal(2);
-
-      startTime = moment().unix();
-      endTime = moment().add(3, 'days').unix();
-
-      startPrice = ethers.utils.parseEther("1.2");
-      reservePrice = ethers.utils.parseEther("1.5");
-
-      auction = await this.AuctionFactory.deploy(
-        collection2.id, 1, startPrice, reservePrice, startTime, endTime, this.owner.address);
-      await auction.deployed();
-
-      expect(await auction.beneficiary()).to.be.equal(this.owner.address);
-
-      await this.collection2.connect(this.owner)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      createTx = await this.marketPlace
-        .connect(this.owner)
-        .createCollectible(1, collection2.id, false, auction.address, { from: this.owner.address });
-
-      await createTx.wait();
-
-      // ----------------------------------------------
-      startTime = moment().unix();
-      endTime = moment().add(3, 'days').unix();
-
-      startPrice = ethers.utils.parseEther("1.2");
-      reservePrice = ethers.utils.parseEther("1.5");
-
-      auction = await this.AuctionFactory.deploy(
-        collection2.id, 2, startPrice, reservePrice, startTime, endTime, this.buyer.address);
-      await auction.deployed();
-
-      expect(await auction.beneficiary()).to.be.equal(this.buyer.address);
-
-      await this.collection2.connect(this.buyer)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      createTx = await this.marketPlace
-        .connect(this.buyer)
-        .createCollectible(2, collection2.id, false, auction.address, { from: this.buyer.address });
-
-      await createTx.wait();
-
-      // ----------------------------------------------
-      startTime = moment().unix();
-      endTime = moment().add(3, 'days').unix();
-
-      startPrice = ethers.utils.parseEther("1.2");
-      reservePrice = ethers.utils.parseEther("1.5");
-
-      auction = await this.AuctionFactory.deploy(
-        collection2.id, 3, startPrice, reservePrice, startTime, endTime, this.seller.address);
-      await auction.deployed();
-
-      expect(await auction.beneficiary()).to.be.equal(this.seller.address);
-
-      await this.collection2.connect(this.seller)
-        .setApprovalForAll(this.marketPlace.address, true);
-
-      createTx = await this.marketPlace
-        .connect(this.seller)
-        .createCollectible(3, collection2.id, false, auction.address, { from: this.seller.address });
-
-      await createTx.wait();
-
-      expect(await this.marketPlace.getCollectibleCount(1)).to.be.equal(3);
-      expect(await this.marketPlace.getCollectibleCount(2)).to.be.equal(3);
-
-      expect(await this.collection1.balanceOf(this.owner.address)).to.be.equal(0);
-      expect(await this.collection1.balanceOf(this.buyer.address)).to.be.equal(0);
-      expect(await this.collection1.balanceOf(this.seller.address)).to.be.equal(0);
-
-      expect(await this.collection1.balanceOf(this.marketPlace.address)).to.be.equal(3);
-
-      expect(await this.collection1.ownerOf(1)).to.be.equal(this.marketPlace.address);
-      expect(await this.collection1.ownerOf(2)).to.be.equal(this.marketPlace.address);
-      expect(await this.collection1.ownerOf(3)).to.be.equal(this.marketPlace.address);
-
-      expect(await this.collection2.balanceOf(this.owner.address)).to.be.equal(0);
-      expect(await this.collection2.balanceOf(this.buyer.address)).to.be.equal(0);
-      expect(await this.collection2.balanceOf(this.seller.address)).to.be.equal(0);
-
-      expect(await this.collection2.balanceOf(this.marketPlace.address)).to.be.equal(3);
-
-      expect(await this.collection2.ownerOf(1)).to.be.equal(this.marketPlace.address);
-      expect(await this.collection2.ownerOf(2)).to.be.equal(this.marketPlace.address);
-      expect(await this.collection2.ownerOf(3)).to.be.equal(this.marketPlace.address);
-      */
-
-      //####################################################################
-
-      /*
-      await(async () => {
-        const collectible = await this.marketPlace.getCollectible(1, 2);
-        expect(collectible.isAuction).to.be.equal(true);
-        expect(collectible.owner).to.be.equal(this.buyer.address);
-        expect(collectible.creator).to.be.equal(this.buyer.address);
-
-        const tx = await this.marketPlace.connect(this.buyer).startAuction(collectible.collectionId, collectible.tokenId);
-        await tx.wait();
-
-      })();
-
-      await(async () => {
-        const collectible = await this.marketPlace.getCollectible(1, 3);
-        expect(collectible.isAuction).to.be.equal(true);
-        expect(collectible.owner).to.be.equal(this.seller.address);
-        expect(collectible.creator).to.be.equal(this.seller.address);
-
-        const tx = await this.marketPlace.connect(this.seller).startAuction(collectible.collectionId, collectible.tokenId);
-        await tx.wait();
-
-      })();
-
-      await(async () => {
-        const collectible = await this.marketPlace.getCollectible(2, 1);
-        expect(collectible.isAuction).to.be.equal(false);
-        expect(collectible.owner).to.be.equal(this.owner.address);
-        expect(collectible.creator).to.be.equal(this.owner.address);
-      })();
-
-      await(async () => {
-        const collectible = await this.marketPlace.getCollectible(2, 2);
-        expect(collectible.isAuction).to.be.equal(false);
-        expect(collectible.owner).to.be.equal(this.buyer.address);
-        expect(collectible.creator).to.be.equal(this.buyer.address);
-      })();
-
-      await(async () => {
-        const collectible = await this.marketPlace.getCollectible(2, 3);
-        expect(collectible.isAuction).to.be.equal(false);
-        expect(collectible.owner).to.be.equal(this.seller.address);
-        expect(collectible.creator).to.be.equal(this.seller.address);
-      })();
-      */
+      
+      let collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === false).length).to.be.equal(100);
+      expect(collectible.owners.filter((owner: string) => owner === this.author.address).length).to.be.equal(100);
+
+      const quantity = 10;
+      const fee = +collection.fee.toString() / +ethers.constants.WeiPerEther.toString();
+      const percent = +collectible.price.toString() * fee / 100;
+      const total = (+percent + +collectible.price) * quantity;
+
+      let tx = await this.marketPlace.connect(this.buyer).buy(1, collectible.id, quantity, {
+        value: BigNumber.from(total.toString())
+      });
+
+      await tx.wait();
+
+      collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === true).length).to.be.equal(quantity);
+      expect(collectible.owners.filter((owner: string) => owner === this.buyer.address).length).to.be.equal(quantity);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(11);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(90);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(collectible.price.mul(quantity));
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
     });
-    /*
-    it("10. Create new collection", async function() {
-      try {
-        /!*
 
-        // 1. Create empty collection
-
-
-
-
-        // 2. Deploy contract
-
-
-        // SUCCESS
-        let event = result.events[0].args;
-        expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-        expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-        expect(event.to, this.owner.address, "to is correct");
-
-
-        // 6. Add token to collection
-        await collectionContract1.connect(this.owner)
-          .setApprovalForAll(this.marketPlace.address, true);
-
-        let price = ethers.utils.parseUnits("1.55", "ether");
-
-
-        let createTx = await this.marketPlace
-          .connect(this.owner)
-          .createCollectible(event.tokenId, createdCollection1.id, price, false, { from: this.owner.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.owner.address);
-
-          let args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.owner.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // ###################################################
-
-          // create second token
-          token = await collectionContract1
-            .connect(this.owner)
-            .safeMint("testURI2");
-
-          result = await token.wait();
-          totalSupply = await collectionContract1.totalSupply();
-
-          expect(totalSupply).to.equal(2);
-          expect(result.to).to.be.equal(collectionContract1.address);
-          expect(result.from).to.be.equal(this.owner.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.owner.address, "to is correct");
-
-          // owner now has 2 tokens in contract
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(1);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.owner.address);
-
-          price = ethers.utils.parseUnits("2", "ether");
-
-          createTx = await this.marketPlace
-            .connect(this.owner)
-            .createCollectible(event.tokenId, createdCollection1.id, price, false, { from: this.owner.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.owner.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.owner.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(2);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          // ###################################################
-
-          // third token
-          token = await collectionContract1
-            .connect(this.owner)
-            .safeMint("testURI3");
-
-          result = await token.wait();
-          totalSupply = await collectionContract1.totalSupply();
-
-          expect(totalSupply).to.equal(3);
-          expect(result.to).to.be.equal(collectionContract1.address);
-          expect(result.from).to.be.equal(this.owner.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.owner.address, "to is correct");
-
-          // owner created 3 tokens in collection
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(1);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(2);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.owner.address);
-
-          price = ethers.utils.parseUnits("2", "ether");
-
-          createTx = await this.marketPlace
-            .connect(this.owner)
-            .createCollectible(event.tokenId, createdCollection1.id, price, false, { from: this.owner.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.owner.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.owner.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(3);
-
-          expect(await collectionContract1.ownerOf(1)).to.be.equal(this.marketPlace.address);
-          expect(await collectionContract1.ownerOf(2)).to.be.equal(this.marketPlace.address);
-          expect(await collectionContract1.ownerOf(3)).to.be.equal(this.marketPlace.address);
-
-          let tokenURI = await collectionContract1.tokenURI(1);
-          expect(tokenURI).to.be.equal('testURI');
-
-          tokenURI = await collectionContract1.tokenURI(2);
-          expect(tokenURI).to.be.equal('testURI2');
-
-          tokenURI = await collectionContract1.tokenURI(3);
-          expect(tokenURI).to.be.equal('testURI3');
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // ##################### End First Collection ############################
-
-          // ##################### Start Second Collection Created By Seller ######################
-          // after create first collection, let's try to create one more collection by another user
-          collectionName = "Digital";
-          collectionSymbol = "DGL";
-          collectionDescription = "Brand New Digital";
-          collectionFee = ethers.utils.parseEther("2.25");
-          collectionPrice = 100;
-          let collectionContract2 = await this.CollectionFactory.deploy(collectionName, collectionSymbol);
-          await collectionContract2.deployed();
-
-          // check address
-          address = collectionContract2.address;
-          expect(address).not.to.equal("");
-          expect(address).not.to.equal(0x0);
-          expect(address).not.to.equal(null);
-          expect(address).not.to.equal(undefined);
-
-          createCollectionTx = await this.marketPlace
-            .connect(this.seller)
-            .createCollection(collectionName, collectionSymbol, collectionDescription, collectionFee, collectionPrice, collectionContract2.address, this.seller.address);
-
-          await createCollectionTx.wait();
-
-          // collection count should increase
-          collectionsCount = await this.marketPlace.getCollectionsCount();
-          expect(collectionsCount).to.equal(2);
-
-          let createdCollection2 = await this.marketPlace.getCollection(collectionsCount);
-          expect(createdCollection2.id).to.equal(collectionsCount);
-          expect(createdCollection2.name).to.equal(collectionName);
-          expect(createdCollection2.symbol).to.equal(collectionSymbol);
-          expect(createdCollection2.description).to.equal(collectionDescription);
-          expect(createdCollection2.nftCollection).to.equal(address);
-          expect(createdCollection2.owner).to.equal(this.seller.address);
-          expect(createdCollection2.creator).to.equal(this.seller.address);
-          expect(createdCollection2.fulfilled).to.equal(false);
-          expect(createdCollection2.cancelled).to.equal(false);
-
-          // let's add another token to collection
-          // no tokens in collection
-          totalSupply = await collectionContract2.totalSupply();
-          expect(totalSupply).to.equal(0);
-
-          // after creating collection let"s create an nft and add it to collection
-          token = await collectionContract2
-            .connect(this.seller)
-            .safeMint("testURI");
-
-          result = await token.wait();
-          totalSupply = await collectionContract2.totalSupply();
-
-          expect(totalSupply).to.equal(1);
-          expect(result.to).to.be.equal(collectionContract2.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.seller.address, "to is correct");
-
-          // check token balance
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(1); // token minted by seller
-
-          expect(await collectionContract2.ownerOf(totalSupply)).to.be.equal(this.seller.address);
-
-          // 6. Add token to collection
-          await collectionContract2.connect(this.seller)
-            .setApprovalForAll(this.marketPlace.address, true);
-
-          price = ethers.utils.parseUnits("1.56", "ether");
-
-          createTx = await this.marketPlace
-            .connect(this.seller)
-            .createCollectible(event.tokenId, createdCollection2.id, price, false, { from: this.seller.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection2.id);
-          expect(args.owner).to.be.equal(this.seller.address);
-          expect(args.creator).to.be.equal(this.seller.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(1); // token transfered to market
-
-          expect(await collectionContract2.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          token = await collectionContract2
-            .connect(this.seller)
-            .safeMint("testURI2");
-
-          result = await token.wait();
-          totalSupply = await collectionContract2.totalSupply();
-
-          expect(totalSupply).to.equal(2);
-          expect(result.to).to.be.equal(collectionContract2.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.seller.address, "to is correct");
-
-          // check token balance
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(1);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-          expect(await collectionContract2.ownerOf(totalSupply)).to.be.equal(this.seller.address);
-
-          // 6. Add token to collection
-
-          price = ethers.utils.parseUnits("2", "ether");
-
-          createTx = await this.marketPlace
-            .connect(this.seller)
-            .createCollectible(event.tokenId, createdCollection2.id, price, false, { from: this.seller.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection2.id);
-          expect(args.owner).to.be.equal(this.seller.address);
-          expect(args.creator).to.be.equal(this.seller.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(2);
-
-          expect(await collectionContract2.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          token = await collectionContract2
-            .connect(this.buyer)
-            .safeMint("testURI3");
-
-          result = await token.wait();
-          totalSupply = await collectionContract2.totalSupply();
-
-          expect(totalSupply).to.equal(3);
-          expect(result.to).to.be.equal(collectionContract2.address);
-          expect(result.from).to.be.equal(this.buyer.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.buyer.address, "to is correct");
-
-          // check token balance
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.buyer.address)).to.be.equal(1);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(2);
-
-          expect(await collectionContract2.ownerOf(totalSupply)).to.be.equal(this.buyer.address);
-
-          // 6. Add token to collection
-          await collectionContract2.connect(this.buyer)
-            .setApprovalForAll(this.marketPlace.address, true);
-
-          price = ethers.utils.parseUnits("3", "ether");
-
-          createTx = await this.marketPlace
-            .connect(this.buyer)
-            .createCollectible(event.tokenId, createdCollection2.id, price, false, { from: this.buyer.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.buyer.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection2.id);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.buyer.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.buyer.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(3);
-
-          expect(await collectionContract2.ownerOf(1)).to.be.equal(this.marketPlace.address);
-          expect(await collectionContract2.ownerOf(2)).to.be.equal(this.marketPlace.address);
-          expect(await collectionContract2.ownerOf(3)).to.be.equal(this.marketPlace.address);
-
-          tokenURI = await collectionContract2.tokenURI(1);
-          expect(tokenURI).to.be.equal('testURI');
-
-          tokenURI = await collectionContract2.tokenURI(2);
-          expect(tokenURI).to.be.equal('testURI2');
-
-          tokenURI = await collectionContract2.tokenURI(3);
-          expect(tokenURI).to.be.equal('testURI3');
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // now we have 2 different collections with 3 tokens inside each
-          const firstCollection = await this.marketPlace.getCollection(1);
-          const firstCollectionByName = await this.marketPlace.getCollectionByName("Art");
-          expect(firstCollection.id).to.be.equal(firstCollectionByName.id);
-
-          token = await this.marketPlace.getCollectible(firstCollection.id, 1);
-
-          expect(token.id).to.be.equal(1);
-          expect(token.collectionId).to.be.equal(firstCollection.id);
-          expect(token.tokenId).to.be.equal(1);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("1.55", "ether"));
-          // check token owner before buy
-          expect(token.owner).to.be.equal(this.owner.address);
-          expect(token.creator).to.be.equal(this.owner.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-
-          // check token owner before buy
-          let fee = Number(ethers.utils.formatEther(firstCollection.fee));
-
-          let tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          let totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice1 = ethers.utils.parseEther(totalInEth.toString());
-
-          //console.log(totalPrice1);
-
-          // try to buy first token from first collection by buyer
-          let buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice1 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(1);
-          expect(args.collectionId).to.be.equal(firstCollection.id);
-          expect(args.tokenId).to.be.equal(1);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("1.55", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.buyer.address)).to.be.equal(1);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(2);
-
-          expect(await collectionContract1.ownerOf(1)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(totalPrice1); // fund increase
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // second token
-          token = await this.marketPlace.getCollectible(firstCollection.id, 2);
-          expect(token.id).to.be.equal(2);
-          expect(token.collectionId).to.be.equal(firstCollection.id);
-          expect(token.tokenId).to.be.equal(2);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          expect(token.owner).to.be.equal(this.owner.address);
-          expect(token.creator).to.be.equal(this.owner.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-
-          // check token owner before buy
-          fee = Number(ethers.utils.formatEther(firstCollection.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice2 = ethers.utils.parseEther(totalInEth.toString());
-
-          // try to buy first token from first collection by buyer
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice2 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(2);
-          expect(args.collectionId).to.be.equal(firstCollection.id);
-          expect(args.tokenId).to.be.equal(2);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.buyer.address)).to.be.equal(2);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-
-          expect(await collectionContract1.ownerOf(2)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(totalPrice1.add(totalPrice2)); // add funds for second token
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          token = await this.marketPlace.getCollectible(firstCollection.id, 3);
-
-          expect(token.id).to.be.equal(3);
-          expect(token.collectionId).to.be.equal(firstCollection.id);
-          expect(token.tokenId).to.be.equal(3);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          expect(token.owner).to.be.equal(this.owner.address);
-          expect(token.creator).to.be.equal(this.owner.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-          fee = Number(ethers.utils.formatEther(firstCollection.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice3 = ethers.utils.parseEther(totalInEth.toString());
-
-          // try to buy token from first collection by buyer
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice3 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(3);
-          expect(args.collectionId).to.be.equal(firstCollection.id);
-          expect(args.tokenId).to.be.equal(3);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.owner.address);
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.buyer.address)).to.be.equal(3);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(0);
-
-          expect(await collectionContract1.ownerOf(3)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address)).to.equal(totalPrice1.add(totalPrice2).add(totalPrice3)); // add funds for third token
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // ###############################################################################
-
-          const secondCollection = await this.marketPlace.getCollection(2);
-          const secondCollectionByName = await this.marketPlace.getCollectionByName("Digital");
-          expect(secondCollection.id).to.be.equal(secondCollectionByName.id);
-
-          token = await this.marketPlace.getCollectible(secondCollection.id, 1);
-          expect(token.id).to.be.equal(1);
-          expect(token.collectionId).to.be.equal(secondCollection.id);
-          expect(token.tokenId).to.be.equal(1);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("1.56", "ether"));
-          expect(token.owner).to.be.equal(this.seller.address);
-          expect(token.creator).to.be.equal(this.seller.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-          fee = Number(ethers.utils.formatEther(secondCollection.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice4 = ethers.utils.parseEther(totalInEth.toString());
-
-          // try to buy first token from first collection by buyer
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice4 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(1);
-          expect(args.collectionId).to.be.equal(secondCollection.id);
-          expect(args.tokenId).to.be.equal(1);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("1.56", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.seller.address); // keep creator
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.buyer.address)).to.be.equal(1);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(2); // market has 2 tokens
-
-          expect(await collectionContract2.ownerOf(1)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4)); // add funds for third token
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          token = await this.marketPlace.getCollectible(secondCollection.id, 2);
-
-          expect(token.id).to.be.equal(2);
-          expect(token.collectionId).to.be.equal(secondCollection.id);
-          expect(token.tokenId).to.be.equal(2);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          expect(token.owner).to.be.equal(this.seller.address);
-          expect(token.creator).to.be.equal(this.seller.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-          fee = Number(ethers.utils.formatEther(secondCollection.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice5 = ethers.utils.parseEther(totalInEth.toString());
-
-          // try to buy first token from first collection by buyer
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice5 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(2);
-          expect(args.collectionId).to.be.equal(secondCollection.id);
-          expect(args.tokenId).to.be.equal(2);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("2", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.seller.address); // keep creator
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.buyer.address)).to.be.equal(2);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(1); // market has 1 token to sell
-
-          expect(await collectionContract2.ownerOf(2)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4).add(totalPrice5)); // add funds for third token
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-
-          token = await this.marketPlace.getCollectible(secondCollection.id, 3);
-          expect(token.id).to.be.equal(3);
-          expect(token.collectionId).to.be.equal(secondCollection.id);
-          expect(token.tokenId).to.be.equal(3);
-          expect(token.price).to.be.equal(ethers.utils.parseUnits("3", "ether"));
-          expect(token.owner).to.be.equal(this.buyer.address);
-          expect(token.creator).to.be.equal(this.buyer.address);
-          expect(token.fulfilled).to.be.equal(false);
-          expect(token.cancelled).to.be.equal(false);
-
-          fee = Number(ethers.utils.formatEther(secondCollection.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(token.price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice6 = ethers.utils.parseEther(totalInEth.toString());
-
-          // try to buy first token from first collection by buyer
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(token.collectionId, token.id, { from: this.buyer.address, value: totalPrice6 });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(3);
-          expect(args.collectionId).to.be.equal(secondCollection.id);
-          expect(args.tokenId).to.be.equal(3);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("3", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.buyer.address); // keep creator
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract2.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract2.balanceOf(this.buyer.address)).to.be.equal(3);
-          expect(await collectionContract2.balanceOf(this.marketPlace.address)).to.be.equal(0); // market sold all tokens
-
-          expect(await collectionContract2.ownerOf(3)).to.be.equal(this.buyer.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4).add(totalPrice5).add(totalPrice6)); // add funds for third token
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-
-          // #####################################
-          // check issued token count
-          totalSupply = await collectionContract1.totalSupply();
-          expect(totalSupply).to.equal(3);
-
-          // 5. Create new token
-          token = await collectionContract1
-            .connect(this.seller)
-            .safeMint("testTokenToBeCancelled");
-
-          result = await token.wait();
-          totalSupply = await collectionContract1.totalSupply();
-
-          expect(totalSupply).to.equal(4);
-          expect(result.to).to.be.equal(collectionContract1.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          // SUCCESS
-          event = result.events[0].args;
-          expect(event.tokenId.toNumber(), totalSupply, "id is correct");
-          expect(event.from, "0x0000000000000000000000000000000000000000", "from is correct");
-          expect(event.to, this.seller.address, "to is correct");
-
-          // check token balance
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.buyer.address)).to.be.equal(3);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(1);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(0);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.seller.address);
-
-          // Add token to collection
-          price = ethers.utils.parseUnits("10", "ether");
-
-          await collectionContract1.connect(this.seller)
-            .setApprovalForAll(this.marketPlace.address, true);
-
-          createTx = await this.marketPlace
-              .connect(this.seller)
-              .createCollectible(event.tokenId, createdCollection1.id, price, false, { from: this.seller.address });
-
-          result = await createTx.wait();
-
-          expect(result.to).to.be.equal(this.marketPlace.address);
-          expect(result.from).to.be.equal(this.seller.address);
-
-          args = result.events[1].args;
-          expect(args.tokenId).to.be.equal(event.tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.seller.address);
-          expect(args.creator).to.be.equal(this.seller.address);
-          expect(args.fulfilled).to.be.equal( false);
-          expect(args.cancelled).to.be.equal( false);
-          expect(args.price).to.be.equal(price);
-
-          // after add token to market balance must change (token is going to market)
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4).add(totalPrice5).add(totalPrice6)); // add funds for third token
-
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // cancel token listing
-
-          const tokenId = 4;
-          const cancelTx = await this.marketPlace
-            .connect(this.seller).cancelCollectible(createdCollection1.id, tokenId, { from: this.seller.address });
-          result = await cancelTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.seller.address);
-
-          const cancelledToken = await this.marketPlace.getCollectible(createdCollection1.id, tokenId);
-
-          expect(cancelledToken.cancelled).to.equal(true);
-
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(1); // token returned to seller
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.seller.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4).add(totalPrice5).add(totalPrice6)); // add funds for third token
-
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // revert cancel
-          const revertTx = await this.marketPlace
-            .connect(this.seller).revertCancelCollectible(createdCollection1.id, tokenId, { from: this.seller.address });
-          result = await revertTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(tokenId);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.owner).to.be.equal(this.seller.address);
-
-          const revertedToken = await this.marketPlace.getCollectible(createdCollection1.id, tokenId);
-
-          expect(revertedToken.cancelled).to.equal(false);
-
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1); // token returned to market
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-
-          expect(await collectionContract1.ownerOf(totalSupply)).to.be.equal(this.marketPlace.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          expect(await this.marketPlace.getUserFunds(this.buyer.address))
-            .to.equal(totalPrice1.add(totalPrice2).add(totalPrice3).add(totalPrice4).add(totalPrice5).add(totalPrice6)); // add funds for third token
-
-          expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-          // buy reverted token
-          // try to buy first token from first collection by buyer
-          fee = Number(ethers.utils.formatEther(createdCollection1.fee));
-
-          tokenPrice = Number(ethers.utils.formatEther(price))
-
-          totalInEth = tokenPrice * fee / 100 + tokenPrice;
-
-          let totalPrice = ethers.utils.parseEther(totalInEth.toString());
-          buyTx = await this.marketPlace
-            .connect(this.buyer)
-            .buyCollectible(createdCollection1.id, tokenId, { from: this.buyer.address, value: totalPrice });
-
-          result = await buyTx.wait();
-          args = result.events[1].args;
-
-          expect(args.id).to.be.equal(4);
-          expect(args.collectionId).to.be.equal(createdCollection1.id);
-          expect(args.tokenId).to.be.equal(4);
-          expect(args.price).to.be.equal(ethers.utils.parseUnits("10", "ether"));
-          // check token owner after buy
-          expect(args.buyer).to.be.equal(this.buyer.address);
-          expect(args.owner).to.be.equal(this.buyer.address);
-          expect(args.creator).to.be.equal(this.seller.address);
-          expect(args.fulfilled).to.be.equal(false);
-          expect(args.cancelled).to.be.equal(false);
-
-          // check balances and owner after purchase
-          expect(await collectionContract1.balanceOf(this.owner.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.seller.address)).to.be.equal(0);
-          expect(await collectionContract1.balanceOf(this.buyer.address)).to.be.equal(4);
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(0);
-
-          expect(await collectionContract1.ownerOf(4)).to.be.equal(this.buyer.address);
-
-          await collectionContract1.connect(this.buyer)
-            .setApprovalForAll(this.marketPlace.address, true);
-
-          const sellTx = await this.marketPlace.connect(this.buyer).sellCollectible(createdCollection1.id, 3, price.mul(21));
-          result = await sellTx.wait();
-          expect((await this.marketPlace.getCollectible(createdCollection1.id, 3)).owner).to.equal(this.buyer.address);
-
-          expect(await collectionContract1.balanceOf(this.marketPlace.address)).to.be.equal(1); // done.
-
-          // keep collectible owner by buyer, but ownerOf is marketPlace as it was done for just created
-          expect(await collectionContract1.ownerOf(3)).to.be.equal(this.marketPlace.address);
-
-          expect(await this.marketPlace.getUserFunds(this.owner.address)).to.equal(0);
-          // fee = Number(ethers.utils.formatEther(createdCollection1.fee));
-          //
-          // tokenPrice = Number(ethers.utils.formatEther(price))
-          //
-          // totalInEth = tokenPrice * fee / 100 + tokenPrice;
-          //
-          // let totalPriceX = ethers.utils.parseEther(totalInEth.toString());
-          // expect(await this.marketPlace.getUserFunds(this.buyer.address))
-          //   .to.equal(totalPrice1
-          //   .add(totalPrice2)
-          //   .add(totalPrice3)
-          //   .add(totalPrice4)
-          //   .add(totalPrice5)
-          //   .add(totalPrice6)
-          //   .add(totalPriceX)
-          // ); // add funds for second token
-          // expect(await this.marketPlace.getUserFunds(this.seller.address)).to.equal(0);
-
-
-          // claim funds
-          const funds = await this.marketPlace
-            .connect(this.buyer).getUserFunds(this.buyer.address);
-
-          const claimTx = await this.marketPlace
-            .connect(this.buyer).claimFunds({ from: this.buyer.address, value: funds });
-          result = await claimTx.wait();
-          expect(await this.marketPlace.connect(this.buyer).getUserFunds(this.buyer.address)).to.equal(0); *!/
-      } catch (e) {
-        console.error(e);
-      }
-    });*/
-
+    it("6.5 MarketPlace seller buy author collectible belongs to author with part of 100 minted tokens", async function () {
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(11);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(90);
+
+      const collection = await this.marketPlace.getCollection(1);
+      
+      let collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === false).length).to.be.equal(90);
+      expect(collectible.owners.filter((owner: string) => owner === this.author.address).length).to.be.equal(90);
+
+      const quantity = 70;
+      const fee = +collection.fee.toString() / +ethers.constants.WeiPerEther.toString();
+      const percent = +collectible.price.toString() * fee / 100;
+      const total = (+percent + +collectible.price) * quantity;
+
+      let tx = await this.marketPlace.connect(this.seller).buy(1, collectible.id, quantity, {
+        value: BigNumber.from(total.toString())
+      });
+
+      await tx.wait();
+
+      collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === true).length).to.be.equal(quantity + 10);
+      expect(collectible.owners.filter((owner: string) => owner === this.seller.address).length).to.be.equal(quantity);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(11);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(72);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(20);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(collectible.price.mul((quantity + 10)));
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    });
+    
+    it("6.6 MarketPlace buy collectible belongs to author with part of 100 minted tokens", async function () {
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(11);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(72);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(20);
+
+      const collection = await this.marketPlace.getCollection(1);
+      
+      let collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === false).length).to.be.equal(20);
+      expect(collectible.owners.filter((owner: string) => owner === this.author.address).length).to.be.equal(20);
+
+      const quantity = 20;
+      const fee = +collection.fee.toString() / +ethers.constants.WeiPerEther.toString();
+      const percent = +collectible.price.toString() * fee / 100;
+      const total = (+percent + +collectible.price) * quantity;
+
+      let tx = await this.marketPlace.connect(this.buyer).buy(1, collectible.id, quantity, {
+        value: BigNumber.from(total.toString())
+      });
+
+      await tx.wait();
+
+      collectible = await this.marketPlace.getCollectible(1, 2);
+
+      expect(collectible.tokenIds.length).to.be.equal(100);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === true).length).to.be.equal(100);
+      expect(collectible.owners.filter((owner: string) => owner === this.seller.address).length).to.be.equal(70);
+      expect(collectible.owners.filter((owner: string) => owner === this.buyer.address).length).to.be.equal(30);
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(31);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(72);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.owner.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.buyer.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.seller.address)
+      ).to.be.equal(0);
+
+      expect(
+        await this.marketPlace.getUserFunds(this.author.address)
+      ).to.be.equal(collectible.price.mul(100));
+
+      expect(
+        await this.marketPlace.getUserFunds(this.marketPlace.address)
+      ).to.be.equal(0);
+    });
+
+    it("6.7 MarketPlace need to sell collectible before convert to auction", async function () {
+      let collectible = await this.marketPlace.getCollectible(1, 2);
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(31);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(72);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(0);
+
+      let quantityToSell = 30;
+      
+      await this.collection.connect(this.buyer)
+        .setApprovalForAll(this.marketPlace.address, true);
+
+      let tx = await this.marketPlace.connect(this.buyer).sell(1, collectible.id, quantityToSell);
+
+      await tx.wait();
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(72);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(30);
+
+      quantityToSell = 70;
+      
+      await this.collection.connect(this.seller)
+        .setApprovalForAll(this.marketPlace.address, true);
+
+      tx = await this.marketPlace.connect(this.seller).sell(1, collectible.id, quantityToSell);
+
+      await tx.wait();
+
+      expect(await this.collection.balanceOf(this.owner.address)).to.be.equal(0);
+      expect(await this.collection.balanceOf(this.buyer.address)).to.be.equal(1);
+      expect(await this.collection.balanceOf(this.seller.address)).to.be.equal(2);
+      expect(await this.collection.balanceOf(this.author.address)).to.be.equal(1); // owner of multiple created tokens
+      expect(await this.collection.balanceOf(this.marketPlace.address)).to.be.equal(100);
+    });
+
+    it("6.8 MarketPlace need to sell collectible before convert to auction", async function () {
+      let collectible = await this.marketPlace.getCollectible(1, 2);
+    
+      const CONSTANT_PRICE = 800.5;
+      
+      const price = BigNumber.from((CONSTANT_PRICE * Number(ethers.constants.WeiPerEther.toString())).toString());
+      
+      const tx = await this.marketPlace.editCollectible(1, collectible.id, price, false, true);
+      await tx.wait();
+      collectible = await this.marketPlace.getCollectible(1, 2);
+      
+      expect(collectible.price).to.be.equal(price);
+      expect(collectible.isAuction).to.be.equal(true);
+      expect(collectible.fulfilled.filter((_fulfilled: boolean) => _fulfilled === false).length).to.be.equal(100);
+    });
+
+    // it("6.8 MarketPlace change collectible type to auction", async function () {
+    //   let collectible = await this.marketPlace.getCollectible(1, 2);
+    //   console.log(collectible);
+    //   const tx = await this.marketPlace.editCollectible(1, collectible.id, false, true);
+    //   await tx.wait();
+    //   collectible = await this.marketPlace.getCollectible(1, 2);
+    //   console.log(collectible);
+    // }); 
+     
   });
 });
 

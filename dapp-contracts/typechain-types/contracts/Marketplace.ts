@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -32,28 +33,34 @@ export declare namespace Marketplace {
     id: PromiseOrValue<BigNumberish>;
     collectionId: PromiseOrValue<BigNumberish>;
     tokenIds: PromiseOrValue<BigNumberish>[];
-    owner: PromiseOrValue<string>;
+    owners: PromiseOrValue<string>[];
     creator: PromiseOrValue<string>;
     isAuction: PromiseOrValue<boolean>;
-    nftAuction: PromiseOrValue<string>;
+    price: PromiseOrValue<BigNumberish>;
+    fulfilled: PromiseOrValue<boolean>[];
+    isLocked: PromiseOrValue<boolean>;
   };
 
   export type CollectibleStructOutput = [
     BigNumber,
     BigNumber,
     BigNumber[],
-    string,
+    string[],
     string,
     boolean,
-    string
+    BigNumber,
+    boolean[],
+    boolean
   ] & {
     id: BigNumber;
     collectionId: BigNumber;
     tokenIds: BigNumber[];
-    owner: string;
+    owners: string[];
     creator: string;
     isAuction: boolean;
-    nftAuction: string;
+    price: BigNumber;
+    fulfilled: boolean[];
+    isLocked: boolean;
   };
 
   export type CollectionStruct = {
@@ -62,7 +69,6 @@ export declare namespace Marketplace {
     description: PromiseOrValue<string>;
     nftCollection: PromiseOrValue<string>;
     fee: PromiseOrValue<BigNumberish>;
-    price: PromiseOrValue<BigNumberish>;
     owner: PromiseOrValue<string>;
     creator: PromiseOrValue<string>;
     isApproved: PromiseOrValue<boolean>;
@@ -75,7 +81,6 @@ export declare namespace Marketplace {
     string,
     string,
     BigNumber,
-    BigNumber,
     string,
     string,
     boolean,
@@ -86,7 +91,6 @@ export declare namespace Marketplace {
     description: string;
     nftCollection: string;
     fee: BigNumber;
-    price: BigNumber;
     owner: string;
     creator: string;
     isApproved: boolean;
@@ -96,20 +100,23 @@ export declare namespace Marketplace {
 
 export interface MarketplaceInterface extends utils.Interface {
   functions: {
-    "createCollectible(uint256[],uint256,bool,address)": FunctionFragment;
-    "createCollection(string,string,string,uint256,uint256,address,address)": FunctionFragment;
-    "editCollection(uint256,string,string,string,uint256,uint256,address,address)": FunctionFragment;
+    "buy(uint256,uint256,uint256)": FunctionFragment;
+    "claimFunds()": FunctionFragment;
+    "createCollectible(uint256[],uint256,bool,uint256)": FunctionFragment;
+    "createCollection(string,string,string,uint256,address,address)": FunctionFragment;
+    "editCollectible(uint256,uint256,uint256,bool,bool)": FunctionFragment;
+    "editCollection(uint256,string,string,string,uint256,address,address,bool,bool)": FunctionFragment;
     "endAuction(uint256,uint256)": FunctionFragment;
     "getCollectible(uint256,uint256)": FunctionFragment;
     "getCollectibleCount(uint256)": FunctionFragment;
     "getCollection(uint256)": FunctionFragment;
-    "getCollectionBySymbol(string)": FunctionFragment;
     "getCollectionCounter()": FunctionFragment;
     "getCollectionIdByName(string)": FunctionFragment;
     "getFee()": FunctionFragment;
     "getName()": FunctionFragment;
     "getOwner()": FunctionFragment;
     "getUserFunds(address)": FunctionFragment;
+    "sell(uint256,uint256,uint256)": FunctionFragment;
     "setFee(uint256)": FunctionFragment;
     "setName(string)": FunctionFragment;
     "startAuction(uint256,uint256)": FunctionFragment;
@@ -117,32 +124,47 @@ export interface MarketplaceInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "buy"
+      | "claimFunds"
       | "createCollectible"
       | "createCollection"
+      | "editCollectible"
       | "editCollection"
       | "endAuction"
       | "getCollectible"
       | "getCollectibleCount"
       | "getCollection"
-      | "getCollectionBySymbol"
       | "getCollectionCounter"
       | "getCollectionIdByName"
       | "getFee"
       | "getName"
       | "getOwner"
       | "getUserFunds"
+      | "sell"
       | "setFee"
       | "setName"
       | "startAuction"
   ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "buy",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimFunds",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "createCollectible",
     values: [
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<boolean>,
-      PromiseOrValue<string>
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -152,9 +174,18 @@ export interface MarketplaceInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "editCollectible",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
     ]
   ): string;
   encodeFunctionData(
@@ -165,9 +196,10 @@ export interface MarketplaceInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
     ]
   ): string;
   encodeFunctionData(
@@ -187,10 +219,6 @@ export interface MarketplaceInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getCollectionBySymbol",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getCollectionCounter",
     values?: undefined
   ): string;
@@ -206,6 +234,14 @@ export interface MarketplaceInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "sell",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setFee",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -218,12 +254,18 @@ export interface MarketplaceInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "claimFunds", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createCollectible",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "createCollection",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "editCollectible",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -244,10 +286,6 @@ export interface MarketplaceInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getCollectionBySymbol",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getCollectionCounter",
     data: BytesLike
   ): Result;
@@ -262,6 +300,7 @@ export interface MarketplaceInterface extends utils.Interface {
     functionFragment: "getUserFunds",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setName", data: BytesLike): Result;
   decodeFunctionResult(
@@ -270,27 +309,61 @@ export interface MarketplaceInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "CreateCollectible(uint256,uint256,uint256[],address,address,bool,address)": EventFragment;
-    "CreateCollection(uint256,string,string,uint256,uint256,address,address,address)": EventFragment;
-    "EditCollection(uint256,string,string,uint256,address,address,address)": EventFragment;
+    "Buy(uint256,uint256,uint256[],uint256,address,uint256)": EventFragment;
+    "ClaimFunds(address,uint256)": EventFragment;
+    "CreateCollectible(uint256,uint256,uint256[],address[],address,bool,uint256)": EventFragment;
+    "CreateCollection(uint256,string,string,uint256,address,address,address)": EventFragment;
+    "EditCollectible(uint256,uint256,bool,bool,address)": EventFragment;
+    "EditCollection(uint256,string,string,uint256,address,address,address,bool,bool)": EventFragment;
+    "Sell(uint256,uint256,uint256[],address,address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Buy"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ClaimFunds"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CreateCollectible"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CreateCollection"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "EditCollectible"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EditCollection"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Sell"): EventFragment;
 }
+
+export interface BuyEventObject {
+  id: BigNumber;
+  collectionId: BigNumber;
+  tokenIds: BigNumber[];
+  price: BigNumber;
+  buyer: string;
+  quantity: BigNumber;
+}
+export type BuyEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber[], BigNumber, string, BigNumber],
+  BuyEventObject
+>;
+
+export type BuyEventFilter = TypedEventFilter<BuyEvent>;
+
+export interface ClaimFundsEventObject {
+  user: string;
+  amount: BigNumber;
+}
+export type ClaimFundsEvent = TypedEvent<
+  [string, BigNumber],
+  ClaimFundsEventObject
+>;
+
+export type ClaimFundsEventFilter = TypedEventFilter<ClaimFundsEvent>;
 
 export interface CreateCollectibleEventObject {
   id: BigNumber;
   collectionId: BigNumber;
   tokenIds: BigNumber[];
-  owner: string;
+  owners: string[];
   creator: string;
   isAuction: boolean;
-  auction: string;
+  price: BigNumber;
 }
 export type CreateCollectibleEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber[], string, string, boolean, string],
+  [BigNumber, BigNumber, BigNumber[], string[], string, boolean, BigNumber],
   CreateCollectibleEventObject
 >;
 
@@ -302,18 +375,31 @@ export interface CreateCollectionEventObject {
   name: string;
   symbol: string;
   fee: BigNumber;
-  price: BigNumber;
   collection: string;
   creator: string;
   owner: string;
 }
 export type CreateCollectionEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber, BigNumber, string, string, string],
+  [BigNumber, string, string, BigNumber, string, string, string],
   CreateCollectionEventObject
 >;
 
 export type CreateCollectionEventFilter =
   TypedEventFilter<CreateCollectionEvent>;
+
+export interface EditCollectibleEventObject {
+  collectionId: BigNumber;
+  collectibleId: BigNumber;
+  isLocked: boolean;
+  isAuction: boolean;
+  owner: string;
+}
+export type EditCollectibleEvent = TypedEvent<
+  [BigNumber, BigNumber, boolean, boolean, string],
+  EditCollectibleEventObject
+>;
+
+export type EditCollectibleEventFilter = TypedEventFilter<EditCollectibleEvent>;
 
 export interface EditCollectionEventObject {
   id: BigNumber;
@@ -323,13 +409,40 @@ export interface EditCollectionEventObject {
   collection: string;
   creator: string;
   owner: string;
+  isApproved: boolean;
+  isLocked: boolean;
 }
 export type EditCollectionEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber, string, string, string],
+  [
+    BigNumber,
+    string,
+    string,
+    BigNumber,
+    string,
+    string,
+    string,
+    boolean,
+    boolean
+  ],
   EditCollectionEventObject
 >;
 
 export type EditCollectionEventFilter = TypedEventFilter<EditCollectionEvent>;
+
+export interface SellEventObject {
+  id: BigNumber;
+  collectionId: BigNumber;
+  tokenIds: BigNumber[];
+  creator: string;
+  seller: string;
+  quantity: BigNumber;
+}
+export type SellEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber[], string, string, BigNumber],
+  SellEventObject
+>;
+
+export type SellEventFilter = TypedEventFilter<SellEvent>;
 
 export interface Marketplace extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -358,11 +471,22 @@ export interface Marketplace extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    buy(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimFunds(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     createCollectible(
       _tokenIds: PromiseOrValue<BigNumberish>[],
       _collectionId: PromiseOrValue<BigNumberish>,
       _isAuction: PromiseOrValue<boolean>,
-      _nftAuction: PromiseOrValue<string>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -371,9 +495,17 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    editCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      _isLocked: PromiseOrValue<boolean>,
+      _isAuction: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -383,9 +515,10 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      isApproved: PromiseOrValue<boolean>,
+      isLocked: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -407,19 +540,14 @@ export interface Marketplace extends BaseContract {
     ): Promise<[BigNumber]>;
 
     getCollection(
-      _collectionId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[Marketplace.CollectionStructOutput]>;
-
-    getCollectionBySymbol(
-      _collectionSymbol: PromiseOrValue<string>,
+      collectionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[Marketplace.CollectionStructOutput]>;
 
     getCollectionCounter(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getCollectionIdByName(
-      _collectionName: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -430,17 +558,24 @@ export interface Marketplace extends BaseContract {
     getOwner(overrides?: CallOverrides): Promise<[string]>;
 
     getUserFunds(
-      _address: PromiseOrValue<string>,
+      userAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    sell(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setFee(
-      _marketFee: PromiseOrValue<BigNumberish>,
+      marketFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setName(
-      _marketName: PromiseOrValue<string>,
+      marketName: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -451,11 +586,22 @@ export interface Marketplace extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  buy(
+    _collectionId: PromiseOrValue<BigNumberish>,
+    _collectibleId: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  claimFunds(
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   createCollectible(
     _tokenIds: PromiseOrValue<BigNumberish>[],
     _collectionId: PromiseOrValue<BigNumberish>,
     _isAuction: PromiseOrValue<boolean>,
-    _nftAuction: PromiseOrValue<string>,
+    _price: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -464,9 +610,17 @@ export interface Marketplace extends BaseContract {
     symbol: PromiseOrValue<string>,
     description: PromiseOrValue<string>,
     fee: PromiseOrValue<BigNumberish>,
-    price: PromiseOrValue<BigNumberish>,
     nftCollection: PromiseOrValue<string>,
     owner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  editCollectible(
+    _collectionId: PromiseOrValue<BigNumberish>,
+    _collectibleId: PromiseOrValue<BigNumberish>,
+    _price: PromiseOrValue<BigNumberish>,
+    _isLocked: PromiseOrValue<boolean>,
+    _isAuction: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -476,9 +630,10 @@ export interface Marketplace extends BaseContract {
     symbol: PromiseOrValue<string>,
     description: PromiseOrValue<string>,
     fee: PromiseOrValue<BigNumberish>,
-    price: PromiseOrValue<BigNumberish>,
     nftCollection: PromiseOrValue<string>,
     owner: PromiseOrValue<string>,
+    isApproved: PromiseOrValue<boolean>,
+    isLocked: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -500,19 +655,14 @@ export interface Marketplace extends BaseContract {
   ): Promise<BigNumber>;
 
   getCollection(
-    _collectionId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<Marketplace.CollectionStructOutput>;
-
-  getCollectionBySymbol(
-    _collectionSymbol: PromiseOrValue<string>,
+    collectionId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<Marketplace.CollectionStructOutput>;
 
   getCollectionCounter(overrides?: CallOverrides): Promise<BigNumber>;
 
   getCollectionIdByName(
-    _collectionName: PromiseOrValue<string>,
+    name: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -523,17 +673,24 @@ export interface Marketplace extends BaseContract {
   getOwner(overrides?: CallOverrides): Promise<string>;
 
   getUserFunds(
-    _address: PromiseOrValue<string>,
+    userAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  sell(
+    _collectionId: PromiseOrValue<BigNumberish>,
+    _collectibleId: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setFee(
-    _marketFee: PromiseOrValue<BigNumberish>,
+    marketFee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setName(
-    _marketName: PromiseOrValue<string>,
+    marketName: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -544,11 +701,20 @@ export interface Marketplace extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    buy(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimFunds(overrides?: CallOverrides): Promise<void>;
+
     createCollectible(
       _tokenIds: PromiseOrValue<BigNumberish>[],
       _collectionId: PromiseOrValue<BigNumberish>,
       _isAuction: PromiseOrValue<boolean>,
-      _nftAuction: PromiseOrValue<string>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -557,9 +723,17 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    editCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      _isLocked: PromiseOrValue<boolean>,
+      _isAuction: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -569,9 +743,10 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      isApproved: PromiseOrValue<boolean>,
+      isLocked: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -593,19 +768,14 @@ export interface Marketplace extends BaseContract {
     ): Promise<BigNumber>;
 
     getCollection(
-      _collectionId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<Marketplace.CollectionStructOutput>;
-
-    getCollectionBySymbol(
-      _collectionSymbol: PromiseOrValue<string>,
+      collectionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<Marketplace.CollectionStructOutput>;
 
     getCollectionCounter(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCollectionIdByName(
-      _collectionName: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -616,17 +786,24 @@ export interface Marketplace extends BaseContract {
     getOwner(overrides?: CallOverrides): Promise<string>;
 
     getUserFunds(
-      _address: PromiseOrValue<string>,
+      userAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    sell(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setFee(
-      _marketFee: PromiseOrValue<BigNumberish>,
+      marketFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setName(
-      _marketName: PromiseOrValue<string>,
+      marketName: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -638,31 +815,53 @@ export interface Marketplace extends BaseContract {
   };
 
   filters: {
-    "CreateCollectible(uint256,uint256,uint256[],address,address,bool,address)"(
+    "Buy(uint256,uint256,uint256[],uint256,address,uint256)"(
       id?: null,
       collectionId?: null,
       tokenIds?: null,
-      owner?: PromiseOrValue<string> | null,
+      price?: null,
+      buyer?: PromiseOrValue<string> | null,
+      quantity?: null
+    ): BuyEventFilter;
+    Buy(
+      id?: null,
+      collectionId?: null,
+      tokenIds?: null,
+      price?: null,
+      buyer?: PromiseOrValue<string> | null,
+      quantity?: null
+    ): BuyEventFilter;
+
+    "ClaimFunds(address,uint256)"(
+      user?: null,
+      amount?: null
+    ): ClaimFundsEventFilter;
+    ClaimFunds(user?: null, amount?: null): ClaimFundsEventFilter;
+
+    "CreateCollectible(uint256,uint256,uint256[],address[],address,bool,uint256)"(
+      id?: null,
+      collectionId?: null,
+      tokenIds?: null,
+      owners?: null,
       creator?: PromiseOrValue<string> | null,
       isAuction?: null,
-      auction?: PromiseOrValue<string> | null
+      price?: null
     ): CreateCollectibleEventFilter;
     CreateCollectible(
       id?: null,
       collectionId?: null,
       tokenIds?: null,
-      owner?: PromiseOrValue<string> | null,
+      owners?: null,
       creator?: PromiseOrValue<string> | null,
       isAuction?: null,
-      auction?: PromiseOrValue<string> | null
+      price?: null
     ): CreateCollectibleEventFilter;
 
-    "CreateCollection(uint256,string,string,uint256,uint256,address,address,address)"(
+    "CreateCollection(uint256,string,string,uint256,address,address,address)"(
       id?: null,
       name?: null,
       symbol?: null,
       fee?: null,
-      price?: null,
       collection?: PromiseOrValue<string> | null,
       creator?: PromiseOrValue<string> | null,
       owner?: PromiseOrValue<string> | null
@@ -672,20 +871,36 @@ export interface Marketplace extends BaseContract {
       name?: null,
       symbol?: null,
       fee?: null,
-      price?: null,
       collection?: PromiseOrValue<string> | null,
       creator?: PromiseOrValue<string> | null,
       owner?: PromiseOrValue<string> | null
     ): CreateCollectionEventFilter;
 
-    "EditCollection(uint256,string,string,uint256,address,address,address)"(
+    "EditCollectible(uint256,uint256,bool,bool,address)"(
+      collectionId?: null,
+      collectibleId?: null,
+      isLocked?: null,
+      isAuction?: null,
+      owner?: null
+    ): EditCollectibleEventFilter;
+    EditCollectible(
+      collectionId?: null,
+      collectibleId?: null,
+      isLocked?: null,
+      isAuction?: null,
+      owner?: null
+    ): EditCollectibleEventFilter;
+
+    "EditCollection(uint256,string,string,uint256,address,address,address,bool,bool)"(
       id?: null,
       name?: null,
       symbol?: null,
       fee?: null,
       collection?: PromiseOrValue<string> | null,
       creator?: PromiseOrValue<string> | null,
-      owner?: PromiseOrValue<string> | null
+      owner?: PromiseOrValue<string> | null,
+      isApproved?: null,
+      isLocked?: null
     ): EditCollectionEventFilter;
     EditCollection(
       id?: null,
@@ -694,16 +909,46 @@ export interface Marketplace extends BaseContract {
       fee?: null,
       collection?: PromiseOrValue<string> | null,
       creator?: PromiseOrValue<string> | null,
-      owner?: PromiseOrValue<string> | null
+      owner?: PromiseOrValue<string> | null,
+      isApproved?: null,
+      isLocked?: null
     ): EditCollectionEventFilter;
+
+    "Sell(uint256,uint256,uint256[],address,address,uint256)"(
+      id?: null,
+      collectionId?: null,
+      tokenIds?: null,
+      creator?: PromiseOrValue<string> | null,
+      seller?: PromiseOrValue<string> | null,
+      quantity?: null
+    ): SellEventFilter;
+    Sell(
+      id?: null,
+      collectionId?: null,
+      tokenIds?: null,
+      creator?: PromiseOrValue<string> | null,
+      seller?: PromiseOrValue<string> | null,
+      quantity?: null
+    ): SellEventFilter;
   };
 
   estimateGas: {
+    buy(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    claimFunds(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     createCollectible(
       _tokenIds: PromiseOrValue<BigNumberish>[],
       _collectionId: PromiseOrValue<BigNumberish>,
       _isAuction: PromiseOrValue<boolean>,
-      _nftAuction: PromiseOrValue<string>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -712,9 +957,17 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    editCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      _isLocked: PromiseOrValue<boolean>,
+      _isAuction: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -724,9 +977,10 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      isApproved: PromiseOrValue<boolean>,
+      isLocked: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -748,19 +1002,14 @@ export interface Marketplace extends BaseContract {
     ): Promise<BigNumber>;
 
     getCollection(
-      _collectionId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getCollectionBySymbol(
-      _collectionSymbol: PromiseOrValue<string>,
+      collectionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getCollectionCounter(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCollectionIdByName(
-      _collectionName: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -771,17 +1020,24 @@ export interface Marketplace extends BaseContract {
     getOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
     getUserFunds(
-      _address: PromiseOrValue<string>,
+      userAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    sell(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setFee(
-      _marketFee: PromiseOrValue<BigNumberish>,
+      marketFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setName(
-      _marketName: PromiseOrValue<string>,
+      marketName: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -793,11 +1049,22 @@ export interface Marketplace extends BaseContract {
   };
 
   populateTransaction: {
+    buy(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimFunds(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     createCollectible(
       _tokenIds: PromiseOrValue<BigNumberish>[],
       _collectionId: PromiseOrValue<BigNumberish>,
       _isAuction: PromiseOrValue<boolean>,
-      _nftAuction: PromiseOrValue<string>,
+      _price: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -806,9 +1073,17 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    editCollectible(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _price: PromiseOrValue<BigNumberish>,
+      _isLocked: PromiseOrValue<boolean>,
+      _isAuction: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -818,9 +1093,10 @@ export interface Marketplace extends BaseContract {
       symbol: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      price: PromiseOrValue<BigNumberish>,
       nftCollection: PromiseOrValue<string>,
       owner: PromiseOrValue<string>,
+      isApproved: PromiseOrValue<boolean>,
+      isLocked: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -842,12 +1118,7 @@ export interface Marketplace extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getCollection(
-      _collectionId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getCollectionBySymbol(
-      _collectionSymbol: PromiseOrValue<string>,
+      collectionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -856,7 +1127,7 @@ export interface Marketplace extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getCollectionIdByName(
-      _collectionName: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -867,17 +1138,24 @@ export interface Marketplace extends BaseContract {
     getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getUserFunds(
-      _address: PromiseOrValue<string>,
+      userAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    sell(
+      _collectionId: PromiseOrValue<BigNumberish>,
+      _collectibleId: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setFee(
-      _marketFee: PromiseOrValue<BigNumberish>,
+      marketFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setName(
-      _marketName: PromiseOrValue<string>,
+      marketName: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -74,8 +74,8 @@ contract NFTAuction is ERC721Holder, ReentrancyGuard {
         address marketPlaceAddress,
         uint256 nftCollectionId,
         uint256 nftItemId,
-        uint256 rPrice,
         uint256 sPrice,
+        uint256 rPrice,
         uint256 startTime,
         uint256 endTime
     ) {
@@ -83,8 +83,8 @@ contract NFTAuction is ERC721Holder, ReentrancyGuard {
         _collectionId     = nftCollectionId;
         _itemId           = nftItemId;
         _beneficiary      = payable(msg.sender);
-        _reservePrice     = rPrice;
         _startPrice       = sPrice;
+        _reservePrice     = rPrice;
         _auctionStartTime = startTime;
         _auctionEndTime   = endTime;
         _started          = false;

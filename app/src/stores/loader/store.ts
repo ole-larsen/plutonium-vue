@@ -19,7 +19,7 @@ import { useHeaderStore }      from "@/stores/template/header";
 import { useMetaMaskStore } from "@/stores/web3/metamask";
 import { useWeb3Store } from "@/stores/web3/web3";
 import {useFooterStore} from "@/stores/template/footer";
-import axios from "axios";
+
 import {useAuthStore} from "@/stores/auth/store";
 import {useCollectionStore} from "@/stores/contracts/collection";
 import {useAuctionStore} from "@/stores/contracts/auction";
@@ -45,7 +45,7 @@ export const useLoaderStore = defineStore("loader", () => {
       loading.value = true;
 
       const { data: { contracts, marketplace } } = await _loadMarketData();
-
+      console.log(contracts, marketplace);
       // 1. load contract data
       if (contracts.marketplace) {
         market.storeContract(contracts.marketplace);
