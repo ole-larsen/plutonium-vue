@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "./NFTAuction.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract NFTCollection is ERC721, ERC721Enumerable {
   using SafeMath for uint256;
@@ -24,12 +22,12 @@ contract NFTCollection is ERC721, ERC721Enumerable {
   }
 
   function tokenURI(uint256 tokenId) public override view returns (string memory) {
-    require(_exists(tokenId), 'ERC721Metadata: URI query for nonexistent token');
+    require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
     return _tokenIdToTokenURI[tokenId];
   }
 
   function safeMint(string memory _tokenURI) public {
-    require(!_tokenURIExists[_tokenURI], 'The token URI should be unique');
+    require(!_tokenURIExists[_tokenURI], "The token URI should be unique");
     tokenURIs.push(_tokenURI);
     uint _id = totalSupply().add(1);
     _tokenIdToTokenURI[_id] = _tokenURI;
@@ -41,7 +39,7 @@ contract NFTCollection is ERC721, ERC721Enumerable {
     * @dev Mints Multiple NFT
     */
   function mint(string memory _tokenURI, uint256 _numberOfNfts) public payable {
-    require(!_tokenURIExists[_tokenURI], 'The token URI should be unique');
+    require(!_tokenURIExists[_tokenURI], "The token URI should be unique");
     require(_numberOfNfts > 0, "numberOfNfts cannot be 0");
 
     for (uint i = 0; i < _numberOfNfts; i++) {
