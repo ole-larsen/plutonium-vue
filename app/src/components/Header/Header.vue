@@ -4,18 +4,17 @@ import type { PublicMenu, PublicUser, PublicFile } from "@/types";
 
 import { useLoaderStore } from "@/stores/loader/store";
 import { useHeaderStore } from "@/stores/template/header";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, computed } from "vue";
 
 import DarkMode      from "@/components/Header/DarkMode.vue";
 import HeaderMenu    from "@/components/Header/HeaderMenu.vue";
 import HeaderProfile from "@/components/Header/HeaderProfile.vue";
 import HeaderSearch  from "@/components/Header/HeaderSearch.vue";
 
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import {useMetaMaskStore} from "@/stores/web3/metamask";
-import {useAuthStore} from "@/stores/auth/store";
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
+import { useMetaMaskStore } from "@/stores/web3/metamask";
+import { useAuthStore } from "@/stores/auth/store";
 
-const loader   = useLoaderStore();
 const market   = useMarketPlaceStore();
 const metamask = useMetaMaskStore();
 const auth     = useAuthStore();
@@ -30,7 +29,6 @@ const isSticky: Ref<boolean> = computed(() => store.isSticky),
       isActive: Ref<boolean> = computed(() => store.isActive),
       isActiveMobile: Ref<boolean> = computed(() => store.isActiveMobile),
       isActiveSearch: Ref<boolean> = computed(() => store.isActiveSearch),
-      img: ComputedRef<PublicFile | null> = computed(() => store.img),
       menu: ComputedRef<PublicMenu | null> = computed(() => store.menu);
 
 onMounted(() => {
@@ -65,10 +63,10 @@ function handlePersonalSign() {
             <div id="site-header-inner">
               <nav class="wrap-box flex">
                 <div id="site-logo" class="clearfix">
-                  <div id="site-logo-inner" v-if="img">
+                  <div id="site-logo-inner">
                     <router-link class="main-logo" to="/">
-                      <img :src="img['attributes']['url']"
-                           :alt="img['attributes']['alt']" id="logo-all" class="header-img">
+                      <img src="@/assets/images/logo.svg"
+                           :alt="name" id="logo-all" class="header-img">
                       <span class="header-img-text" v-html="name"></span>
                     </router-link>
                   </div>

@@ -1,20 +1,29 @@
 <script setup lang="ts">
-import { useCookies } from "vue3-cookies";
+import type { PublicMenu } from "@/types";
 import type { ComputedRef } from "vue";
+
 import { computed, onMounted, ref } from "vue";
-import { useFooterStore} from "@/stores/template/footer";
-import type { PublicFile, PublicMenu } from "@/types";
+
+import { useCookies } from "vue3-cookies";
+
+import { useFooterStore } from "@/stores/template/footer";
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
+
+import { error } from "@/helpers/log";
 
 const store = useFooterStore();
-const img: ComputedRef<PublicFile | null> = computed(() => store.img);
+const market   = useMarketPlaceStore();
+
+const name: ComputedRef<string>     = computed(() => market.getName());
 const menu: ComputedRef<PublicMenu | null> = computed(() => store.menu);
 const isActive = computed(() => store.isActive)
+
 const { cookies } = useCookies();
+
 const form = ref({
   email: "",
   csrf: ""
 })
-
 
 onMounted(() => {
   const csrf = cookies.get("_csrf");
@@ -24,8 +33,12 @@ onMounted(() => {
 });
 
 async function submit() {
-  await store.submit(form.value);
-  form.value.email = "";
+  try {
+    await store.submit(form.value);
+    form.value.email = "";
+  } catch(e) {
+    error(e);
+  }
 }
 
 </script>
@@ -36,8 +49,8 @@ async function submit() {
         <div class="col-lg-3 col-md-12 col-12">
           <div class="widget widget-logo">
             <div class="logo-footer" id="logo-footer">
-              <router-link to="/" v-if="img">
-                <img :src="img['attributes']['url']" :alt="img['attributes']['alt']" id="logo-footer-img">
+              <router-link to="/">
+                <img src="@/assets/images/logo.svg" :alt="name" id="logo-footer-img">
               </router-link>
             </div>
             <p class="sub-widget-logo">Digital marketplace for crypto collectibles and non-fungible tokens (NFTs).</p>

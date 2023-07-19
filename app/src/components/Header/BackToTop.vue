@@ -1,17 +1,17 @@
 <script setup lang="ts">
-  import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
-  const isTop = ref(false);
+const isTop = ref(false);
 
-  function scrollToTop() {
-    window.scrollTo(0, 0);
-  }
+function scrollToTop() {
+  window.scrollTo(0, 0);
+}
 
-  onMounted(() => {
-    window.addEventListener("scroll", () => {
-      isTop.value = window.scrollY >= 300;
-    });
+onMounted(() => {
+  window.addEventListener("scroll", () => {
+    isTop.value = window.scrollY >= 300;
   });
+});
 
 </script>
 <template>

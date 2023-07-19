@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { reactive, provide } from "vue";
+
 const Accordion = reactive({
   count: 0,
   active: null

@@ -1,17 +1,14 @@
 import { defineStore } from "pinia";
-import axios from "axios";
-import type { Ref } from "vue";
-import {inject, ref} from "vue";
-import type {Form, PublicMenuItem} from "@/types";
-import type { PublicFile, PublicMenu } from "@/types";
-import { link } from "@/helpers";
 
+import type { Form } from "@/types";
+import type { PublicMenu } from "@/types";
+import type { Ref } from "vue";
+import { inject, ref } from "vue";
 
 export const useFooterStore = defineStore("footer", () => {
   const axios: any = inject("axios");  // inject axios
 
   const isActive = ref(false),
-        img: Ref<PublicFile | null>  = ref(null),
         menu: Ref<PublicMenu | null> = ref(null);
 
   function postData(form: Form) {
@@ -28,9 +25,7 @@ export const useFooterStore = defineStore("footer", () => {
     isActive.value = !isActive.value;
   }
 
-  function storeFooter(_logo: PublicFile, _menu: PublicMenu) {
-    _logo.attributes.url = link(_logo.attributes.url)
-    img.value = _logo;
+  function storeFooter(_menu: PublicMenu) {
     menu.value = _menu;
   }
 
@@ -40,7 +35,6 @@ export const useFooterStore = defineStore("footer", () => {
 
   return {
     isActive,
-    img,
     menu,
     storeFooter,
     postData,

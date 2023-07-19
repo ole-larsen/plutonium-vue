@@ -14,8 +14,9 @@ import Category      from "@/components/Pages/Category.vue";
 import CreateERC721  from "@/components/Pages/CreateERC721.vue";
 
 import {usePageStore} from "@/stores/template/page";
-import {error} from "@/helpers";
 import {useProfileStore} from "@/stores/template/profile";
+
+import {error} from "@/helpers";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -157,7 +158,5 @@ router.beforeResolve(async (to, from, next) => {
       return next();
     }
   }
-
-
 });
 export default router;

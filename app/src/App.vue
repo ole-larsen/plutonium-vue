@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
+
 import Loader from "@/components/Header/Loader.vue";
 import Header from "@/components/Header/Header.vue";
 import Footer from "@/components/Footer/Footer.vue";

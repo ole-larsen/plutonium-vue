@@ -1,15 +1,21 @@
 <script lang="ts" setup>
-import type {ComputedRef, Ref} from "vue";
-import {computed, ref, watch} from "vue";
+import type { ComputedRef } from "vue";
+import { computed } from "vue";
 
 import { Carousel, Slide, Navigation, Pagination } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 
-import type {PublicCategoryCollection, PublicCategoryCollectionCollectible, PublicUser} from "@/types";
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import {useLoaderStore} from "@/stores/loader/store";
-import {useAuthStore} from "@/stores/auth/store";
-import {useLiveAuctionStore} from "@/stores/components/liveAuction";
+import type { 
+  PublicCategoryCollection, 
+  PublicCategoryCollectionCollectible, 
+  PublicUser
+} from "@/types";
+
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
+import { useLoaderStore } from "@/stores/loader/store";
+import { useAuthStore } from "@/stores/auth/store";
+import { useLiveAuctionStore } from "@/stores/components/liveAuction";
+
 import Collectible01 from "@/components/LiveAuction/Collectible01.vue";
 import Single01 from "@/components/LiveAuction/Single01.vue";
 
@@ -32,8 +38,6 @@ const breakpoints = {
 
 const auth    = useAuthStore();
 const store   = useMarketPlaceStore();
-const loader  = useLoaderStore();
-const auction = useLiveAuctionStore();
 
 const collectibles: ComputedRef<PublicCategoryCollectionCollectible[]> = computed(() => {
   return store.getCollections().reduce((collectibles: PublicCategoryCollectionCollectible[], next: PublicCategoryCollection) => {

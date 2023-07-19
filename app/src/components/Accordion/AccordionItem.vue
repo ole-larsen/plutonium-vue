@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { AccordionType} from "@/types";
+import type { AccordionType } from "@/types";
 import type { Ref, ComputedRef } from "vue";
 import { ref, computed, onBeforeMount, inject } from "vue";
 
@@ -37,7 +37,6 @@ function endTransition(el: {
 }) {
   el.style.height = "";
 }
-
 </script>
 <template>
   <li class="accordion-item">

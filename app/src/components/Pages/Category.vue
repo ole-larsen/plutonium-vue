@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import CollectionItem from "@/components/Profile/CollectionItem.vue";
-
-import {ethers} from "ethers";
 import type { Ref } from "vue";
 import type { PublicCategory } from "@/types";
-import {computed, watch, ref, reactive, onMounted} from "vue";
+import { computed, watch, ref, reactive } from "vue";
 import { useRoute } from "vue-router";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
-import {useLoaderStore} from "@/stores/loader/store";
-import {error} from "@/helpers";
+import { useLoaderStore } from "@/stores/loader/store";
+
+import { error } from "@/helpers";
+
+import CollectionItem from "@/components/Profile/CollectionItem.vue";
 
 const market = useMarketPlaceStore();
 const route = useRoute();
 const loader = useLoaderStore();
-const categories = computed(() => market.getCategories());
+
 const category: Ref<PublicCategory | null> = ref(null);
 
 const wallPaperStyle = reactive({
@@ -41,7 +41,6 @@ watch(route, async (to) => {
     wallPaperStyle.borderRadius = 0;
   }
 }, {flush: 'pre', immediate: true, deep: true})
-
 
 </script>
 

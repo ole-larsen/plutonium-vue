@@ -1,16 +1,11 @@
 <script lang="ts" setup>
 
-import {toRefs, ref, computed, watch} from "vue";
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
+import { toRefs, ref } from "vue";
+
 const props = defineProps(["categories", "collections"]);
 const { categories, collections } = toRefs(props);
-const market = useMarketPlaceStore();
-
-const isActive: any = ref({});
-const isSellEvent = ref(false);
 
 const selectedCategory = ref("All");
-const item: any = ref({});
 
 const categoryAllImg = `${import.meta.env.VITE_BACKEND}/api/v1/files/category-all.png`;
 </script>

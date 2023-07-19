@@ -1,28 +1,25 @@
 import { defineStore } from "pinia";
-
-import type { ComputedRef, Ref } from "vue";
 import type {
   CollectionDTO,
   ContactFormData,
   PublicMarketData,
   PublicUser,
   PublicCategoryCollectionCollectible,
-  CollectibleDTO, PublicContract
+  CollectibleDTO, 
+  PublicContract
 } from "@/types";
-
-import {ref, inject, computed} from "vue";
+import type { ComputedRef, Ref } from "vue";
+import { ref, inject, computed } from "vue";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 import { useUserStore }        from "@/stores/users/users.store";
 import { useHeaderStore }      from "@/stores/template/header";
-
 import { useMetaMaskStore } from "@/stores/web3/metamask";
 import { useWeb3Store } from "@/stores/web3/web3";
-import {useFooterStore} from "@/stores/template/footer";
-
-import {useAuthStore} from "@/stores/auth/store";
-import {useCollectionStore} from "@/stores/contracts/collection";
-import {useAuctionStore} from "@/stores/contracts/auction";
+import { useFooterStore } from "@/stores/template/footer";
+import { useAuthStore } from "@/stores/auth/store";
+import { useCollectionStore } from "@/stores/contracts/collection";
+import { useAuctionStore } from "@/stores/contracts/auction";
 
 
 export const useLoaderStore = defineStore("loader", () => {
@@ -63,14 +60,14 @@ export const useLoaderStore = defineStore("loader", () => {
 
       // 4. load header
       {
-        const { data: { logo, menu } } = await _loadHeader();
-        header.storeHeader(logo, menu);
+        const { data: { menu } } = await _loadHeader();
+        header.storeHeader(menu);
       }
 
       // 5. load footer
       {
-        const { data: { logo, menu } } = await _loadFooter();
-        footer.storeFooter(logo, menu);
+        const { data: { menu } } = await _loadFooter();
+        footer.storeFooter(menu);
       }
 
       // 6. check metamask
@@ -79,10 +76,10 @@ export const useLoaderStore = defineStore("loader", () => {
         await metamask.register();
         market.loadMetamaskContract();
         if (contracts.collections) {
-          await loadCollectionContractsToMetamask(contracts.collections);
+          loadCollectionContractsToMetamask(contracts.collections);
         }
         if (contracts.auctions) {
-          await loadAuctionContractsToMetamask(contracts.auctions);
+          loadAuctionContractsToMetamask(contracts.auctions);
         }
       }
       // 6.2 if not installed, use web3

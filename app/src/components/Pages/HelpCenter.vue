@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ComputedRef, Ref } from "vue";
-import type {ContactFormData, HelpCenter} from "@/types";
+import type { ContactFormData, HelpCenter } from "@/types";
 
 import { computed, onBeforeMount, ref } from "vue";
 import { useHelpCenterStore } from "@/stores/pages/helpCenter";

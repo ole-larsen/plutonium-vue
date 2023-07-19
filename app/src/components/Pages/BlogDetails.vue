@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import type { BlogItem, BlogItemTag } from "@/types";
 import type { Ref, ComputedRef } from "vue";
+
 import { computed, onBeforeMount, toRaw, ref } from "vue";
+
 import { useBlogStore } from "@/stores/template/blog";
-import type {BlogItem, BlogItemTag} from "@/types";
 
 const store = useBlogStore();
 const blogs: ComputedRef<{[id: string]: BlogItem}> = computed(() => store.getBlogs());

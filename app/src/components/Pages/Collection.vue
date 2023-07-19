@@ -1,22 +1,24 @@
 <script lang="ts" setup>
-import type { Ref, ComputedRef } from "vue";
-import type {PublicCategoryCollection, PublicCategory, PublicCategoryCollectionCollectible} from "@/types";
+import type {
+  PublicCategoryCollection, 
+  PublicCategoryCollectionCollectible
+} from "@/types";
 
-import Filter from "@/components/Collection/Filter.vue";
-import { ethers } from "ethers";
+import type { Ref, ComputedRef } from "vue";
 import { computed, watch, ref, reactive } from "vue";
+import { ethers } from "ethers";
 import { useRoute } from "vue-router";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 import { useLoaderStore } from "@/stores/loader/store";
+
 import { error } from "@/helpers";
+
+import Filter from "@/components/Collection/Filter.vue";
 
 const market = useMarketPlaceStore();
 const route = useRoute();
 const loader = useLoaderStore();
-
-const categories: ComputedRef<PublicCategory[]> = computed(() => market.getCategories());
-const collections = computed(() => market.getCollections());
 
 const collection: Ref<PublicCategoryCollection | null> = ref(null);
 

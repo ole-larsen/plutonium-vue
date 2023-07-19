@@ -1,16 +1,17 @@
 <script lang="ts" setup>
-import { useFaqStore } from "@/stores/pages/faq";
 import type { FAQ } from "@/types";
 import type { ComputedRef } from "vue";
-import {computed, onBeforeMount} from "vue";
+import { computed, onBeforeMount } from "vue";
 import { error } from "@/helpers";
+
+import { useFaqStore } from "@/stores/pages/faq";
 
 import Accordion     from "@/components/Accordion/Accordion.vue";
 import AccordionItem from "@/components/Accordion/AccordionItem.vue";
 import PageTitle     from "@/components/Header/PageTitle.vue";
 
-
 const store = useFaqStore();
+
 onBeforeMount(async() => {
   try {
     await store.load();

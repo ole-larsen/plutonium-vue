@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import {onMounted, ref, toRefs} from "vue";
-import Countdown from "@/components/Collection/Countdown.vue";
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
-import {useLoaderStore} from "@/stores/loader/store";
-import {useLiveAuctionStore} from "@/stores/components/liveAuction";
-import {error} from "@/helpers";
+import { onMounted, ref, toRefs } from "vue";
+
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
+import { useLoaderStore } from "@/stores/loader/store";
+import { useLiveAuctionStore } from "@/stores/components/liveAuction";
+
+import { error } from "@/helpers";
 import moment from "moment";
+
+import Countdown from "@/components/Collection/Countdown.vue";
+
 const props = defineProps(["collectible", "user"]);
 const { collectible, user } = toRefs(props);
 
-const store   = useMarketPlaceStore();
 const loader  = useLoaderStore();
-const auction = useLiveAuctionStore();
 
 const likes = ref(0);
 

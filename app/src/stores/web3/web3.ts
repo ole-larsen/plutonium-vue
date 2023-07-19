@@ -46,6 +46,7 @@ export const useWeb3Store = defineStore("web3", () => {
 
   async function register() {
     console.log("trying to connect to web3....");
+    console.log(getCurrentInstance()?.appContext.config.globalProperties)
     try {
 
       signer.value = provider.getSigner.bind(provider);

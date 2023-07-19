@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import {onMounted, ref, toRefs} from "vue";
+import { onMounted, ref, toRefs } from "vue";
+
 const props = defineProps(["starttime", "endtime", "trans"]);
-const {starttime, endtime, trans} = toRefs(props);
+
+const { starttime, endtime, trans } = toRefs(props);
+
 const timer = ref(""),
   start = ref(0),
   end = ref(0),

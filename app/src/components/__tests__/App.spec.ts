@@ -5,7 +5,7 @@ import App from "@/App.vue";
 
 describe("App", () => {
   it("renders properly", () => {
-    const wrapper = mount(App, { props: { msg: "Hello Vitest" } });
-    expect(wrapper.text()).toContain("Hello Vitest");
+    const wrapper = mount(App, { props: { msg: "ploutonion" } });
+    expect(wrapper.text()).toContain("ploutonion");
   });
 });

@@ -1,18 +1,17 @@
 <script lang="ts" setup>
+import type { PublicCategoryCollectionCollectible } from "@/types";
+
 import type { Ref } from "vue";
 import { toRefs, ref } from "vue";
-import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
+
 import Collectible from "@/components/Collection/Collectible.vue";
 import Modal from "@/components/Modal/Modal.vue";
-import {useLoaderStore} from "@/stores/loader/store";
-import type {PublicCategoryCollectionCollectible} from "@/types";
 
 const emit = defineEmits(["buy", "placeBid", "loadHistory"]);
+
 const props = defineProps(["collectibles"]);
 const { collectibles } = toRefs(props);
 
-const market = useMarketPlaceStore();
-const loader = useLoaderStore();
 const selectedCategory: Ref<string> = ref("All");
 
 const isActive = ref(false);

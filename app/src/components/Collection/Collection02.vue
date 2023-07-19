@@ -1,12 +1,12 @@
 <script lang="ts" setup>
+import type { PublicCategoryCollection } from "@/types";
 
-import type {PublicCategoryCollection} from "@/types";
-import type {ComputedRef} from "vue";
-import {computed} from "vue";
-import {useMarketPlaceStore} from "@/stores/contracts/marketPlace";
+import type { ComputedRef } from "vue";
+import { computed } from "vue";
 
-import { Carousel, Slide  } from "vue3-carousel";
+import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 
+import { Carousel, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 
 const store = useMarketPlaceStore();
@@ -17,7 +17,6 @@ const collections: ComputedRef<PublicCategoryCollection[]> = computed(() => stor
 const settings = {
   itemsToShow: 1
 };
-const auction = null;
 
 const breakpoints = {
   768: {

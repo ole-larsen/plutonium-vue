@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import type { ComputedRef } from "vue";
-  import { computed } from "vue";
-  import { useLoaderStore } from "@/stores/loader/store";
+import type { ComputedRef } from "vue";
+import { computed } from "vue";
+import { useLoaderStore } from "@/stores/loader/store";
 
-  const loading: ComputedRef<boolean> = computed(() => useLoaderStore().loading);
+const loading: ComputedRef<boolean> = computed(() => useLoaderStore().loading);
 </script>
 
 <template>

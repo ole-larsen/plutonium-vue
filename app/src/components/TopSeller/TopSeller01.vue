@@ -1,13 +1,18 @@
 <script lang="ts" setup>
 import type { PublicUser } from "@/types";
 import type { ComputedRef } from "vue";
-import { computed } from "vue";
-import { Carousel, Slide ,Navigation } from "vue3-carousel";
 
+import { computed } from "vue";
+
+import { Carousel, Slide ,Navigation } from "vue3-carousel";
 import 'vue3-carousel/dist/carousel.css';
+
 import { useUserStore } from "@/stores/users/users.store";
 
-const users: ComputedRef<PublicUser[]> = computed(() => useUserStore().getUsers().filter((user: PublicUser) => Number(user.funds) > 0));
+const users: ComputedRef<PublicUser[]> = computed(() => useUserStore()
+  .getUsers()
+  .filter((user: PublicUser) => Number(user.funds) > 0)
+);
 
 const settings = {
     loop: false,

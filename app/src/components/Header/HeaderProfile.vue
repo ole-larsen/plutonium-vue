@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {toRefs} from "vue";
+import { toRefs } from "vue";
 
 const props = defineProps({
   user: Object

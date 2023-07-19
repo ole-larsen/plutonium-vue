@@ -1,7 +1,14 @@
 <script lang="ts" setup>
-import {useRoute} from "vue-router";
-import {ethers} from "ethers";
-import type {PublicCategory, CollectionDTO, PublicCategoryCollection, PublicUser, CollectibleDTO} from "@/types";
+import { useRoute } from "vue-router";
+import { ethers } from "ethers";
+import type {
+  PublicCategory, 
+  CollectionDTO, 
+  PublicCategoryCollection, 
+  PublicUser, 
+  CollectibleDTO
+} from "@/types";
+
 import type { ComputedRef, Ref } from "vue";
 
 import { computed, ref, watch } from "vue";
@@ -9,7 +16,6 @@ import { computed, ref, watch } from "vue";
 import { useProfileStore } from "@/stores/template/profile";
 
 import { useAuthStore } from "@/stores/auth/store";
-import { useLoaderStore } from "@/stores/loader/store";
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 
 import Filter from "../Profile/Filter.vue";
@@ -23,18 +29,10 @@ import {useMetaMaskStore} from "@/stores/web3/metamask";
 
 const store  = useProfileStore();
 const market = useMarketPlaceStore();
-const auth   = useAuthStore();
-const loader = useLoaderStore();
 const metamask = useMetaMaskStore();
 
 const user: ComputedRef<PublicUser> = computed(() => useAuthStore().getUser());
-const avatar: Ref<any> = ref(null);
-const isActiveCollectionModal = computed(() => store.isActiveCollectionModal);
 const balance = computed(() => (+ethers.utils.formatEther(metamask.getBalance())).toFixed(4));
-
-const error = ref("");
-
-const loading = ref(false);
 
 const categories: ComputedRef<PublicCategory[]> = computed(() => market.getCategories());
 const collections: ComputedRef<PublicCategoryCollection[]> = computed(() => market.getCollections());

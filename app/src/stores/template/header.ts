@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
+import type { PublicMenu } from "@/types";
 import type { Ref } from "vue";
 import { ref } from "vue";
-import type {PublicFile, PublicMenu} from "@/types";
-import {link} from "@/helpers";
 
 export const useHeaderStore = defineStore("header", () => {
   const
@@ -10,7 +9,6 @@ export const useHeaderStore = defineStore("header", () => {
     isActive: Ref<boolean>       = ref(false),
     isActiveMobile: Ref<boolean> = ref(false),
     isActiveSearch: Ref<boolean> = ref(false),
-    img: Ref<PublicFile | null>  = ref(null),
     menu: Ref<PublicMenu | null> = ref(null);
 
   function toggleSticky() {
@@ -29,9 +27,7 @@ export const useHeaderStore = defineStore("header", () => {
     isActiveSearch.value = !isActiveSearch.value;
   }
 
-  function storeHeader(_logo: PublicFile, _menu: PublicMenu) {
-    _logo.attributes.url = link(_logo.attributes.url)
-    img.value = _logo;
+  function storeHeader(_menu: PublicMenu) {
     menu.value = _menu;
   }
 
@@ -40,7 +36,6 @@ export const useHeaderStore = defineStore("header", () => {
     isActive,
     isActiveMobile,
     isActiveSearch,
-    img,
     menu,
     storeHeader,
     toggleSticky,

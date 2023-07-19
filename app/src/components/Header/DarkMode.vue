@@ -1,16 +1,16 @@
 <script setup lang="ts">
-  import type {ComputedRef} from "vue";
-  import {computed, onMounted} from "vue";
-  import {useModeStore} from "@/stores/template/mode";
+import type { ComputedRef } from "vue";
+import { computed, onMounted } from "vue";
+import { useModeStore } from "@/stores/template/mode";
 
-  const
-    modeStore = useModeStore(),
-    userTheme: ComputedRef<string> = computed(() => modeStore.theme),
-    toggleTheme = modeStore.toggleTheme;
+const
+  modeStore = useModeStore(),
+  userTheme: ComputedRef<string> = computed(() => modeStore.theme),
+  toggleTheme = modeStore.toggleTheme;
 
-  onMounted(() => {
-    modeStore.setTheme(modeStore.getTheme() || modeStore.getMediaPreference());
-  });
+onMounted(() => {
+  modeStore.setTheme(modeStore.getTheme() || modeStore.getMediaPreference());
+});
 
 </script>
 <template>

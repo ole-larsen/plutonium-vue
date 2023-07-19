@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import {ethers} from "ethers";
-import { computed, watch, ref } from "vue";
+import { ethers } from "ethers";
+import { watch, ref } from "vue";
 import { error } from "@/helpers";
-import type { Ref } from "vue";
-import { toRefs } from "vue";
 
-import type {PublicCategoryCollectionCollectible} from "@/types";
+import { toRefs } from "vue";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 
