@@ -1,0 +1,296 @@
+// Here you can add other styles
+.sidebar {
+  width: 17rem;
+}
+.sidebar-brand {
+  font-size: 0.6em;
+}
+.widget__provider {
+  .fw-semibold {
+    color: #000000;
+  }
+}
+.sidebar-brand-full {
+  width: 100%;
+  padding: 20px;
+}
+.full-height {
+  min-height: 100%;
+}
+.card-text {
+  .form-text {
+    color: white;
+  }
+}
+.btn.btn-light {
+  min-width: 180px;
+}
+.breadcrumb {
+  margin: 0 16px;
+}
+.footer {
+  margin: 0 16px;
+}
+.img-thumb {
+  width: 100px;
+  height: 100px;
+}
+.form-control {
+  border-radius: 0;
+}
+.form-label {
+  font-size: 10px;
+}
+
+
+
+.image-description {
+  font-size: 10px;
+  p {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.offcanvas.offcanvas-top {
+  height: 100%;
+  .quill-wrapper {
+    min-height: 350px;
+    margin-bottom: 80px;
+    .quill-wrapper-editor {
+      height: 350px;
+    }
+  }
+}
+
+.img-thumb-blog {
+  height: 252px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.25);
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+.blog-editor {
+  select {
+    border-radius: 0;
+  }
+}
+.img-block {
+  margin-top: 16px;
+  background: #CCC;
+  padding: 10px;
+  &_inner {
+    height: 200px;
+    overflow: hidden;
+    &_responsive {
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+  }
+}
+.tag-input {
+  position: relative;
+  .list-group-tag-item {
+    padding: 0;
+    ul {
+      max-width: 75%;
+      overflow-x: auto;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 10px;
+    }
+  }
+}
+
+.blog-table {
+  font-size: 0.6875rem;
+  .img-thumb{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 0 auto;
+  }
+}
+.files-container,
+.categories-container,
+.pages-container,
+.sliders-container,
+.contacts-container,
+.faqs-container,
+.wallets-container,
+.help-centers-container,
+.tags-container,
+.authors-container {
+  font-size: 0.6875rem;
+  border-radius: 0;
+  .form-control, .form-select {
+    font-size: 0.6875rem;
+    border-radius: 0;
+  }
+}
+.authors-container {
+  .author-thumb {
+    max-width: 268px;
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+.blog-top-canvas {
+  overflow-y: auto;
+  .form-control, .form-select {
+    font-size: 0.6875rem;
+    border-radius: 0;
+  }
+  &_img-thumb {
+    margin-top: 31px;
+    img {
+     width: 100%;
+     height: auto;
+   }
+  }
+  &_col {
+    margin-top:1px;
+    margin-bottom: 19px;
+  }
+  button {
+    border-radius: 0;
+  }
+  .multiselect {
+    border-radius: 0;
+    min-height:28px;
+  }
+}
+
+.files-container {
+  .td-image-thumb {
+    width: 50px;
+    height: auto;
+  }
+}
+.menu-list-group {
+  border-radius: 0;
+  &__item {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    &__edit-menu {
+      .btn-group {
+        border-radius: 0;
+      }
+      .btn-input {
+        padding: 0;
+      }
+      select {
+        border-radius: 0;
+      }
+      .btn-order {
+        border-radius: 0;
+        width: 40px;
+      }
+    }
+    &__divider {
+      height: 16px;
+      border: 0;
+    }
+    .btn-group {
+      background: #5bc0de;
+      border: 0;
+      .btn {
+        border-radius: 0;
+        border: 0;
+      }
+      .btn.btn-light {
+        min-width: 40px;
+      }
+      .btn-input {
+        padding: 0;
+      }
+    }
+  }
+}
+//
+//.main-menu-switch {
+//  .form-switch {
+//    position: relative;
+//    top: 34px;
+//  }
+//}
+//
+//.main-menu-controls {
+//  .btn-group {
+//    position: relative;
+//    top: 28px;
+//    left: -10%;
+//    .btn {
+//      font-size: 0.85rem;
+//    }
+//  }
+//}
+//.main-menu-form, .main-menu-form-controls, .main-menu-section-controls {
+//  .btn-group {
+//    position: relative;
+//    top: 28px;
+//  }
+//}
+//.menu-group-item-controls {
+//  height: 40px;
+//  .btn-light {
+//    min-width: 40px;
+//  }
+//}
+//.menu-group-item {
+//  border: 0;
+//  padding: 0;
+//  &-wrapper {
+//    .list-group-item {
+//      padding: 0;
+//      .btn {
+//        border-radius: 0;
+//      }
+//    }
+//  }
+//  &-name {
+//    width: 200px;
+//    text-align: left;
+//    .form-control {
+//      background: none;
+//      width: 176px;
+//      height: 35px;
+//      border: 0;
+//      text-align: left;
+//    }
+//  }
+//  &-order_by{
+//    width: 56px;
+//    padding: 0;
+//    .form-control {
+//      padding: 0;
+//      height: 40px;
+//      margin-left: 15px;
+//      width: 40px;
+//      background: none;
+//      border: 0;
+//      text-align: center;
+//    }
+//  }
+//  &-select{
+//    padding-left: 64px;
+//    select {
+//      width: 255px;
+//      border-radius: 0;
+//    }
+//  }
+//  ul li {
+//    cursor: pointer;
+//    span {
+//      top: 23px !important;
+//      left: 88%!important;
+//    }
+//  }
+//}

@@ -1,0 +1,15 @@
+// If you want to override variables do it here
+@import "variables";
+
+$enable-ltr: true;
+$enable-rtl: true;
+
+// Import styles
+@import "@coreui/coreui/scss/coreui.scss";
+@import "cropperjs/src/css/cropper.scss";
+@import "layout";
+@import "example";
+
+// If you want to add something do it here
+@import "swiper";
+@import "custom";
