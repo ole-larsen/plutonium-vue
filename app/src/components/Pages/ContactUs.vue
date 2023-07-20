@@ -18,13 +18,13 @@ const page = store.getPage(path as string);
 
 onBeforeMount(async () => {
   try {
-    if (path) {
-      if (page.id) {
-        if (!contactStore.getContact(page.id)) {
-          await contactStore.load(page.id);
-        }
-        contact.value = contactStore.getContact(page.id);
+    console.log(page);
+    if (path && page.id) {
+      if (!contactStore.getContact(page.id)) {
+        await contactStore.load(page.id);
       }
+      contact.value = contactStore.getContact(page.id);
+      console.log(contact.value);
     }
   } catch( e) {
     error(e);
@@ -40,18 +40,22 @@ function submit(form: ContactFormData) {
   <PageTitle v-if="contact && contact['attributes']"
              pageTitle="Contact Us"/>
   <section class="tf-contact tf-section" v-if="contact && contact['attributes']">
-    <div class="row">
-      <div class="col-lg-6 col-md-6 col-12">
-        <div class="box-feature-contact" v-if="contact['attributes']['image']">
-          <img :src="contact['attributes']['image']['attributes']['url']" :alt="contact['attributes']['image']['attributes']['alt']">
+    <div class="themesflat-container">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-12">
+          <div class="box-feature-contact" v-if="contact['attributes']['image']">
+            <img 
+              :src="contact['attributes']['image']['attributes']['url']" 
+              :alt="contact['attributes']['image']['attributes']['alt']">
+          </div>
         </div>
-      </div>
-      <div class="col-lg-6 col-md-6 col-12">
-        <div class="form-inner">
-          <contact-form
-            :heading="contact['attributes']['heading']"
-            :subHeading="contact['attributes']['subHeading']"
-            @submit="submit" />
+        <div class="col-lg-6 col-md-6 col-12">
+          <div class="form-inner">
+            <contact-form
+              :heading="contact['attributes']['heading']"
+              :subHeading="contact['attributes']['subHeading']"
+              @submit="submit" />
+          </div>
         </div>
       </div>
     </div>

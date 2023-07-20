@@ -16,6 +16,7 @@ export const useContactStore = defineStore("contact", () => {
   async function load(pageID: number) {
     try {
         const { data } = await loader.loadContact(pageID);
+        console.log(data);
         if (data) {
           if (data.attributes.image && data.attributes.image.attributes) {
             data.attributes.image.attributes.url = link(data.attributes.image.attributes.url);

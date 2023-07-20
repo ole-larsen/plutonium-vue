@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { ComputedRef, Ref } from "vue";
-import type { PublicMenu, PublicUser, PublicFile } from "@/types";
+import type { PublicMenu, PublicUser } from "@/types";
 
-import { useLoaderStore } from "@/stores/loader/store";
 import { useHeaderStore } from "@/stores/template/header";
 import { onMounted, computed } from "vue";
 

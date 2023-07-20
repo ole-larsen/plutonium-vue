@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
-import axios from "axios";
-import type {Ref} from "vue";
-import {ref} from "vue";
-import type {SliderItem} from "@/types";
-import {useLoaderStore} from "@/stores/loader/store";
+import type { SliderItem } from "@/types";
+import type { Ref } from "vue";
+import { ref } from "vue";
+import { useLoaderStore } from "@/stores/loader/store";
 
 export const useSliderStore = defineStore("slider", () => {
   const loader = useLoaderStore();
