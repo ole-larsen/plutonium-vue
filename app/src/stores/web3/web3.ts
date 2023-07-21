@@ -5,17 +5,20 @@ import { BigNumber } from "ethers";
 import { error } from "@/helpers";
 
 export const useWeb3Store = defineStore("web3", () => {
-  const provider = getCurrentInstance()?.appContext.config.globalProperties.$web3;
-  const signer = ref(getCurrentInstance()?.appContext.config.globalProperties.$web3);
+  const provider =
+    getCurrentInstance()?.appContext.config.globalProperties.$web3;
+  const signer = ref(
+    getCurrentInstance()?.appContext.config.globalProperties.$web3
+  );
 
-  const registered: Ref<boolean>   = ref(false);
-  const connected:  Ref<boolean>   = ref(false);
-  const chainID:    Ref<number>    = ref(0);
-  const nodeInfo:   Ref<string>    = ref("");
-  const accounts:   Ref<string[]>  = ref([]);
-  const address:    Ref<string>    = ref("");
-  const balance:    Ref<BigNumber> = ref(BigNumber.from("0"));
-  const networkID:  Ref<string>    = ref("");
+  const registered: Ref<boolean> = ref(false);
+  const connected: Ref<boolean> = ref(false);
+  const chainID: Ref<number> = ref(0);
+  const nodeInfo: Ref<string> = ref("");
+  const accounts: Ref<string[]> = ref([]);
+  const address: Ref<string> = ref("");
+  const balance: Ref<BigNumber> = ref(BigNumber.from("0"));
+  const networkID: Ref<string> = ref("");
 
   function _getChainId() {
     return provider.send("eth_chainId");
@@ -46,14 +49,14 @@ export const useWeb3Store = defineStore("web3", () => {
 
   async function register() {
     console.log("trying to connect to web3....");
-   
+
     try {
       signer.value = provider.getSigner.bind(provider);
       chainID.value = parseInt(await _getChainId(), 16);
       nodeInfo.value = await _getNodeInfo();
       accounts.value = await _getAccounts();
-      address.value  = await _getAddress();
-      balance.value  = await _getBalance();
+      address.value = await _getAddress();
+      balance.value = await _getBalance();
 
       registered.value = true;
       connected.value = true;
@@ -64,7 +67,14 @@ export const useWeb3Store = defineStore("web3", () => {
         localStorage.removeItem("user");
       }
 
-      console.log(chainID.value, nodeInfo.value, accounts.value, address.value, balance.value, networkID.value);
+      console.log(
+        chainID.value,
+        nodeInfo.value,
+        accounts.value,
+        address.value,
+        balance.value,
+        networkID.value
+      );
     } catch (e) {
       _disconnect();
       error(e);
@@ -72,7 +82,7 @@ export const useWeb3Store = defineStore("web3", () => {
   }
 
   function personalSign() {
-    console.log("sign")
+    console.log("sign");
   }
 
   function getChainID() {
@@ -84,8 +94,6 @@ export const useWeb3Store = defineStore("web3", () => {
     registered,
     personalSign,
     signer,
-    getChainID
-  }
-
+    getChainID,
+  };
 });
-

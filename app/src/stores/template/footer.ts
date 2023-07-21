@@ -6,19 +6,23 @@ import type { Ref } from "vue";
 import { inject, ref } from "vue";
 
 export const useFooterStore = defineStore("footer", () => {
-  const axios: any = inject("axios");  // inject axios
+  const axios: any = inject("axios"); // inject axios
 
   const isActive = ref(false),
-        menu: Ref<PublicMenu | null> = ref(null);
+    menu: Ref<PublicMenu | null> = ref(null);
 
   function postData(form: Form) {
-    return axios.post(`${import.meta.env.VITE_BACKEND}/api/v1/subscribe`, {
-      email: form.email,
-      csrf: form.csrf,
-      provider: "footer"
-    }, {
-      withCredentials: true
-    });
+    return axios.post(
+      `${import.meta.env.VITE_BACKEND}/api/v1/subscribe`,
+      {
+        email: form.email,
+        csrf: form.csrf,
+        provider: "footer",
+      },
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   function toggleActive() {
@@ -40,5 +44,5 @@ export const useFooterStore = defineStore("footer", () => {
     postData,
     toggleActive,
     submit,
-  }
+  };
 });

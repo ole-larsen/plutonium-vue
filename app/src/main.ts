@@ -32,25 +32,29 @@ import "./assets/css/style.css";
 import "./assets/css/shortcodes.css";
 import "./assets/css/responsive.css";
 import "./assets/css/custom.scss";
-import {ethers} from "ethers";
+import { ethers } from "ethers";
 
 const app = createApp(App);
 
 // add metamask library
 // A Web3Provider wraps a standard Web3 provider, which is what MetaMask injects as window.ethereum into each page
 // @ts-ignore
-if (typeof window.ethereum !== 'undefined') {
+if (typeof window.ethereum !== "undefined") {
   const { ethereum } = window;
-  app.config.globalProperties.$ethereum = new ethers.providers.Web3Provider(ethereum as ethers.providers.ExternalProvider);
+  app.config.globalProperties.$ethereum = new ethers.providers.Web3Provider(
+    ethereum as ethers.providers.ExternalProvider
+  );
 }
 
 if (import.meta.env.VITE_WEB3_PROVIDER) {
-  app.config.globalProperties.$web3 = new ethers.providers.JsonRpcProvider(import.meta.env.VITE_WEB3_PROVIDER);
+  app.config.globalProperties.$web3 = new ethers.providers.JsonRpcProvider(
+    import.meta.env.VITE_WEB3_PROVIDER
+  );
 }
 
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.use(VueAxios, axios);
-app.provide('axios', app.config.globalProperties.axios);
+app.provide("axios", app.config.globalProperties.axios);
 app.use(createPinia());
 app.use(router);
 

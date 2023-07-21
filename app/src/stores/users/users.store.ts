@@ -13,7 +13,10 @@ export const useUserStore = defineStore("users", () => {
       }
 
       if (user.gravatar) {
-        user.gravatar = user.gravatar.replace("//localhost:1111", import.meta.env.VITE_BACKEND);
+        user.gravatar = user.gravatar.replace(
+          "//localhost:1111",
+          import.meta.env.VITE_BACKEND
+        );
       }
 
       return user;
@@ -21,11 +24,11 @@ export const useUserStore = defineStore("users", () => {
   }
 
   function getUsers(): PublicUser[] {
-    return users.value
+    return users.value;
   }
 
   return {
     storeUsers,
-    getUsers
-  }
+    getUsers,
+  };
 });

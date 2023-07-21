@@ -4,9 +4,8 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 
 export const useHeaderStore = defineStore("header", () => {
-  const
-    isSticky: Ref<boolean>       = ref(false),
-    isActive: Ref<boolean>       = ref(false),
+  const isSticky: Ref<boolean> = ref(false),
+    isActive: Ref<boolean> = ref(false),
     isActiveMobile: Ref<boolean> = ref(false),
     isActiveSearch: Ref<boolean> = ref(false),
     menu: Ref<PublicMenu | null> = ref(null);
@@ -42,6 +41,5 @@ export const useHeaderStore = defineStore("header", () => {
     toggleActive,
     toggleActiveMobile,
     toggleActiveSearch,
-
-  }
+  };
 });

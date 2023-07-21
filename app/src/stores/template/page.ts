@@ -9,7 +9,7 @@ import { link } from "@/helpers";
 export const usePageStore = defineStore("page", () => {
   const loader = useLoaderStore();
 
-  const pages: Ref<{[slug: string]: PublicPage}> = ref({});
+  const pages: Ref<{ [slug: string]: PublicPage }> = ref({});
   const path: Ref<string | null> = ref(null);
 
   function setPath(slug: string | null) {
@@ -21,21 +21,19 @@ export const usePageStore = defineStore("page", () => {
   }
 
   async function loadPage(slug: string) {
-    try {
-      const { data: page } = await loader.loadPage(slug);
+    const { data: page } = await loader.loadPage(slug);
 
-      if (page) {
-        if (page.attributes.image && page.attributes.image.attributes) {
-          page.attributes.image.attributes.url = link(page.attributes.image.attributes.url);
-        }
-        pages.value[slug] = page;
+    if (page) {
+      if (page.attributes.image && page.attributes.image.attributes) {
+        page.attributes.image.attributes.url = link(
+          page.attributes.image.attributes.url
+        );
       }
-    } catch (e) {
-      throw e;
+      pages.value[slug] = page;
     }
   }
 
-  function getPages(): {[slug: string]: PublicPage} {
+  function getPages(): { [slug: string]: PublicPage } {
     return pages.value;
   }
 
@@ -48,6 +46,6 @@ export const usePageStore = defineStore("page", () => {
     getPath,
     getPage,
     getPages,
-    loadPage
-  }
+    loadPage,
+  };
 });

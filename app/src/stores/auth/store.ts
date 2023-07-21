@@ -1,14 +1,16 @@
-import {defineStore} from "pinia";
-import type {PublicFile, PublicUser} from "@/types";
+import { defineStore } from "pinia";
+import type { PublicFile, PublicUser } from "@/types";
 import { ref } from "vue";
 import { link } from "@/helpers";
 
 export const useAuthStore = defineStore("auth", () => {
   const LS_KEY = "metamask:auth";
 
-  const user = ref(localStorage.getItem(LS_KEY)
-    ? JSON.parse(localStorage.getItem(LS_KEY) as string)
-    : undefined);
+  const user = ref(
+    localStorage.getItem(LS_KEY)
+      ? JSON.parse(localStorage.getItem(LS_KEY) as string)
+      : undefined
+  );
 
   function getUser(): PublicUser {
     return user.value;
@@ -16,7 +18,10 @@ export const useAuthStore = defineStore("auth", () => {
 
   function storeUser(_user: PublicUser) {
     if (_user.gravatar) {
-      _user.gravatar = _user.gravatar.replace("//localhost:1111", import.meta.env.VITE_BACKEND);
+      _user.gravatar = _user.gravatar.replace(
+        "//localhost:1111",
+        import.meta.env.VITE_BACKEND
+      );
     }
     if (_user.wallpaper) {
       _user.wallpaper = link(_user.wallpaper);
@@ -44,11 +49,10 @@ export const useAuthStore = defineStore("auth", () => {
       method: "POST", // or "PUT"
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${user.value.token}`
+        Authorization: `Bearer ${user.value.token}`,
       },
-      body: JSON.stringify(user.value)
-    })
-      .then((response) => response.json());
+      body: JSON.stringify(user.value),
+    }).then((response) => response.json());
   }
 
   function updateUserAvatar(_user: PublicUser, url: string) {
@@ -72,11 +76,10 @@ export const useAuthStore = defineStore("auth", () => {
         method: "POST", // or "PUT"
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.value.token}`
+          Authorization: `Bearer ${user.value.token}`,
         },
-        body: JSON.stringify(user.value)
-      })
-        .then((response) => response.json());
+        body: JSON.stringify(user.value),
+      }).then((response) => response.json());
     }
   }
 
@@ -87,27 +90,31 @@ export const useAuthStore = defineStore("auth", () => {
         method: "POST", // or "PUT"
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.value.token}`
+          Authorization: `Bearer ${user.value.token}`,
         },
-        body: JSON.stringify(user.value)
-      })
-        .then((response) => response.json());
+        body: JSON.stringify(user.value),
+      }).then((response) => response.json());
     }
   }
 
   function loadAvatars() {
     const provider = `avatar:${user.value.uuid}`;
-    return fetch(`${import.meta.env.VITE_BACKEND}/api/v1/avatars?provider=${provider}`, {
-      method: "GET", // or "PUT"
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${user.value.token}`
-      },
-    })
+    return fetch(
+      `${import.meta.env.VITE_BACKEND}/api/v1/avatars?provider=${provider}`,
+      {
+        method: "GET", // or "PUT"
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.value.token}`,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((files) => {
         return files.map((file: PublicFile) => {
-          file.attributes.url = `${import.meta.env.VITE_BACKEND}${file.attributes.url}`;
+          file.attributes.url = `${import.meta.env.VITE_BACKEND}${
+            file.attributes.url
+          }`;
           return file;
         });
       });
@@ -115,17 +122,22 @@ export const useAuthStore = defineStore("auth", () => {
 
   function loadWallpapers() {
     const provider = `wallpaper:${user.value.uuid}`;
-    return fetch(`${import.meta.env.VITE_BACKEND}/api/v1/avatars?provider=${provider}`, {
-      method: "GET", // or "PUT"
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${user.value.token}`
-      },
-    })
+    return fetch(
+      `${import.meta.env.VITE_BACKEND}/api/v1/avatars?provider=${provider}`,
+      {
+        method: "GET", // or "PUT"
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.value.token}`,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((files) => {
         return files.map((file: any) => {
-          file.attributes.url = `${import.meta.env.VITE_BACKEND}${file.attributes.url}`;
+          file.attributes.url = `${import.meta.env.VITE_BACKEND}${
+            file.attributes.url
+          }`;
           return file;
         });
       });
@@ -141,6 +153,6 @@ export const useAuthStore = defineStore("auth", () => {
     uploadUserAvatar,
     uploadUserWallpaper,
     loadAvatars,
-    loadWallpapers
-  }
+    loadWallpapers,
+  };
 });

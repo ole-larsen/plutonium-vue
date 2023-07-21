@@ -4,14 +4,14 @@ import type { BlogItem } from "@/types";
 
 import { ref } from "vue";
 import { useLoaderStore } from "@/stores/loader/store";
-import {link} from "@/helpers";
+import { link } from "@/helpers";
 
 export const useBlogStore = defineStore("blog", () => {
-  const blogs: Ref<{[id: string]: BlogItem}> = ref({});
+  const blogs: Ref<{ [id: string]: BlogItem }> = ref({});
   const path: Ref<string> = ref("");
   const loader = useLoaderStore();
 
-  function getBlogs(): {[id: string]: BlogItem} {
+  function getBlogs(): { [id: string]: BlogItem } {
     return blogs.value;
   }
 
@@ -24,36 +24,28 @@ export const useBlogStore = defineStore("blog", () => {
   }
 
   function getPath(): string {
-    return path.value
+    return path.value;
   }
 
   async function loadBlogs() {
-    try {
-      const { data: blogs } = await loader.loadBlogs();
+    const { data: blogs } = await loader.loadBlogs();
 
-      for (const blog of blogs) {
-        console.log(blog);
-        updateLinks(blog);
-        blogs.value[blog.link] = blog;
-      }
-    } catch (e) {
-      throw e;
+    for (const blog of blogs) {
+      console.log(blog);
+      updateLinks(blog);
+      blogs.value[blog.link] = blog;
     }
   }
 
   async function loadBlog(slug: string) {
-    try {
-      const { data } = await getBlog(slug);
-      updateLinks(data.blog);
-      blogs.value[slug] = data.blog;
-    } catch (e) {
-      throw e;
-    }
+    const { data } = await getBlog(slug);
+    updateLinks(data.blog);
+    blogs.value[slug] = data.blog;
   }
 
   function updateLinks(blog: any) {
     if (blog.image && blog.image.attributes) {
-      blog.image.attributes.url = link(blog.image.attributes.url)
+      blog.image.attributes.url = link(blog.image.attributes.url);
     }
     if (blog.image1 && blog.image1.attributes) {
       blog.image1.attributes.url = link(blog.image1.attributes.url);
@@ -65,11 +57,18 @@ export const useBlogStore = defineStore("blog", () => {
       blog.image3.attributes.url = link(blog.image3.attributes.url);
     }
     if (blog.author && blog.author.attributes && blog.author.attributes.image) {
-      blog.author.attributes.image.attributes.url = link(blog.author.attributes.image.attributes.url);
+      blog.author.attributes.image.attributes.url = link(
+        blog.author.attributes.image.attributes.url
+      );
     }
   }
 
   return {
-    setPath, getPath, getBlogs, getBlog, loadBlogs, loadBlog
-  }
+    setPath,
+    getPath,
+    getBlogs,
+    getBlog,
+    loadBlogs,
+    loadBlog,
+  };
 });

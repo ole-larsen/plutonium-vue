@@ -10,15 +10,11 @@ export const useFaqStore = defineStore("faq", () => {
   const faqs: Ref<FAQ[]> = ref([]);
 
   async function load() {
-    try {
-      const { data } = await loader.loadFaq();
-      faqs.value = data;
-    } catch (e) {
-      throw e;
-    }
+    const { data } = await loader.loadFaq();
+    faqs.value = data;
   }
   return {
     faqs,
-    load
-  }
+    load,
+  };
 });

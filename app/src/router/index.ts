@@ -1,22 +1,22 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import PageView      from "@/views/PageView.vue";
-import Home          from "@/components/Pages/Home.vue";
-import ContactUs     from "@/components/Pages/ContactUs.vue";
-import Faq           from "@/components/Pages/Faq.vue";
-import WalletConnect from "@/components/Pages/WalletConnect.vue";
-import HelpCenter    from "@/components/Pages/HelpCenter.vue";
-import Blog          from "@/components/Pages/Blog.vue";
-import BlogDetails   from "@/components/Pages/BlogDetails.vue";
-import Profile       from "@/components/Pages/Profile.vue";
-import Collection    from "@/components/Pages/Collection.vue";
-import Category      from "@/components/Pages/Category.vue";
-import CreateERC721  from "@/components/Pages/CreateERC721.vue";
+import PageView from "@/views/PageView.vue";
+import Home from "@/components/Pages/HomePage.vue";
+import ContactUs from "@/components/Pages/ContactUsPage.vue";
+import Faq from "@/components/Pages/FaqPage.vue";
+import WalletConnect from "@/components/Pages/WalletConnectPage.vue";
+import HelpCenter from "@/components/Pages/HelpCenterPage.vue";
+import Blog from "@/components/Pages/BlogPage.vue";
+import BlogDetails from "@/components/Pages/BlogDetailsPage.vue";
+import Profile from "@/components/Pages/ProfilePage.vue";
+import Collection from "@/components/Pages/CollectionPage.vue";
+import Category from "@/components/Pages/CategoryPage.vue";
+import CreateERC721 from "@/components/Pages/CreateERC721Page.vue";
 
-import {usePageStore} from "@/stores/template/page";
-import {useProfileStore} from "@/stores/template/profile";
+import { usePageStore } from "@/stores/template/page";
+import { useProfileStore } from "@/stores/template/profile";
 
-import {error} from "@/helpers";
+import { error } from "@/helpers";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,37 +29,37 @@ const router = createRouter({
         {
           path: "/",
           name: "Home",
-          component: Home
+          component: Home,
         },
         {
           path: "/contact-us",
           name: "ContactUs",
-          component: ContactUs
+          component: ContactUs,
         },
         {
           path: "/faq",
           name: "Faq",
-          component: Faq
+          component: Faq,
         },
         {
           path: "/wallet-connect",
           name: "WalletConnect",
-          component: WalletConnect
+          component: WalletConnect,
         },
         {
           path: "/help-center",
           name: "HelpCenter",
-          component: HelpCenter
+          component: HelpCenter,
         },
         {
           path: "/blog",
           name: "Blog",
-          component: Blog
+          component: Blog,
         },
         {
           path: "/blog/:slug",
           name: "BlogDetails",
-          component: BlogDetails
+          component: BlogDetails,
         },
         {
           path: "/profile/:uuid",
@@ -69,7 +69,7 @@ const router = createRouter({
         {
           path: "/profile/:uuid/create/erc721",
           name: "CreateERC721",
-          component: CreateERC721
+          component: CreateERC721,
         },
         {
           path: "/collection/:slug",
@@ -81,8 +81,8 @@ const router = createRouter({
           name: "category",
           component: Category,
         },
-      ]
-    }
+      ],
+    },
   ],
 });
 
@@ -90,7 +90,7 @@ router.beforeResolve(async (to, from, next) => {
   const pageStore = usePageStore();
   const profileStore = useProfileStore();
 
-  let path = to.path.split("/").filter(segment => segment !== "");
+  const path = to.path.split("/").filter((segment) => segment !== "");
 
   console.log(path);
   // home
@@ -109,7 +109,7 @@ router.beforeResolve(async (to, from, next) => {
     if (!pageStore.getPage(slug)) {
       try {
         await pageStore.loadPage(slug);
-      } catch(e) {
+      } catch (e) {
         error(e);
       }
     }
@@ -127,13 +127,13 @@ router.beforeResolve(async (to, from, next) => {
       return next();
     }
     if (path.includes("collection")) {
-      const slug = path[path.length - 1];
+      //const slug = path[path.length - 1];
       pageStore.setPath(null);
       profileStore.setPath(null);
       return next();
     }
     if (path.includes("category")) {
-      const slug = path[path.length - 1];
+      //const slug = path[path.length - 1];
       pageStore.setPath(null);
       profileStore.setPath(null);
       return next();

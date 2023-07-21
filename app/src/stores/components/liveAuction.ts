@@ -3,10 +3,9 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 
 export const useLiveAuctionStore = defineStore("liveAuction", () => {
-  const isActive: Ref<{[id: number]: boolean}> = ref({});
+  const isActive: Ref<{ [id: number]: boolean }> = ref({});
 
   function toggleActive(itemId: number) {
-
     if (isActive.value[itemId] === undefined) {
       isActive.value[itemId] = false;
     }
@@ -16,6 +15,6 @@ export const useLiveAuctionStore = defineStore("liveAuction", () => {
 
   return {
     isActive,
-    toggleActive
-  }
+    toggleActive,
+  };
 });

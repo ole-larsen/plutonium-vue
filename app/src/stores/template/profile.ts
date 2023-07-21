@@ -3,12 +3,11 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 import type { PublicFile, PublicUser } from "@/types";
 import { useAuthStore } from "@/stores/auth/store";
-import {useLoaderStore} from "@/stores/loader/store";
+import { useLoaderStore } from "@/stores/loader/store";
 
 export const useProfileStore = defineStore("profile", () => {
   const auth = useAuthStore();
   const loader = useLoaderStore();
-  const user = auth.getUser();
 
   const path: Ref<string | null> = ref(null);
   const showEditAvatarBtn: Ref<boolean> = ref(false);
@@ -68,21 +67,19 @@ export const useProfileStore = defineStore("profile", () => {
   }
 
   async function handleSelectAvatar(file: PublicFile, user: PublicUser) {
-    try {
-      auth.updateUserAvatar(await auth.uploadUserAvatar(user, file.attributes.url), file.attributes.url);
-      isActiveModal.value = false;
-    } catch(e) {
-      throw e;
-    }
+    auth.updateUserAvatar(
+      await auth.uploadUserAvatar(user, file.attributes.url),
+      file.attributes.url
+    );
+    isActiveModal.value = false;
   }
 
   async function handleSelectWallpaper(file: PublicFile, user: PublicUser) {
-    try {
-      auth.updateUserWallpaper(await auth.uploadUserWallpaper(user, file), file.attributes.url);
-      isActiveWallpaperModal.value = false;
-    } catch(e) {
-      throw e;
-    }
+    auth.updateUserWallpaper(
+      await auth.uploadUserWallpaper(user, file),
+      file.attributes.url
+    );
+    isActiveWallpaperModal.value = false;
   }
 
   function handleAvatarModal() {
@@ -114,8 +111,8 @@ export const useProfileStore = defineStore("profile", () => {
   }
 
   function handleFileUpload(newFile: File, user: PublicUser, provider: string) {
-    return new Promise((resolve, reject) => {
-      const URL = (window.URL || window.webkitURL);
+    return new Promise((resolve) => {
+      const URL = window.URL || window.webkitURL;
       const blob = URL.createObjectURL(newFile);
 
       const file = {
@@ -130,8 +127,8 @@ export const useProfileStore = defineStore("profile", () => {
         thumb: "",
         width: 0,
         height: 0,
-        file: newFile
-      }
+        file: newFile,
+      };
 
       const img = new Image();
 
@@ -144,19 +141,26 @@ export const useProfileStore = defineStore("profile", () => {
         file.height = img.height;
         file.file = newFile;
         resolve(upload(file, user));
-      }
+      };
     });
   }
 
-  function upload (file: any, user: PublicUser) {
-    return loader.upload(file, user)
-      .then( (file) => {
+  function upload(file: any, user: PublicUser) {
+    return loader
+      .upload(file, user)
+      .then((file) => {
         if (file.attributes.provider === `avatar:${user.uuid}`) {
           showEditAvatarOptions.value = false;
-          auth.updateUserAvatar(user, import.meta.env.VITE_BACKEND + file.attributes.url);
+          auth.updateUserAvatar(
+            user,
+            import.meta.env.VITE_BACKEND + file.attributes.url
+          );
         }
         if (file.attributes.provider === `wallpaper:${user.uuid}`) {
-          auth.updateUserWallpaper(user, import.meta.env.VITE_BACKEND + file.attributes.url);
+          auth.updateUserWallpaper(
+            user,
+            import.meta.env.VITE_BACKEND + file.attributes.url
+          );
         }
         return file;
       })
@@ -164,8 +168,6 @@ export const useProfileStore = defineStore("profile", () => {
         throw e;
       });
   }
-
-
 
   return {
     setPath,
@@ -197,6 +199,6 @@ export const useProfileStore = defineStore("profile", () => {
     handleShowUsername,
     handleShowEmail,
     update,
-    handleFileUpload
-  }
+    handleFileUpload,
+  };
 });

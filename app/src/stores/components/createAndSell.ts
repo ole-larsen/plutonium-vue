@@ -10,21 +10,19 @@ export const useCreateAndSellStore = defineStore("createAndSell", () => {
   const items: Ref<CreateAndSellItem[]> = ref([]);
 
   async function load() {
-    try {
-      const response = await loader.loadCreateAndSell();
+    const response = await loader.loadCreateAndSell();
 
-      const { data } = response;
-      items.value = data;
-      items.value.map((item: CreateAndSellItem) => {
-        item.attributes.image.attributes.url = link(item.attributes.image.attributes.url);
-        return item;
-      })
-    } catch (e) {
-      throw e;
-    }
+    const { data } = response;
+    items.value = data;
+    items.value.map((item: CreateAndSellItem) => {
+      item.attributes.image.attributes.url = link(
+        item.attributes.image.attributes.url
+      );
+      return item;
+    });
   }
   return {
     items,
-    load
-  }
+    load,
+  };
 });
