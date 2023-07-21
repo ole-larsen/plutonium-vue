@@ -150,8 +150,9 @@ watch(
     <div class="lds-dual-ring" v-if="loading"></div>
     <div>
       <div class="row-form style-2">
-        <label class="form-label">Choose Collection</label>
+        <label class="form-label" for="collection-selector">Choose Collection</label>
         <select
+          id="collection-selector"
           class="form-select"
           aria-label="Select Collection"
           v-model="collectible.collectionId"
@@ -181,9 +182,10 @@ watch(
         />
       </div>
       <div class="row-form style-2">
-        <label class="form-label" for="auction">Name</label>
+        <label class="form-label" for="name">Name</label>
         <input
           id="name"
+          autocomplete="false"
           name="name"
           tabIndex="2"
           aria-required="true"
@@ -243,6 +245,7 @@ watch(
       <label class="form-label" for="auction">Auction</label>
       <br />
       <input
+        id="auction"
         type="checkbox"
         name="auction"
         tabIndex="2"

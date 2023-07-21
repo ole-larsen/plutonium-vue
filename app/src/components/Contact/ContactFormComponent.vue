@@ -108,12 +108,14 @@ async function submit() {
       <h5 class="sub-title style-1" v-if="subHeading" v-html="subHeading"></h5>
       <input type="hidden" name="csrf" :value="form.csrf" />
       <label
+        for="contact-form-name"
         class="contact-form_name error"
         v-if="errors.name"
         v-html="errors.name"
       ></label>
       <input
-        id="name"
+        id="contact-form-name"
+        autocomplete="true"
         name="name"
         tabIndex="1"
         aria-required="true"
@@ -129,6 +131,7 @@ async function submit() {
         v-html="errors.email"
       ></label>
       <input
+        autocomplete="true"
         id="email"
         name="email"
         tabIndex="2"

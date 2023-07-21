@@ -40,6 +40,7 @@ function updateEmail() {
       <h1 class="title" @click="editUsername">{{ user.username }}</h1>
       <input
         v-show="showUsername"
+        autocomplete="true"
         id="username"
         name="username"
         tabIndex="2"
@@ -57,7 +58,8 @@ function updateEmail() {
       <h2 v-html="`email: ${user.email}`" @click="editEmail"></h2>
       <input
         v-show="showEmail"
-        id="email"
+        autocomplete="true"
+        id="profile-email"
         name="email"
         tabIndex="2"
         aria-required="true"

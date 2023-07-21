@@ -53,6 +53,7 @@ function submit() {
           <form action="#" class="help-center-form">
             <input
               type="text"
+              id="help-center-question"
               placeholder="Type your question here"
               required
               v-model="form.message"

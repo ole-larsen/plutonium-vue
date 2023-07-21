@@ -105,6 +105,7 @@ async function submit() {
               >
                 <input type="hidden" name="csrf" :value="form.csrf" />
                 <input
+                  autocomplete="true"
                   name="email"
                   v-model="form.email"
                   class="email"
@@ -158,9 +159,9 @@ async function submit() {
               You must bid at least
               <span class="price color-popup">4.89 ETH</span>
             </p>
-            <input type="text" class="form-control" placeholder="00.00 ETH" />
+            <input type="text" id="bid-price" class="form-control" placeholder="00.00 ETH" />
             <p>Enter quantity. <span class="color-popup">5 available</span></p>
-            <input type="number" class="form-control" placeholder="1" />
+            <input type="number" id="bid-quantity" class="form-control" placeholder="1" />
             <div class="hr"></div>
             <div class="d-flex justify-content-between">
               <p>You must bid at least:</p>

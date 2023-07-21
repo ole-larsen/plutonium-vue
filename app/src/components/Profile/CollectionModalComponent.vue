@@ -241,6 +241,7 @@ async function handleBannerUpload() {
             <br />
             <div class="row-form style-2">
               <select
+                id="category-select"
                 class="form-select"
                 aria-label="Select Category"
                 v-model="collection.categoryId"
