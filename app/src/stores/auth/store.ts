@@ -17,15 +17,6 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   function storeUser(_user: PublicUser) {
-    if (_user.gravatar) {
-      _user.gravatar = _user.gravatar.replace(
-        "//localhost:1111",
-        import.meta.env.VITE_BACKEND
-      );
-    }
-    if (_user.wallpaper) {
-      _user.wallpaper = link(_user.wallpaper);
-    }
     localStorage.setItem(LS_KEY, JSON.stringify(_user));
     user.value = _user;
   }

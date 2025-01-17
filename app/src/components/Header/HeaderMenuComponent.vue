@@ -6,7 +6,8 @@ const props = defineProps(["menu", "isActive", "isActiveMobile"]);
 const { menu, isActive, isActiveMobile } = toRefs(props);
 </script>
 <template>
-  <div
+  <div>
+    <div
     class="mobile-button"
     @click="$emit('toggleActive')"
     v-bind:class="{ active: isActive }"
@@ -44,11 +45,7 @@ const { menu, isActive, isActiveMobile } = toRefs(props);
             </li>
           </ul>
         </template>
-        <template
-          v-else-if="
-            item.attributes.items && item.attributes.items.length === 1
-          "
-        >
+        <template v-else-if="item.attributes.items && item.attributes.items.length === 1">
           <router-link
             :to="
               item.attributes.items[0].attributes.link
@@ -60,5 +57,6 @@ const { menu, isActive, isActiveMobile } = toRefs(props);
         </template>
       </li>
     </ul>
+  </div>
   </div>
 </template>

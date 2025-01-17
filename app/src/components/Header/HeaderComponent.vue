@@ -107,7 +107,7 @@ function handlePersonalSign() {
                     </router-link>
                   </div>
                   <header-profile :user="user" />
-                </div>
+                </div> 
               </nav>
             </div>
           </div>

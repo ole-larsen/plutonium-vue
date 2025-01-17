@@ -21,15 +21,15 @@ export const usePageStore = defineStore("page", () => {
   }
 
   async function loadPage(slug: string) {
-    const { data: page } = await loader.loadPage(slug);
+    const { data } = await loader.loadPage(slug);
 
-    if (page) {
-      if (page.attributes.image && page.attributes.image.attributes) {
-        page.attributes.image.attributes.url = link(
-          page.attributes.image.attributes.url
+    if (data) {
+      if (data.attributes.image && data.attributes.image.attributes) {
+        data.attributes.image.attributes.url = link(
+          data.attributes.image.attributes.url
         );
       }
-      pages.value[slug] = page;
+      pages.value[slug] = data;
     }
   }
 

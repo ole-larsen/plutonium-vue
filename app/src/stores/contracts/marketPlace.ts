@@ -104,7 +104,8 @@ export const useMarketPlaceStore = defineStore("marketPlace", () => {
   }
 
   function getName(): string {
-    return name.value;
+    return 'Plutonium';
+    //return name.value;
   }
 
   function getCollections(): PublicCategoryCollection[] {

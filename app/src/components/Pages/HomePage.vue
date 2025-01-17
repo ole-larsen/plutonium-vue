@@ -10,10 +10,9 @@ import Collection from "@/components/Collection/Collection01Component.vue";
 <template>
   <Slider />
   <Categories />
-
   <LiveAuction />
   <CreateAndSell />
 
   <TopSeller />
-  <Collection />
+  <Collection /> 
 </template>

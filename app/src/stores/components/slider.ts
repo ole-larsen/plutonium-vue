@@ -1,30 +1,32 @@
 import { defineStore } from "pinia";
-import type { SliderItem } from "@/types";
+import type { SliderItem as SlidesItem } from "@/types";
 import type { Ref } from "vue";
 import { ref } from "vue";
 import { useLoaderStore } from "@/stores/loader/store";
 
 export const useSliderStore = defineStore("slider", () => {
   const loader = useLoaderStore();
-  const banner: Ref<SliderItem[]> = ref([]);
+  const banner: Ref<SlidesItem[]> = ref([]);
 
   async function load(sliderNumber: number) {
     try {
-      const {
-        data: { attributes },
-      } = await loader.loadSlider(sliderNumber);
-      if (!attributes) {
+      const { data } = await loader.loadSlider(sliderNumber);
+      console.log(await loader.loadSlider(sliderNumber))
+      if (!data) {
         banner.value = [];
         return;
       }
-      attributes.slidesItem.map((item: SliderItem) => {
-        item.bg.attributes.url =
-          import.meta.env.VITE_BACKEND + item.bg.attributes.url;
-        item.image.attributes.url =
-          import.meta.env.VITE_BACKEND + item.image.attributes.url;
+      
+      data.attributes.slidesItem.map((item: SlidesItem) => {
+        if (item.bg) {
+          item.bg.attributes.url = import.meta.env.VITE_BACKEND + item.bg.attributes.url.replace("/api/v1/files", "/api/v1/frontend/files");
+        }
+        if (item.image) {
+          item.image.attributes.url = import.meta.env.VITE_BACKEND + item.image.attributes.url.replace("/api/v1/files", "/api/v1/frontend/files");
+        }
         return item;
       });
-      banner.value = attributes.slidesItem;
+      banner.value = data.attributes.slidesItem;
     } catch (e) {
       banner.value = [];
       throw e;

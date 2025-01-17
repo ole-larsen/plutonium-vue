@@ -138,7 +138,7 @@ export const useMetaMaskStore = defineStore("metamask", () => {
 
   async function personalSign() {
     const { data } = await loader.getNonce(address.value);
-   
+
     const message =
       "\nWelcome to " +
       market.getName() +
@@ -166,7 +166,6 @@ export const useMetaMaskStore = defineStore("metamask", () => {
     if (recovered.toLowerCase() === address.value.toLowerCase()) {
       try {
         const { data } = await loader.verify(msg, signature, address.value);
-        console.log(data);  
         auth.storeUser(data);
       } catch (e) {
         console.error(e);

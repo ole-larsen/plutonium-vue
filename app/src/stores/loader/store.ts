@@ -7,6 +7,7 @@ import type {
   PublicCategoryCollectionCollectible,
   CollectibleDTO,
   PublicContract,
+  PublicCategories,
 } from "@/types";
 import type { ComputedRef, Ref } from "vue";
 import { ref, inject, computed } from "vue";
@@ -36,80 +37,109 @@ export const useLoaderStore = defineStore("loader", () => {
   const loading: Ref<boolean> = ref(false);
   const user: ComputedRef<PublicUser> = computed(() => auth.getUser());
 
-  async function load() {
-    loading.value = true;
-
-    const {
-      data: { contracts, marketplace },
-    } = await _loadMarketData();
-    console.log(contracts, marketplace);
-    // 1. load contract data
-    if (contracts.marketplace) {
-      market.storeContract(contracts.marketplace);
-    }
-
-    // 2. load categories
-    if (marketplace.categories) {
-      market.storeCategories(marketplace.categories);
-      market.storeCollections();
-    }
-
-    // 3. load users
-    const { data } = await _loadUsers();
-    userStore.storeUsers(data);
-
-    // 4. load header
-    {
-      const {
-        data: { menu },
-      } = await _loadHeader();
-      header.storeHeader(menu);
-    }
-
-    // 5. load footer
-    {
-      const {
-        data: { menu },
-      } = await _loadFooter();
-      footer.storeFooter(menu);
-    }
-
-    // 6. check metamask
-    // 6.1 if installed load contract to metamask
-    if (metamask.installed) {
-      await metamask.register();
-      market.loadMetamaskContract();
-      if (contracts.collections) {
-        loadCollectionContractsToMetamask(contracts.collections);
-      }
-      if (contracts.auctions) {
-        loadAuctionContractsToMetamask(contracts.auctions);
-      }
-    }
-    // 6.2 if not installed, use web3
-    if (!metamask.installed) {
-      await web3.register();
-      market.loadWeb3Contract();
-      if (contracts.collections) {
-        await loadCollectionContractsToWeb3(contracts.collections);
-      }
-      if (contracts.auctions) {
-        await loadAuctionContractsToWeb3(contracts.auctions);
-      }
-    }
-    loading.value = false;
-  }
-
-  function _loadMarketData(): Promise<PublicMarketData> {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/marketdata`, {
+  function loadMenu(provider: string) {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/menu?provider=${provider}`, {
       headers: {
         "X-Token": import.meta.env.VITE_X_TOKEN,
       },
     });
   }
 
-  function _loadUsers() {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/users`, {
+  function loadContracts(): Promise<PublicMarketData> {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/contracts`, {
+      headers: {
+        "X-Token": import.meta.env.VITE_X_TOKEN,
+      },
+    });
+  }
+
+  function loadCategories(): Promise<PublicCategories> {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/categories`, {
+      headers: {
+        "X-Token": import.meta.env.VITE_X_TOKEN,
+      },
+    });
+  }
+
+  async function load() {
+    loading.value = true;
+    try {
+      // 1. load contract data
+      const { 
+        data: { contracts }
+      } = await loadContracts();
+      
+      if (contracts.marketplace) {
+        market.storeContract(contracts.marketplace);
+      }
+
+      // 2. check metamask
+      
+      // 2.1 if installed load contract to metamask
+      if (metamask.installed) {
+        await metamask.register();
+        market.loadMetamaskContract();
+        if (contracts.collections) {
+          loadCollectionContractsToMetamask(contracts.collections);
+        }
+        if (contracts.auctions) {
+          loadAuctionContractsToMetamask(contracts.auctions);
+        }
+      }
+      // 2.2 if not installed, use web3
+      if (!metamask.installed) {
+        await web3.register();
+        market.loadWeb3Contract();
+        if (contracts.collections) {
+          loadCollectionContractsToWeb3(contracts.collections);
+        }
+        if (contracts.auctions) {
+          loadAuctionContractsToWeb3(contracts.auctions);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 3. load header
+    try {
+      {
+        const { data } = await loadMenu('header');
+        header.storeHeader(data);
+      }
+  
+      // 4. load footer
+      {
+        const { data } = await loadMenu('header');
+        footer.storeFooter(data);
+      }
+  
+      // 5. load categories
+      {
+        const { data } = await loadCategories();
+  
+        if (data) {
+          market.storeCategories(data);
+          market.storeCollections();
+        }
+      }
+  
+    } catch (e) {
+      console.error(e);
+    }
+    
+    // 5. load users
+    // {
+    //   const { data } = await loadUsers();
+    //   console.log(data);
+    // }
+    // userStore.storeUsers(data);
+
+    loading.value = false;
+  }
+
+  function loadUsers() {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/users`, {
       headers: {
         "X-Token": import.meta.env.VITE_X_TOKEN,
       },
@@ -118,7 +148,7 @@ export const useLoaderStore = defineStore("loader", () => {
 
   function loadUserByAddress(address: string) {
     return axios.get(
-      `${import.meta.env.VITE_BACKEND}/api/v1/users?address=${address}`,
+      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/users?address=${address}`,
       {
         headers: {
           "X-Token": import.meta.env.VITE_X_TOKEN,
@@ -127,27 +157,11 @@ export const useLoaderStore = defineStore("loader", () => {
     );
   }
 
-  function _loadHeader() {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/header`, {
-      headers: {
-        "X-Token": import.meta.env.VITE_X_TOKEN,
-      },
-    });
-  }
-
-  function _loadFooter() {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/footer`, {
-      headers: {
-        "X-Token": import.meta.env.VITE_X_TOKEN,
-      },
-    });
-  }
-
   function getNonce(address: string) {
     return axios.get(
       `${
         import.meta.env.VITE_BACKEND
-      }/api/v1/auth/wallet-connect?operation=nonce&address=${address}`,
+      }/api/v1/frontend/auth/wallet-connect?operation=nonce&address=${address}`,
       {
         headers: {
           "X-Token": import.meta.env.VITE_X_TOKEN,
@@ -158,7 +172,7 @@ export const useLoaderStore = defineStore("loader", () => {
 
   function verify(msg: string, signature: string, address: string) {
     return axios.post(
-      `${import.meta.env.VITE_BACKEND}/api/v1/auth/wallet-connect`,
+      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/auth/wallet-connect`,
       {
         msg,
         signature,
@@ -174,7 +188,7 @@ export const useLoaderStore = defineStore("loader", () => {
     return axios.get(
       `${
         import.meta.env.VITE_BACKEND
-      }/api/v1/slider?provider=home-0${sliderNumber}`,
+      }/api/v1/frontend/slider?provider=home-0${sliderNumber}`,
       {
         headers: {
           "X-Token": import.meta.env.VITE_X_TOKEN,
@@ -192,7 +206,7 @@ export const useLoaderStore = defineStore("loader", () => {
   }
 
   function loadPage(slug: string) {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/page/${slug}`, {
+    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/page/${slug}`, {
       headers: {
         "X-Token": import.meta.env.VITE_X_TOKEN,
       },
@@ -201,7 +215,7 @@ export const useLoaderStore = defineStore("loader", () => {
 
   function loadContact(pageID: number) {
     return axios.get(
-      `${import.meta.env.VITE_BACKEND}/api/v1/contact?id=${pageID}`,
+      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/contact?id=${pageID}`,
       {
         headers: {
           "X-Token": import.meta.env.VITE_X_TOKEN,
@@ -221,7 +235,7 @@ export const useLoaderStore = defineStore("loader", () => {
       );
 
     return axios.post(
-      `${import.meta.env.VITE_BACKEND}/api/v1/contact-form`,
+      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/contact-form`,
       {
         pageId: pageId,
         provider: form.provider,

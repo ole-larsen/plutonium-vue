@@ -38,8 +38,8 @@ export type PublicMarketData = {
         [id: number]: PublicContract;
       };
       auctions: PublicContract[];
-    };
-    marketplace: PublicMarketplace;
+    }
+
   };
 };
 
@@ -51,8 +51,8 @@ export type PublicContract = {
   fee: number;
 };
 
-export type PublicMarketplace = {
-  categories: PublicCategory[];
+export type PublicCategories = {
+  data: PublicCategory[]
 };
 
 export type PublicCategory = {
