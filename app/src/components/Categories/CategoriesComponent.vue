@@ -1,19 +1,33 @@
 <script lang="ts" setup>
 import type { ComputedRef } from "vue";
-import type { PublicCategory, PublicCategoryCollection } from "@/types";
+import type { PublicCategoryDto, MarketplaceCollectionDto } from "@/types";
 
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 
 import Filter from "@/components/Categories/FilterComponent.vue";
+import { useLoaderStore } from "@/stores/loader/store";
+import { error } from "@/helpers";
 
+const loader = useLoaderStore();
 const store = useMarketPlaceStore();
-const categories: ComputedRef<PublicCategory[]> = computed(() =>
+const categories: ComputedRef<PublicCategoryDto[]> = computed(() =>
   store.getCategories()
 );
-const collections: ComputedRef<PublicCategoryCollection[]> = computed(() =>
-  store.getCollections()
-);
+// const collections: ComputedRef<MarketplaceCollectionDto[]> = computed(() =>
+//   //store.getCollections()
+// );
+onMounted(async () => {
+  if (store.getCategories().length === 0) {
+      try {
+        const { data } = await loader.loadCategories();
+        store.loadCategories(data);
+      } catch (e) {
+        error(e);
+      }
+    }
+});
+const collections: MarketplaceCollectionDto[] = [];
 </script>
 
 <template>

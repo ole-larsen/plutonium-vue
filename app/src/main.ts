@@ -34,6 +34,9 @@ import "./assets/css/responsive.css";
 import "./assets/css/custom.scss";
 import { ethers } from "ethers";
 
+// add grpc
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { transportKey } from "./keys";
 const app = createApp(App);
 
 // add metamask library
@@ -57,5 +60,11 @@ app.use(VueAxios, axios);
 app.provide("axios", app.config.globalProperties.axios);
 app.use(createPinia());
 app.use(router);
+
+// This transport is going to be used throughout the app
+const transport = createConnectTransport({
+  baseUrl: "https://demo.connectrpc.com",
+});
+app.provide(transportKey, transport);
 
 app.mount("#app");

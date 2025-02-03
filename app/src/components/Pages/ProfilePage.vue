@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import type {
-  PublicCategory,
+  PublicCategoryDto,
   CollectionDTO,
-  PublicCategoryCollection,
-  PublicUser,
+  MarketplaceCollectionDto,
+  PublicUserDto,
   CollectibleDTO,
+  PublicFileDto
 } from "@/types";
 
 import type { ComputedRef, Ref } from "vue";
 
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { useProfileStore } from "@/stores/template/profile";
 
@@ -26,23 +27,29 @@ import ERC721Modal from "@/components/Profile/ERC721ModalComponent.vue";
 import Personal from "@/components/Profile/PersonalComponent.vue";
 import Wallpaper from "@/components/Profile/WallpaperComponent.vue";
 import { useMetaMaskStore } from "@/stores/web3/metamask";
+import { useWeb3Store } from "@/stores/web3/web3";
 
 const store = useProfileStore();
 const market = useMarketPlaceStore();
 const metamask = useMetaMaskStore();
+const web3 = useWeb3Store();
 
-const user: ComputedRef<PublicUser> = computed(() => useAuthStore().getUser());
-const balance = computed(() =>
-  (+ethers.utils.formatEther(metamask.getBalance())).toFixed(4)
-);
+const user: ComputedRef<PublicUserDto> = computed(() => useAuthStore().getUser());
+const balance: Ref<BigNumber> = ref(BigNumber.from("0"));
 
-const categories: ComputedRef<PublicCategory[]> = computed(() =>
-  market.getCategories()
-);
-const collections: ComputedRef<PublicCategoryCollection[]> = computed(() =>
-  market.getCollections()
-);
+onMounted(async() => {
+  balance.value = await metamask.getBalance();
+});
 
+// const categories: ComputedRef<PublicCategoryDto[]> = computed(() =>
+//   market.getCategories()
+// );
+const categories: PublicCategoryDto[] = [];
+
+// const collections: ComputedRef<MarketplaceCollectionDto[]> = computed(() =>
+//   market.getCollections()
+// );
+const collections: MarketplaceCollectionDto[] = [];
 const collection: Ref<CollectionDTO> = ref(newCollection());
 
 function newCollection(): CollectionDTO {
@@ -55,18 +62,15 @@ function newCollection(): CollectionDTO {
     slug: "",
     url: "",
     fee: "0",
-    owner: user?.value?.address,
+    owner: user?.value?.attributes.address,
     categoryId: 0,
     itemsInCollection: 100000,
-    categories: categories.value.map((_category: PublicCategory) => {
-      return {
-        id: _category.id,
-        label: _category.attributes.title,
-      };
-    }),
-    logo: 0,
-    featured: 0,
-    banner: 0,
+    // categories: categories.value.map((_category: PublicCategoryDto) => {
+    //   return {
+    //     id: _category.id,
+    //     label: _category.attributes.title,
+    //   };
+    // }),
   };
 }
 
@@ -79,7 +83,7 @@ function reloadCollection() {
   collection.value = newCollection();
 }
 
-function editCollection(_collection: PublicCategoryCollection) {
+function editCollection(_collection: MarketplaceCollectionDto) {
   collection.value = {
     id: _collection.id,
     name: _collection.attributes.name,
@@ -89,34 +93,40 @@ function editCollection(_collection: PublicCategoryCollection) {
     slug: _collection.attributes.slug,
     url: _collection.attributes.url,
     fee: ethers.utils.formatEther(_collection.attributes.fee),
-    owner: _collection.attributes.owner.address,
+    owner: _collection.attributes?.owner?.attributes.address as string,
     categoryId: _collection.attributes.categoryId,
-    categories: categories.value.map((_category: PublicCategory) => {
-      return {
-        id: _category.id,
-        label: _category.attributes.title,
-      };
-    }),
-    logo: _collection.attributes.logo,
-    featured: _collection.attributes.featured,
-    banner: _collection.attributes.banner,
+    // categories: categories.value.map((_category: PublicCategoryDto) => {
+    //   return {
+    //     id: _category.id,
+    //     label: _category.attributes.title,
+    //   };
+    // }),
   };
+  if (_collection.attributes.logo) {
+    collection.value.logo = _collection.attributes.logo;
+  }
+  if (_collection.attributes.featured) {
+    collection.value.featured = _collection.attributes.featured;
+  }
+  if (_collection.attributes.banner) {
+    collection.value.banner = _collection.attributes.banner;
+  }
   store.handleCollectionModal();
 }
 
-watch(
-  () => categories.value,
-  (_categories: PublicCategory[]) => {
-    collection.value.categories = _categories.map(
-      (_category: PublicCategory) => {
-        return {
-          id: _category.id,
-          label: _category.attributes.title,
-        };
-      }
-    );
-  }
-);
+// watch(
+//   () => categories.value,
+//   (_categories: PublicCategoryDto[]) => {
+//     collection.value.categories = _categories.map(
+//       (_category: PublicCategoryDto) => {
+//         return {
+//           id: _category.id,
+//           label: _category.attributes.title,
+//         };
+//       }
+//     );
+//   }
+// );
 
 const collectible: Ref<CollectibleDTO> = ref({
   name: "",
@@ -125,8 +135,8 @@ const collectible: Ref<CollectibleDTO> = ref({
   file: undefined,
   collectionId: 0,
   tags: "",
-  owner: user?.value?.address,
-  creator: user?.value?.address,
+  owner: user?.value?.attributes.address,
+  creator: user?.value?.attributes.address,
   auction: false,
   quantity: 1,
 });
@@ -143,16 +153,17 @@ const uuid = route.params.uuid; // read parameter id (it is reactive)
   <div class="tf-profile">
     <section
       class="tf-section tf-activity s1 authors profile"
-      v-if="collection"
     >
       <div class="flat-tabs tab-authors">
-        <wallpaper :user="user" />
+        <wallpaper/>
         <div class="themesflat-container">
-          <div class="row"><personal :user="user" /></div>
+          <div class="row">
+            <personal :user="user" />
+          </div>
           <br />
           <br />
           <hr />
-          <h5>Balance: {{ balance }} ETH</h5>
+          <h5>Balance: {{ (+ethers.utils.formatEther(balance)).toFixed(4) }} ETH</h5>
           <div class="infor-collection"></div>
         </div>
       </div>
@@ -181,7 +192,7 @@ const uuid = route.params.uuid; // read parameter id (it is reactive)
         :user="user"
         :collections="collections"
         :collectible="collectible"
-      />
-    </section>
+      /> 
+    </section> 
   </div>
 </template>

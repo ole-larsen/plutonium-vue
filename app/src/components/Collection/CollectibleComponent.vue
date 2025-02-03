@@ -7,7 +7,7 @@ import { error } from "@/helpers";
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
 import moment from "moment/moment";
 import { useAuctionStore } from "@/stores/contracts/auction";
-import type { PublicUser } from "@/types";
+import type { PublicUserDto } from "@/types";
 import { useAuthStore } from "@/stores/auth/store";
 import type { NFTAuction } from "@ploutonion/dapp-contracts/typechain-types";
 
@@ -19,7 +19,7 @@ const loader = useLoaderStore();
 const market = useMarketPlaceStore();
 const auction = useAuctionStore();
 const likes = ref(0);
-const user: ComputedRef<PublicUser> = computed(() => useAuthStore().getUser());
+const user: ComputedRef<PublicUserDto> = computed(() => useAuthStore().getUser());
 
 const auctionContract: ComputedRef<NFTAuction> = computed(() => {
   const auctionName =
@@ -103,7 +103,7 @@ const authorized: ComputedRef<boolean> = computed(() => {
 });
 
 const isOwner: ComputedRef<boolean> = computed(() => {
-  return market.getOwner() === user.value.address;
+  return market.getOwner() === user.value.attributes.address;
 });
 </script>
 <template>

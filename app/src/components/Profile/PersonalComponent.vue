@@ -37,7 +37,7 @@ function updateEmail() {
 <template>
   <div class="infor-profile">
     <div class="infor-profile-username">
-      <h1 class="title" @click="editUsername">{{ user.username }}</h1>
+      <h1 class="title" @click="editUsername">{{ user.attributes.username }}</h1>
       <input
         v-show="showUsername"
         autocomplete="true"
@@ -47,15 +47,15 @@ function updateEmail() {
         aria-required="true"
         type="text"
         placeholder="Your Username"
-        v-model="user.username"
+        v-model="user.attributes.username"
         @keyup.enter="updateUsername"
       />
     </div>
     <div class="infor-profile-address">
-      <span>{{ user.address }}</span>
+      <span>{{ user.attributes.address }}</span>
     </div>
     <div class="infor-profile-email">
-      <h2 v-html="`email: ${user.email}`" @click="editEmail"></h2>
+      <h2 v-html="`email: ${user.attributes.email}`" @click="editEmail"></h2>
       <input
         v-show="showEmail"
         autocomplete="true"
@@ -65,7 +65,7 @@ function updateEmail() {
         aria-required="true"
         type="email"
         placeholder="Your Email Address"
-        v-model="user.email"
+        v-model="user.attributes.email"
         @keyup.enter="updateEmail"
       />
     </div>

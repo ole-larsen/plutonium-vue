@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { CollectionDTO, PublicFile } from "@/types";
+import type { CollectionDTO, PublicFileDto } from "@/types";
 
 import { error, slugify } from "@/helpers";
 import { computed, ref, toRefs, watch } from "vue";
@@ -110,13 +110,13 @@ async function handleLogoUpload() {
   if (collection?.value) {
     for (const _file of logo.value.files) {
       const provider = `collection:logo:${user?.value.uuid}`;
-      const _logo: PublicFile | unknown = await store.handleFileUpload(
+      const _logo: PublicFileDto | unknown = await store.handleFileUpload(
         _file,
         user?.value,
         provider
       );
 
-      (collection.value as CollectionDTO).logo = (_logo as PublicFile).id;
+      (collection.value as CollectionDTO).logo = (_logo as PublicFileDto);
     }
   }
 
@@ -128,14 +128,14 @@ async function handleFeaturedUpload() {
   if (collection?.value) {
     for (const _file of featured.value.files) {
       const provider = `collection:featured:${user?.value.uuid}`;
-      const _featured: PublicFile | unknown = await store.handleFileUpload(
+      const _featured: PublicFileDto | unknown = await store.handleFileUpload(
         _file,
         user?.value,
         provider
       );
       (collection.value as CollectionDTO).featured = (
-        _featured as PublicFile
-      ).id;
+        _featured as PublicFileDto
+      );
     }
   }
 
@@ -147,12 +147,12 @@ async function handleBannerUpload() {
   if (collection?.value) {
     for (const _file of banner.value.files) {
       const provider = `collection:banner:${user?.value.uuid}`;
-      const _banner: PublicFile | unknown = await store.handleFileUpload(
+      const _banner: PublicFileDto | unknown = await store.handleFileUpload(
         _file,
         user?.value,
         provider
       );
-      (collection.value as CollectionDTO).banner = (_banner as PublicFile).id;
+      (collection.value as CollectionDTO).banner = (_banner as PublicFileDto);
     }
   }
 
@@ -188,7 +188,7 @@ async function handleBannerUpload() {
           :class="{ show: isActiveCollectionModal }"
         >
           <h3>{{ collection.id ? "Edit Collection" : "Create Collection" }}</h3>
-          <div class="lds-dual-ring" v-if="loading"></div>
+          <!-- <div class="lds-dual-ring" v-if="loading"></div>
           <div v-show="!loading">
             <div class="row-form style-2">
               <label class="form-label" for="logo_id">Logo Image</label>
@@ -344,7 +344,7 @@ async function handleBannerUpload() {
             >
               Edit Collection
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

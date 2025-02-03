@@ -20,8 +20,8 @@ const { user } = toRefs(props);
 const store = useProfileStore();
 const auth = useAuthStore();
 
-const showEditAvatarBtn = computed(() => store.showEditAvatarBtn);
-const showEditAvatarOptions = computed(() => store.showEditAvatarOptions);
+const show = computed(() => store.showEditAvatarBtn);
+const toggleOptions = computed(() => store.showEditAvatarOptions);
 const isActiveModal = computed(() => store.isActiveModal);
 
 // dom elements references
@@ -33,80 +33,80 @@ useDetectOutsideClick(uploadNav, () => {
   store.handleOutsideAvatarOptions();
 });
 
-const handleAvatarUpload = () => {
+const startUpload = () => {
   if (user?.value) {
-    const provider = `avatar:${user.value.uuid}`;
+    const provider = `avatar:${user.value.attributes.uuid}`;
     store.handleFileUpload(avatar.value.files[0], user.value, provider);
   }
 };
 
-function enterEditAvatar() {
+function enterEdit() {
   store.handleEnterEditAvatar();
 }
 
-function leaveEditAvatar() {
+function leaveEdit() {
   store.handleLeaveEditAvatar();
 }
 
-function editAvatar() {
+function edit() {
   store.handleEditAvatarOptions();
 }
 
-function uploadAvatar() {
+function upload() {
   avatar.value.click();
 }
 
-async function handleAvatarModal() {
+async function toggle() {
   try {
     avatars.value = await auth.loadAvatars();
-    store.handleAvatarModal();
+    store.toggleAvatarModal();
   } catch (e) {
     error(e);
   }
 }
 
-function removeAvatar() {}
+function remove() {}
 </script>
 
 <template>
   <div class="feature-profile" ref="uploadNav">
     <img
-      :src="user.gravatar"
+      :src="user.attributes.gravatar"
       alt="image"
       class="avatar"
-      @mouseenter="enterEditAvatar"
-      @mouseleave="leaveEditAvatar"
+      @mouseenter="enterEdit"
+      @mouseleave="leaveEdit"
     />
     <button
-      @mouseenter="enterEditAvatar"
-      v-if="showEditAvatarBtn"
+      @mouseenter="enterEdit"
+      v-if="show"
       type="button"
       class="btn-edit-avatar"
-      @click="editAvatar"
+      @click="edit"
     >
       <i class="icon-fl-icon"></i>
     </button>
-    <div class="upload-nav" v-show="showEditAvatarOptions">
+    <div class="upload-nav" v-show="toggleOptions">
       <ul class="menu">
         <li class="menu-item menu-item-has-children">
           <ul class="sub-menu">
             <li class="menu-item">
-              <a href="#" @click.prevent="uploadAvatar">Upload</a>
+              <a href="#" @click.prevent="upload">Upload</a>
               <input
                 ref="avatar"
-                v-on:change="handleAvatarUpload()"
+                v-on:change="startUpload()"
                 type="file"
                 id="upload-avatar"
                 hidden
               />
             </li>
             <li class="menu-item">
-              <a href="#" @click.prevent="handleAvatarModal"
+              <a href="#" @click.prevent="toggle"
                 >Choose from Library</a
               >
             </li>
             <li class="menu-item">
-              <a href="#" @click.prevent="removeAvatar">Delete</a>
+              <a href="#" @click.prevent="remove">Delete</a>
             </li>
           </ul>
         </li>

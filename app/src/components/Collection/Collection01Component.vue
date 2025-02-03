@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PublicCategoryCollection } from "@/types";
+import type { MarketplaceCollectionDto } from "@/types";
 import type { ComputedRef } from "vue";
 
 import { computed } from "vue";
@@ -11,15 +11,15 @@ import "vue3-carousel/dist/carousel.css";
 
 const store = useMarketPlaceStore();
 
-const collections: ComputedRef<PublicCategoryCollection[]> = computed(() =>
-  store
-    .getCollections()
-    .filter(
-      (collection: PublicCategoryCollection) =>
-        collection.attributes.collectibles.length >= 5
-    )
-);
-
+// const collections: ComputedRef<MarketplaceCollectionDto[]> = computed(() =>
+//   store
+//     .getCollections()
+//     .filter(
+//       (collection: MarketplaceCollectionDto) =>
+//         collection.attributes.collectibles.length >= 5
+//     )
+// );
+const collections: MarketplaceCollectionDto[] = [];
 const settings = {
   itemsToShow: 1,
 };
@@ -61,12 +61,12 @@ const breakpoints = {
                     <div class="author">
                       <div class="sc-author-box style-2">
                         <div class="author-avatar">
-                          <img
+                          <img v-if="collection['attributes']['creator']"
                             :src="
-                              collection['attributes']['creator']['gravatar']
+                              collection['attributes']['creator']['attributes']['gravatar']
                             "
                             :alt="
-                              collection['attributes']['creator']['username']
+                              collection['attributes']['creator']['attributes']['username']
                             "
                             class="avatar"
                           />
@@ -79,14 +79,14 @@ const breakpoints = {
                             {{ collection["attributes"]["name"] }}
                           </router-link>
                         </h4>
-                        <div class="infor">
+                        <div class="infor" v-if="collection['attributes']['creator']">
                           <span>Created by</span>
                           <span class="name">
                             <router-link
-                              :to="`/author/${collection['attributes']['creator']['uuid']}`"
+                              :to="`/author/${collection['attributes']['creator']['attributes']['uuid']}`"
                             >
                               {{
-                                collection["attributes"]["creator"][
+                                collection["attributes"]["creator"]["attributes"][
                                   "username"
                                 ].slice(0, 16)
                               }}

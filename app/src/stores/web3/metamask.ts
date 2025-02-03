@@ -7,76 +7,73 @@ import { getCurrentInstance, ref, toRaw } from "vue";
 
 import { error, log } from "@/helpers";
 import { BigNumber } from "ethers";
-import { useLoaderStore } from "@/stores/loader/store";
-import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
-import { useAuthStore } from "@/stores/auth/store";
 
 export const useMetaMaskStore = defineStore("metamask", () => {
-  const loader = useLoaderStore();
-  const market = useMarketPlaceStore();
-  const auth = useAuthStore();
-  const installed = MetaMaskOnboarding.isMetaMaskInstalled();
+  const isInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
   const provider =
     getCurrentInstance()?.appContext.config.globalProperties.$ethereum;
   const signer = ref(
     getCurrentInstance()?.appContext.config.globalProperties.$ethereum
   );
 
-  const registered: Ref<boolean> = ref(false);
-  const connected: Ref<boolean> = ref(false);
+  const isRegistered: Ref<boolean> = ref(false);
+  const isConnected: Ref<boolean> = ref(false);
   const chainID: Ref<number> = ref(0);
   const nodeInfo: Ref<string> = ref("");
   const accounts: Ref<string[]> = ref([]);
   const address: Ref<string> = ref("");
-  const balance: Ref<BigNumber> = ref(BigNumber.from("0"));
   const networkID: Ref<string> = ref("");
 
-  function _getChainId() {
+  function loadChainId() {
     return provider.send("eth_chainId");
   }
 
-  function _getNodeInfo() {
+  function loadNodeInfo() {
     return provider.send("web3_clientVersion");
   }
 
-  function _getAccounts() {
+  function loadAccounts() {
     return provider.send("eth_requestAccounts");
   }
 
-  function _getAddress() {
+  function loadAddress() {
     return signer.value().getAddress();
   }
 
-  function _getBalance() {
-    return signer.value().getBalance();
+  function getBalance() {
+    return provider.getSigner().getBalance();
   }
 
-  function _getNetworkId() {
+  function loadNetworkId() {
     return provider.send("net_version");
   }
 
-  function _isConnected() {
+  function loadIsConnected() {
     return toRaw(provider).provider.isConnected();
   }
 
-  function _recover(msg: string, signature: string) {
+  function recover(msg: string, signature: string) {
     return provider.send("personal_ecRecover", [msg, signature]);
   }
 
-  function _personalSign(msg: string, from: string) {
-    return provider.send("personal_sign", [msg, from, ""]);
+  async function loadPersonalSign(msg: string, from: string) {
+    try {
+        return await provider.send("personal_sign", [msg, from, ""]);
+    } catch (error) {
+        console.warn("personal_sign failed, trying eth_sign...");
+        return await provider.send("eth_sign", [from, msg]); // Reverse order for eth_sign
+    }
   }
 
-  function _disconnect() {
+  function disconnect() {
     localStorage.removeItem("address");
     localStorage.removeItem("user");
-    connected.value = false;
-    registered.value = false;
-    auth.removeUser();
+    isConnected.value = false;
+    isRegistered.value = false;
     location.reload();
   }
 
-  async function _setupHandlers() {
+  async function setupHandlers() {
     const { provider: ethereum } = toRaw(provider);
 
     ethereum.removeListener("accountsChanged", register);
@@ -88,41 +85,42 @@ export const useMetaMaskStore = defineStore("metamask", () => {
 
     ethereum.on("disconnect", async (e: ProviderRpcError) => {
       error(e);
-      _disconnect();
+      disconnect();
       await register();
     });
 
     ethereum.on("accountsChanged", async (accounts: string[]) => {
       if (accounts) {
-        _disconnect();
+        disconnect();
       }
       await register();
     });
 
     ethereum.on("chainChanged", async () => {
-      _disconnect();
+      disconnect();
       await register();
     });
   }
 
   async function register() {
+    console.log("trying to connect to metamask....");
     if (!provider) {
-      registered.value = false;
+      isRegistered.value = false;
     }
-    await _setupHandlers();
+    await setupHandlers();
     signer.value = provider.getSigner.bind(provider);
-    chainID.value = parseInt(await _getChainId(), 16);
-    nodeInfo.value = await _getNodeInfo();
-    accounts.value = await _getAccounts();
-    address.value = (await _getAddress()).toLowerCase();
-    balance.value = await _getBalance();
-    networkID.value = await _getNetworkId();
-    registered.value = true;
-    connected.value = _isConnected();
+    chainID.value = parseInt(await loadChainId(), 16);
+    nodeInfo.value = await loadNodeInfo();
+    accounts.value = await loadAccounts();
+    address.value = (await loadAddress()).toLowerCase();
+    
+    networkID.value = await loadNetworkId();
+    isRegistered.value = true;
+    isConnected.value = loadIsConnected();
 
     const previousAddress = localStorage.getItem("address");
     if (previousAddress !== address.value) {
-      _disconnect();
+      disconnect();
       localStorage.setItem("address", address.value);
     }
 
@@ -131,20 +129,18 @@ export const useMetaMaskStore = defineStore("metamask", () => {
       nodeInfo.value,
       accounts.value,
       address.value,
-      balance.value,
-      networkID.value
+      networkID.value,
+      await getBalance()
     );
   }
 
-  async function personalSign() {
-    const { data } = await loader.getNonce(address.value);
-
+  async function handleWalletConnect(marketName: string, nonce: string, uuid: string) {   
     const message =
       "\nWelcome to " +
-      market.getName() +
+      marketName +
       "!\n\n" +
       "Click to sign in and accept the " +
-      market.getName() +
+      marketName +
       " Terms of Service:\n" +
       "https://" +
       import.meta.env.VITE_DOMAIN +
@@ -152,27 +148,21 @@ export const useMetaMaskStore = defineStore("metamask", () => {
       "This request will not trigger a blockchain transaction or cost any gas fees.\n\n" +
       "Your authentication status will reset after 24 hours.\n\n" +
       "Wallet address:\n" +
-      data.address +
+      address.value +
       "\n\n" +
       "Nonce:\n" +
-      data.nonce;
+      nonce;
 
     const msg = `0x${Buffer.from(message, "utf8").toString("hex")}`;
 
-    const signature = await _personalSign(msg, address.value);
-   
-    const recovered = await _recover(msg, signature);
+    const signature = await loadPersonalSign(msg, address.value);
+
+    const recovered = await recover(msg, signature);
    
     if (recovered.toLowerCase() === address.value.toLowerCase()) {
-      try {
-        const { data } = await loader.verify(msg, signature, address.value);
-        auth.storeUser(data);
-      } catch (e) {
-        console.error(e);
-      }
-      
+      return { msg, signature };
     } else {
-      auth.removeUser();
+      throw new Error("Invalid signature");
     }
   }
 
@@ -180,19 +170,15 @@ export const useMetaMaskStore = defineStore("metamask", () => {
     return chainID.value;
   }
 
-  function getBalance() {
-    return balance.value;
-  }
-
   function getAddress() {
     return address.value;
   }
 
   return {
-    installed,
-    registered,
+    isInstalled,
+    isRegistered,
     register,
-    personalSign,
+    handleWalletConnect,
     signer,
     getChainID,
     getBalance,

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type {
-  PublicCategoryCollection,
-  PublicCategoryCollectionCollectible,
+  MarketplaceCollectionDto,
+  PublicCategoryCollectionCollectibleDto,
 } from "@/types";
 
 import type { Ref, ComputedRef } from "vue";
@@ -20,7 +20,7 @@ const market = useMarketPlaceStore();
 const route = useRoute();
 const loader = useLoaderStore();
 
-const collection: Ref<PublicCategoryCollection | null> = ref(null);
+const collection: Ref<MarketplaceCollectionDto | null> = ref(null);
 
 const wallPaperStyle = reactive({
   background: ``,
@@ -39,12 +39,12 @@ watch(
       }
     }
     const routeCollection = Object.values(market.getCollections()).find(
-      (_collection: PublicCategoryCollection) => {
+      (_collection: MarketplaceCollectionDto) => {
         return _collection.attributes.url === "/collection/" + to.params.slug;
       }
     );
-    collection.value = routeCollection as PublicCategoryCollection;
-    if (collection.value) {
+    collection.value = routeCollection as MarketplaceCollectionDto;
+    if (collection.value && collection.value.attributes.banner) {
       wallPaperStyle.background = `url(${collection.value.attributes.banner.attributes.url}) no-repeat center`;
       wallPaperStyle.backgroundSize = "cover";
       wallPaperStyle.borderRadius = 0;
@@ -56,7 +56,7 @@ watch(
 const totalVolume: ComputedRef<number> = computed(() => {
   if (collection.value && collection.value) {
     return collection.value["attributes"]["collectibles"].reduce(
-      (total: number, collectible: PublicCategoryCollectionCollectible) => {
+      (total: number, collectible: PublicCategoryCollectionCollectibleDto) => {
         return total + +collectible.attributes.details.price;
       },
       0
@@ -68,7 +68,7 @@ const totalVolume: ComputedRef<number> = computed(() => {
 const floorPrice: ComputedRef<number> = computed(() => {
   if (collection.value && collection.value) {
     const prices = collection.value["attributes"]["collectibles"].map(
-      (collectible: PublicCategoryCollectionCollectible) => {
+      (collectible: PublicCategoryCollectionCollectibleDto) => {
         console.log(
           collectible.attributes.metadata.name,
           collectible.attributes.details.price_wei
@@ -84,7 +84,7 @@ const floorPrice: ComputedRef<number> = computed(() => {
 const bestOffer: ComputedRef<number> = computed(() => {
   if (collection.value && collection.value) {
     const prices = collection.value["attributes"]["collectibles"].map(
-      (collectible: PublicCategoryCollectionCollectible) => {
+      (collectible: PublicCategoryCollectionCollectibleDto) => {
         return +collectible.attributes.details.price;
       }
     );
@@ -98,7 +98,7 @@ const owners: ComputedRef<number> = computed(() => {
     const _owners = [
       ...new Set(
         collection.value["attributes"]["collectibles"].map(
-          (collectible: PublicCategoryCollectionCollectible) => {
+          (collectible: PublicCategoryCollectionCollectibleDto) => {
             return +collectible.attributes.owner.id;
           }
         )
@@ -119,7 +119,7 @@ const owners: ComputedRef<number> = computed(() => {
       <div class="flat-tabs tab-authors">
         <div class="author-profile flex" ref="profile" :style="wallPaperStyle">
           <div class="feature-profile" ref="uploadNav">
-            <img
+            <img v-if="collection['attributes']['logo']"
               :src="collection['attributes']['logo']['attributes']['url']"
               :alt="collection['attributes']['logo']['attributes']['alt']"
               class="avatar"

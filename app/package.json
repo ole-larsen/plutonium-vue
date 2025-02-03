@@ -14,6 +14,10 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@buf/connectrpc_eliza.bufbuild_es": "^2.2.3-20230913231627-233fca715f49.1",
+    "@bufbuild/protobuf": "^2.2.3",
+    "@connectrpc/connect": "^2.0.1",
+    "@connectrpc/connect-web": "^2.0.1",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-brands-svg-icons": "^6.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
@@ -23,7 +27,7 @@
     "@metamask/onboarding": "^1.0.1",
     "@ploutonion/dapp-contracts": "1.0.0",
     "@popperjs/core": "^2.11.6",
-    "axios": "^1.2.1",
+    "axios": "^1.7.9",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
     "ethereumjs-util": "^7.1.5",
@@ -40,6 +44,8 @@
     "vue3-datepicker": "^0.3.4"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.50.0",
+    "@bufbuild/protoc-gen-es": "^2.2.3",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/jsdom": "^20.0.1",
     "@types/node": "^18.11.12",

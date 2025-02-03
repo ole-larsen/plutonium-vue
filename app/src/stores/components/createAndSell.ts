@@ -1,28 +1,26 @@
 import { defineStore } from "pinia";
 import type { Ref } from "vue";
-import type { CreateAndSellItem } from "@/types";
+import type { PublicCreateAndSellItemDto } from "@/types";
 import { ref } from "vue";
-import { useLoaderStore } from "@/stores/loader/store";
 import { link } from "@/helpers";
 
 export const useCreateAndSellStore = defineStore("createAndSell", () => {
-  const loader = useLoaderStore();
-  const items: Ref<CreateAndSellItem[]> = ref([]);
+  const items: Ref<PublicCreateAndSellItemDto[]> = ref([]);
 
-  async function load() {
-    const response = await loader.loadCreateAndSell();
-
-    const { data } = response;
+  async function load(data: PublicCreateAndSellItemDto[]) {
     items.value = data;
-    items.value.map((item: CreateAndSellItem) => {
-      item.attributes.image.attributes.url = link(
-        item.attributes.image.attributes.url
-      );
+    items.value.map((item: PublicCreateAndSellItemDto) => {
+      if (item.attributes.image) {
+        item.attributes.image.attributes.url = link(
+          item.attributes.image.attributes.url
+        );  
+      }
       return item;
     });
   }
+
   return {
     items,
-    load,
+    load: load,
   };
 });

@@ -94,6 +94,9 @@ async function submit() {
     emit("submit", form.value);
     disabled.value = false;
     sent.value = true;
+    setTimeout(() => {
+      sent.value = false
+    }, 5000);
   }
 }
 </script>

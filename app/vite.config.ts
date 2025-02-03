@@ -11,4 +11,7 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  // optimizeDeps: {
+  //   include: ['axios']  // Explicitly include axios to ensure it's optimized
+  // }
 });

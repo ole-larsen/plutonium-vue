@@ -3,7 +3,7 @@ import type { AccordionType } from "@/types";
 import type { Ref, ComputedRef } from "vue";
 import { ref, computed, onBeforeMount, inject } from "vue";
 
-const Accordion: unknown = inject("Accordion");
+const Accordion: AccordionType = inject("Accordion");
 const index: Ref<number> = ref(0);
 
 const visible: ComputedRef<boolean> = computed(

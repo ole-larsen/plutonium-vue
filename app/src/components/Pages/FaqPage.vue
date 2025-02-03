@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import type { FAQ } from "@/types";
+import type { PublicFaqItemDto } from "@/types";
 import type { ComputedRef } from "vue";
 import { computed, onBeforeMount } from "vue";
-import { error } from "@/helpers";
-
-import { useFaqStore } from "@/stores/pages/faq";
 
 import Accordion from "@/components/Accordion/AccordionComponent.vue";
 import AccordionItem from "@/components/Accordion/AccordionItemComponent.vue";
-import PageTitle from "@/components/Header/PageTitleComponent.vue";
+import PageTitle from "@/components/Template/Header/PageTitleComponent.vue";
+import { error } from "@/helpers";
+import { useFaqStore } from "./store/faq";
 
 const store = useFaqStore();
 
@@ -20,7 +19,7 @@ onBeforeMount(async () => {
   }
 });
 
-const faqs: ComputedRef<FAQ[]> = computed(() => store.faqs);
+const faqs: ComputedRef<PublicFaqItemDto[]> = computed(() => store.faqs);
 </script>
 
 <template>
@@ -34,16 +33,16 @@ const faqs: ComputedRef<FAQ[]> = computed(() => store.faqs);
               <accordion-item
                 class="accordion-item"
                 v-for="faq in faqs"
-                v-bind:key="faq['question']"
+                v-bind:key="faq.id" 
               >
                 <template v-slot:accordion-trigger>
                   <button
                     class="accordion-button"
-                    v-html="faq['question']"
+                    v-html="faq.attributes['question']"
                   ></button>
                 </template>
                 <template v-slot:accordion-content>
-                  <p v-html="faq['answer']" />
+                  <p v-html="faq.attributes['answer']" />
                 </template>
               </accordion-item>
             </accordion>

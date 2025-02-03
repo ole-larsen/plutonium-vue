@@ -1,23 +1,23 @@
 <script lang="ts" setup>
 import type { ComputedRef, Ref } from "vue";
-import type { ContactFormData, HelpCenter } from "@/types";
+import type { ContactFormData, PublicHelpCenterItemDto } from "@/types";
 
 import { computed, onBeforeMount, ref } from "vue";
-import { useHelpCenterStore } from "@/stores/pages/helpCenter";
-import { useContactStore } from "@/stores/pages/contact";
-import { usePageStore } from "@/stores/template/page";
+import { useHelpCenterStore } from "@/components/Pages/store/helpCenter";
+
 import { error } from "@/helpers";
 
-import PageTitle from "@/components/Header/PageTitleComponent.vue";
+import PageTitle from "@/components/Template/Header/PageTitleComponent.vue";
+
+import { usePageStore } from "./store/page";
 
 const store = useHelpCenterStore();
 const pages = usePageStore();
-const contact = useContactStore();
 
 const path = pages.getPath();
 const page = pages.getPage(path as string);
 
-const helpCenter: ComputedRef<HelpCenter[]> = computed(() => store.helpCenter);
+const helpCenter: ComputedRef<PublicHelpCenterItemDto[]> = computed(() => store.helpCenter);
 const form: Ref<ContactFormData> = ref({
   provider: "help-center",
   name: import.meta.env.VITE_HELP_SERVICE_EMAIL,
@@ -41,7 +41,7 @@ onBeforeMount(async () => {
 });
 
 function submit() {
-  contact.submit(form.value, page.id);
+  console.log(form.value);
 }
 </script>
 <template>
@@ -136,17 +136,17 @@ function submit() {
         <div
           class="sc-box-icon"
           v-for="item in helpCenter"
-          v-bind:key="item['image']['id']"
+          v-bind:key="item['id']"
         >
-          <div class="icon">
-            <div class="icon-item" v-if="item['image']">
-              <img :src="item['image']['attributes']['url']" alt="image" />
+          <div class="icon" v-if="item.attributes['image']">
+            <div class="icon-item" v-if="item.attributes['image']">
+              <img :src="item.attributes['image']['attributes']['url']" alt="image" />
             </div>
           </div>
           <h4 class="heading">
-            <router-link :to="item['link']">{{ item["title"] }}</router-link>
+            <router-link :to="item.attributes['link']">{{ item.attributes["title"] }}</router-link>
           </h4>
-          <p class="content" v-html="item['description']"></p>
+          <p class="content" v-html="item.attributes['description']"></p>
         </div>
       </div>
     </div>

@@ -258,7 +258,6 @@
 }
 
 .tab-authors {
-  min-height: 350px;
   .mint-form-btn {
     margin-bottom: 16px;
     border-radius: 4px;
@@ -361,6 +360,10 @@
 }
 
 .is_light {
+  a {
+    color: var(--primary-color5);
+  }
+
   .main-nav>ul>li>a {
     color: var(--primary-color5);
   }
@@ -385,6 +388,9 @@
 
 
 .is_dark {
+  a {
+    color: var(--primary-color2);
+  }
   .main-nav>ul>li>a {
     color: var(--primary-color6);
   }
@@ -433,4 +439,47 @@
 
 .widget-menu ul li a {
   color: var(--primary-color2);
+}
+
+.accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
+
+.sc-box-icon .heading {
+  font-size: 16px;
+  text-align: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+ul.horizontal {
+  justify-content: left;
+  width: 100%;
+  margin: 0px;
+  -webkit-box-align: center;
+  align-items: center;
+  display: flex;
+  
+  div.gap {
+    gap: 8px;
+    display: flex;
+
+    li {
+      a {
+        display: flex;
+        width: fit-content;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.tf-section {
+  padding: 16px 0;
 }

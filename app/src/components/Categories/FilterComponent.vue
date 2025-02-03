@@ -5,55 +5,41 @@ const props = defineProps(["categories", "collections"]);
 const { categories, collections } = toRefs(props);
 
 const selectedCategory = ref("All");
-
-const categoryAllImg = `${
-  import.meta.env.VITE_BACKEND
-}/api/v1/files/category-all.png`;
 </script>
 <template>
   <div class="row">
-    <div class="box-create row col-lg-12">
-      <div class="col-lg-2 col-md-6 col-12">
-        <div class="sc-box-icon">
-          <h3>Explore categories</h3>
-        </div>
-      </div>
-    </div>
-  </div>
-  <br />
-  <div class="row">
-    <div class="box-create row col-lg-12">
-      <div class="col-lg-2 col-md-6 col-12">
-        <div class="sc-box-icon">
-          <router-link to="#" v-on:click="selectedCategory = 'All'">
-            <img :src="categoryAllImg" />
+    <div class="flex justify-between items-end">
+      <ul class="horizontal">
+        <div class="gap">
+          <li class="sc-box-icon">
+          <router-link to="/" v-on:click="selectedCategory = 'All'">
             <h3 class="heading">All</h3>
           </router-link>
-        </div>
-      </div>
-      <div
-        class="col-lg-2 col-md-6 col-12"
-        v-for="category in categories"
-        v-bind:key="category['id']"
-      >
-        <div class="sc-box-icon" v-if="category['attributes']">
+        </li>
+        <template v-for="category in categories"
+        v-bind:key="category['id']">
+          <li class="sc-box-icon" v-if="category['attributes']">
           <router-link
             :to="category['attributes']['slug']"
             v-on:click="selectedCategory = category['attributes']['title']"
           >
-            <img :src="category['attributes']['image']['attributes']['url']" />
+            <img v-if="category['attributes']['image']" :src="category['attributes']['image']['attributes']['url']" />
             <h3 class="heading">
               {{ category["attributes"]["title"] }}
             </h3>
           </router-link>
+        </li>
+        </template>
         </div>
-      </div>
+        
+      </ul>
+      
     </div>
   </div>
   <div class="filter-wrapper">
     <div class="row">
       <template v-for="collection in collections" v-bind:key="collection['id']">
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6" v-if="collection">
           <div class="sc-card-product explode">
             <div class="card-media">
               <router-link :to="collection['attributes']['url']">

@@ -6,7 +6,7 @@ import { useWeb3Store } from "@/stores/web3/web3";
 import { useMetaMaskStore } from "@/stores/web3/metamask";
 import { ethers } from "ethers";
 import type { NFTAuction } from "@ploutonion/dapp-contracts/typechain-types/contracts/NFTAuction";
-import type { PublicContract } from "@/types";
+import type { PublicContractDto } from "@/types";
 
 export const useAuctionStore = defineStore("auction", () => {
   const contractAddress: Ref<{ [name: string]: string }> = ref({});
@@ -16,7 +16,7 @@ export const useAuctionStore = defineStore("auction", () => {
   const metamask = useMetaMaskStore();
   const web3 = useWeb3Store();
 
-  function loadMetaMaskContracts(auctions: PublicContract[]) {
+  function loadMetaMaskContracts(auctions: PublicContractDto[]) {
     for (const _auction of auctions) {
       contractAddress.value[_auction.name] = _auction.address;
       abi.value[_auction.name] = _auction.abi;
@@ -28,7 +28,7 @@ export const useAuctionStore = defineStore("auction", () => {
     }
   }
 
-  function loadWeb3Contracts(auctions: PublicContract[]) {
+  function loadWeb3Contracts(auctions: PublicContractDto[]) {
     for (const _auction of auctions) {
       contractAddress.value[_auction.name] = _auction.address;
       abi.value[_auction.name] = _auction.abi;

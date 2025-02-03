@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { toRefs } from "vue";
-import type { PublicCategoryCollection } from "@/types";
+import type { MarketplaceCollectionDto } from "@/types";
 const props = defineProps(["collection"]);
 const { collection } = toRefs(props);
 const emit = defineEmits(["editCollection"]);
 
-function editCollection(collection: PublicCategoryCollection) {
+function editCollection(collection: MarketplaceCollectionDto) {
   emit("editCollection", collection);
 }
 </script>

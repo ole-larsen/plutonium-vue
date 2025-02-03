@@ -4,7 +4,7 @@ import moment from "moment";
 import Datepicker from "vue3-datepicker";
 import { ref, toRefs, watch } from "vue";
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
-import type { PublicCategoryCollection } from "@/types";
+import type { MarketplaceCollectionDto } from "@/types";
 
 const props = defineProps(["collectible", "collections"]);
 
@@ -65,7 +65,7 @@ if (collectible?.value) {
     () => collectible.value.collectionId,
     (collectionId: number) => {
       const collection = collections?.value.find(
-        (_collection: PublicCategoryCollection) =>
+        (_collection: MarketplaceCollectionDto) =>
           _collection.id === collectionId
       );
       if (collection) {

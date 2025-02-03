@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { CreateAndSellItem } from "@/types";
+import type { PublicCreateAndSellItemDto } from "@/types";
 import type { ComputedRef } from "vue";
 
 import { computed, onBeforeMount } from "vue";
@@ -7,11 +7,8 @@ import { computed, onBeforeMount } from "vue";
 import { useCreateAndSellStore } from "@/stores/components/createAndSell";
 
 const store = useCreateAndSellStore();
-const items: ComputedRef<CreateAndSellItem[]> = computed(() => store.items);
+const items: ComputedRef<PublicCreateAndSellItemDto[]> = computed(() => store.items);
 
-onBeforeMount(() => {
-  store.load();
-});
 </script>
 
 <template>

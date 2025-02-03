@@ -1,29 +1,16 @@
 import { defineStore } from "pinia";
-import type { PublicUser } from "@/types";
+import type { PublicUserDto } from "@/types";
 import type { Ref } from "vue";
 import { ref } from "vue";
 
 export const useUserStore = defineStore("users", () => {
-  const users: Ref<PublicUser[]> = ref([]);
+  const users: Ref<PublicUserDto[]> = ref([]);
 
-  function storeUsers(_users: PublicUser[]) {
-    users.value = _users.map((user: PublicUser) => {
-      if (user.wallpaper) {
-        user.wallpaper = import.meta.env.VITE_BACKEND + user.wallpaper;
-      }
-
-      if (user.gravatar) {
-        user.gravatar = user.gravatar.replace(
-          "//localhost:1111",
-          import.meta.env.VITE_BACKEND
-        );
-      }
-
-      return user;
-    });
+  function storeUsers(_users: PublicUserDto[]) {
+    users.value = _users;
   }
 
-  function getUsers(): PublicUser[] {
+  function getUsers(): PublicUserDto[] {
     return users.value;
   }
 

@@ -2,14 +2,14 @@ import { defineStore } from "pinia";
 import type { Ref } from "vue";
 import { ref } from "vue";
 
-import type { PublicCategoryCollectionCollectible } from "@/types";
+import type { PublicCategoryCollectionCollectibleDto } from "@/types";
 import { useLoaderStore } from "@/stores/loader/store";
 
 export const useCollectibleStore = defineStore("collectible", () => {
   const loader = useLoaderStore();
   const _likes: Ref<{ [id: string]: { [tokenId: string]: number } }> = ref({});
 
-  const likes = function (collectible: PublicCategoryCollectionCollectible) {
+  const likes = function (collectible: PublicCategoryCollectionCollectibleDto) {
     if (
       !_likes.value[collectible.attributes.collectionId] ||
       !_likes.value[collectible.attributes.collectionId][
@@ -23,7 +23,7 @@ export const useCollectibleStore = defineStore("collectible", () => {
     ];
   };
 
-  async function load(collectible: PublicCategoryCollectionCollectible) {
+  async function load(collectible: PublicCategoryCollectionCollectibleDto) {
     const { data } = await loader.loadCollectibleLikes(collectible);
 
     if (!_likes.value[collectible.attributes.collectionId]) {

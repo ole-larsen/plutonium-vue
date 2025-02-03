@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { ethers } from "ethers";
 import type {
-  PublicCategory,
+  PublicCategoryDto,
   CollectionDTO,
-  PublicCategoryCollection,
-  PublicUser,
+  MarketplaceCollectionDto,
+  PublicUserDto,
   CollectibleDTO,
 } from "@/types";
 import type { ComputedRef, Ref } from "vue";
@@ -18,12 +18,12 @@ import Mint from "@/components/Profile/MintComponent.vue";
 
 const market = useMarketPlaceStore();
 
-const user: ComputedRef<PublicUser> = computed(() => useAuthStore().getUser());
+const user: ComputedRef<PublicUserDto> = computed(() => useAuthStore().getUser());
 
-const categories: ComputedRef<PublicCategory[]> = computed(() =>
+const categories: ComputedRef<PublicCategoryDto[]> = computed(() =>
   market.getCategories()
 );
-const collections: ComputedRef<PublicCategoryCollection[]> = computed(() =>
+const collections: ComputedRef<MarketplaceCollectionDto[]> = computed(() =>
   market.getCollections()
 );
 
@@ -39,25 +39,22 @@ function newCollection(): CollectionDTO {
     slug: "",
     url: "",
     fee: "0",
-    owner: user?.value?.address,
+    owner: user?.value?.attributes.address,
     categoryId: 0,
-    categories: categories.value.map((_category: PublicCategory) => {
+    categories: categories.value.map((_category: PublicCategoryDto) => {
       return {
         id: _category.id,
         label: _category.attributes.title,
       };
     }),
-    logo: 0,
-    featured: 0,
-    banner: 0,
   };
 }
 
 watch(
   () => categories.value,
-  (_categories: PublicCategory[]) => {
+  (_categories: PublicCategoryDto[]) => {
     collection.value.categories = _categories.map(
-      (_category: PublicCategory) => {
+      (_category: PublicCategoryDto) => {
         return {
           id: _category.id,
           label: _category.attributes.title,
@@ -74,8 +71,8 @@ const collectible: Ref<CollectibleDTO> = ref({
   file: undefined,
   collectionId: 0,
   tags: "",
-  owner: user?.value?.address,
-  creator: user?.value?.address,
+  owner: user?.value?.attributes.address,
+  creator: user?.value?.attributes.address,
   auction: false,
   quantity: 1,
 });

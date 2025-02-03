@@ -6,17 +6,17 @@ import ContactUs from "@/components/Pages/ContactUsPage.vue";
 import Faq from "@/components/Pages/FaqPage.vue";
 import WalletConnect from "@/components/Pages/WalletConnectPage.vue";
 import HelpCenter from "@/components/Pages/HelpCenterPage.vue";
-import Blog from "@/components/Pages/BlogPage.vue";
-import BlogDetails from "@/components/Pages/BlogDetailsPage.vue";
+import Blog from "@/components/Blog/BlogPage.vue";
+import BlogDetails from "@/components/Blog/BlogDetailsPage.vue";
 import Profile from "@/components/Pages/ProfilePage.vue";
 import Collection from "@/components/Pages/CollectionPage.vue";
 import Category from "@/components/Pages/CategoryPage.vue";
 import CreateERC721 from "@/components/Pages/CreateERC721Page.vue";
 
-import { usePageStore } from "@/stores/template/page";
 import { useProfileStore } from "@/stores/template/profile";
 
 import { error } from "@/helpers";
+import { usePageStore } from "@/components/Pages/store/page";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,15 +42,15 @@ const router = createRouter({
           component: Faq,
         },
         {
-          path: "/wallet-connect",
-          name: "WalletConnect",
-          component: WalletConnect,
-        },
-        {
           path: "/help-center",
           name: "HelpCenter",
           component: HelpCenter,
         },
+        {
+          path: "/wallet-connect",
+          name: "WalletConnect",
+          component: WalletConnect,
+        }, 
         {
           path: "/blog",
           name: "Blog",

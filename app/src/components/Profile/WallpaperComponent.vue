@@ -1,64 +1,33 @@
 <script lang="ts" setup>
-import type { Ref } from "vue";
-
-import { computed, reactive, ref, toRefs, watch } from "vue";
+import WallpaperModal from "@/components/Profile/WallpaperModalComponent.vue";
+import Avatar from "@/components/Profile/AvatarComponent.vue";
 
 import useDetectOutsideClick from "@/helpers/outside-click";
 
-import { useProfileStore } from "@/stores/template/profile";
-
-import { useAuthStore } from "@/stores/auth/store";
-
-import WallpaperModal from "@/components/Profile/WallpaperModalComponent.vue";
-
-//import Avatar from "@/components/Profile/Avatar.vue";
+import { useAuthStore } from '@/stores/auth/store';
+import { useProfileStore } from '@/stores/template/profile';
+import { PublicUserDto } from '@/types';
+import { computed, ComputedRef, reactive, ref, Ref } from 'vue';
 
 const store = useProfileStore();
-const auth = useAuthStore();
-
-const showEditWallpaper = computed(() => store.showEditAvatarWallpaper);
-const showEditWallpaperOptions = computed(
-  () => store.showEditAvatarWallpaperOptions
-);
-const isActiveWallpaperModal = computed(() => store.isActiveWallpaperModal);
-
-const props = defineProps(["user"]);
-const { user } = toRefs(props);
-
-const avatar: Ref<any> = ref(null);
-
+const user: ComputedRef<PublicUserDto> = computed(() => useAuthStore().getUser());
+const profile = ref(null);
 const wallpaper: Ref<any> = ref(null);
 const wallpapers = ref([]);
-const profile = ref(null);
-
-useDetectOutsideClick(profile, () => {
-  store.handleOutsideWallpaperOptions();
-});
-
-const handleWallpaperUpload = () => {
-  if (user?.value) {
-    const provider = `wallpaper:${user.value.uuid}`;
-    store.handleFileUpload(wallpaper.value.files[0], user.value, provider);
-  }
-};
-
 const wallPaperStyle = reactive({
-  background: `url(${user?.value?.wallpaper}) no-repeat center`,
+  background:user?.value?.attributes.wallpaper ?  `url(${user.value.attributes.wallpaper}) no-repeat center` : `none`,
   backgroundSize: "cover",
   borderRadius: 0,
 });
-
-if (user?.value) {
-  watch(
-    () => user.value.wallpaper,
-    (url) => {
-      wallPaperStyle.background = `url(${url}) no-repeat center`;
-      wallPaperStyle.backgroundSize = "cover";
-      wallPaperStyle.borderRadius = 0;
-    }
-  );
-}
-
+const isActiveWallpaperModal = computed(() => store.isActiveWallpaperModal);
+const showEditWallpaper = computed(() => store.showEditAvatarWallpaper);
+const showEditWallpaperOptions = computed(() => store.showEditAvatarWallpaperOptions);
+const handleWallpaperUpload = () => {
+  if (user?.value) {
+    const provider = `wallpaper:${user.value.attributes.uuid}`;
+    store.handleFileUpload(wallpaper.value.files[0], user.value, provider);
+  }
+};
 function enterEditWallpaper() {
   store.handleEnterEditAvatarWallpaper();
 }
@@ -77,14 +46,32 @@ function uploadWallpaper() {
 
 async function handleWallpaperModal() {
   try {
-    wallpapers.value = await auth.loadWallpapers();
+    wallpapers.value = await useAuthStore().loadWallpapers();
     store.handleWallpaperModal();
   } catch (e) {
     console.error(e);
   }
 }
 
-function removeWallpaper() {}
+function removeWallpaper() {
+  console.log("remove wallpaper");
+}
+
+useDetectOutsideClick(profile, () => {
+  store.handleOutsideWallpaperOptions();
+});
+
+// if (user?.value) {
+//   watch(
+//     () => user.value.attributes.wallpaper,
+//     (url) => {
+//       wallPaperStyle.background = `url(${url}) no-repeat center`;
+//       wallPaperStyle.backgroundSize = "cover";
+//       wallPaperStyle.borderRadius = 0;
+//     }
+//   );
+// }
+// 
 </script>
 
 <template>
@@ -103,6 +90,7 @@ function removeWallpaper() {}
     >
       <i class="icon-fl-icon"></i>
     </button>
+    
     <div class="upload-nav-wallpaper" v-show="showEditWallpaperOptions">
       <ul class="menu">
         <li class="menu-item menu-item-has-children">
@@ -128,12 +116,12 @@ function removeWallpaper() {}
           </ul>
         </li>
       </ul>
-    </div>
+    </div> 
     <avatar :user="user" />
     <wallpaper-modal
       :isActiveWallpaperModal="isActiveWallpaperModal"
       :wallpapers="wallpapers"
       :user="user"
-    />
-  </div>
+    /> 
+  </div> 
 </template>

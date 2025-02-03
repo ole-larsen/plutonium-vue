@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PublicFile } from "@/types";
+import type { PublicFileDto } from "@/types";
 import { toRefs } from "vue";
 import { useProfileStore } from "@/stores/template/profile";
 
@@ -7,11 +7,11 @@ const props = defineProps(["isActiveModal", "avatars", "user"]);
 const { isActiveModal, avatars, user } = toRefs(props);
 const store = useProfileStore();
 
-function handleCloseAvatarModal() {
-  store.handleAvatarModal();
+function close() {
+  store.toggleAvatarModal();
 }
 
-function selectAvatar(file: PublicFile) {
+function select(file: PublicFileDto) {
   store.handleSelectAvatar(file, user?.value);
 }
 </script>
@@ -33,7 +33,7 @@ function selectAvatar(file: PublicFile) {
           class="close"
           data-dismiss="modal"
           aria-label="Close"
-          @click="handleCloseAvatarModal"
+          @click="close"
         >
           <span aria-hidden="true">&times;</span>
         </button>
@@ -45,7 +45,7 @@ function selectAvatar(file: PublicFile) {
           <div class="row">
             <div class="col-4" v-for="img in avatars" v-bind:key="img['id']">
               <div class="d-flex justify-content-between">
-                <div class="avatar-thumb" @click="selectAvatar(img)">
+                <div class="avatar-thumb" @click="select(img)">
                   <img :src="img['attributes']['url']" />
                 </div>
               </div>

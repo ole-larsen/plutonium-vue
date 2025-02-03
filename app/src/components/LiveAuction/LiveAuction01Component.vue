@@ -6,9 +6,9 @@ import { Carousel, Slide, Navigation, Pagination } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 
 import type {
-  PublicCategoryCollection,
-  PublicCategoryCollectionCollectible,
-  PublicUser,
+  MarketplaceCollectionDto,
+  PublicCategoryCollectionCollectibleDto,
+  PublicUserDto,
 } from "@/types";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
@@ -37,27 +37,27 @@ const breakpoints = {
 const auth = useAuthStore();
 const store = useMarketPlaceStore();
 
-const collectibles: ComputedRef<PublicCategoryCollectionCollectible[]> =
-  computed(() => {
-    return store
-      .getCollections()
-      .reduce(
-        (
-          collectibles: PublicCategoryCollectionCollectible[],
-          next: PublicCategoryCollection
-        ) => {
-          return collectibles.concat(next.attributes.collectibles);
-        },
-        []
-      )
-      .filter(
-        (collectible: PublicCategoryCollectionCollectible) =>
-          !!collectible.attributes.details.end_time &&
-          collectible.attributes.details.start_time
-      );
-  });
-
-const user: ComputedRef<PublicUser> = computed(() => auth.getUser());
+// const collectibles: ComputedRef<PublicCategoryCollectionCollectibleDto[]> =
+//   computed(() => {
+//     return store
+//       .getCollections()
+//       .reduce(
+//         (
+//           collectibles: PublicCategoryCollectionCollectibleDto[],
+//           next: MarketplaceCollectionDto
+//         ) => {
+//           return collectibles.concat(next.attributes.collectibles);
+//         },
+//         []
+//       )
+//       .filter(
+//         (collectible: PublicCategoryCollectionCollectibleDto) =>
+//           !!collectible.attributes.details.end_time &&
+//           collectible.attributes.details.start_time
+//       );
+//   });
+const collectibles: PublicCategoryCollectionCollectibleDto[] = [];
+const user: ComputedRef<PublicUserDto> = computed(() => auth.getUser());
 </script>
 <template>
   <section class="tf-section live-auctions" v-if="collectibles.length > 0">

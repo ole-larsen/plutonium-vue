@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import type { ComputedRef } from "vue";
-import type { SliderItem } from "@/types";
+import type { SliderItemDto } from "@/types";
 import { computed, onBeforeMount } from "vue";
 import { Carousel, Slide, Navigation } from "vue3-carousel";
-
-import { useSliderStore } from "@/stores/components/slider";
 import { error } from "@/helpers";
+import { useSliderStore } from "./store/slider";
 import "vue3-carousel/dist/carousel.css";
 
 const store = useSliderStore();
-const banner: ComputedRef<SliderItem[]> = computed(() => store.banner);
+const banner: ComputedRef<SliderItemDto[]> = computed(() => store.banner);
 
 onBeforeMount(() => {
   try {
-    store.load(1);
+    store.load("home-01");
   } catch (e) {
     error(e);
   }
@@ -55,37 +54,37 @@ onBeforeMount(() => {
             <div class="themesflat-container">
               <div class="wrap-heading flat-slider flex">
                 <div class="content">
-                  <div v-html="slide['heading']"></div>
-                  <p class="sub-heading" v-html="slide['description']"></p>
+                  <div v-html="slide.attributes['heading']"></div>
+                  <p class="sub-heading" v-html="slide.attributes['description']"></p>
                   <div class="flat-bt-slider flex style2">
-                    <template v-if="slide['btnLink1']">
+                    <template v-if="slide.attributes['btnLink1']">
                       <router-link
-                        :to="slide['btnLink1']"
+                        :to="slide.attributes['btnLink1']"
                         class="sc-button header-slider style style-1 rocket fl-button pri-1"
                       >
-                        <span>{{ slide["btnText1"] }}</span>
+                        <span>{{ slide.attributes["btnText1"] }}</span>
                       </router-link>
                     </template>
-                    <template v-if="slide['btnLink2']">
+                    <template v-if="slide.attributes['btnLink2']">
                       <router-link
-                        :to="slide['btnLink2']"
+                        :to="slide.attributes['btnLink2']"
                         class="sc-button header-slider style style-1 note fl-button pri-1"
                       >
-                        <span>{{ slide["btnText2"] }}</span>
+                        <span>{{ slide.attributes["btnText2"] }}</span>
                       </router-link>
                     </template>
                   </div>
                 </div>
-                <template v-if="slide['image'] && slide['image']['attributes']">
+                <template v-if="slide.attributes['image'] && slide.attributes['image']['attributes']">
                   <div class="image">
-                    <img
+                    <img v-if="slide.attributes['bg']"
                       class="img-bg"
-                      :src="slide['bg']['attributes']['url']"
-                      :alt="slide['bg']['attributes']['alt']"
+                      :src="slide.attributes['bg']['attributes']['url']"
+                      :alt="slide.attributes['bg']['attributes']['alt']"
                     />
-                    <img
-                      :src="slide['image']['attributes']['url']"
-                      :alt="slide['image']['attributes']['alt']"
+                    <img v-if="slide.attributes['image']"
+                      :src="slide.attributes['image']['attributes']['url']"
+                      :alt="slide.attributes['image']['attributes']['alt']"
                     />
                   </div>
                 </template>

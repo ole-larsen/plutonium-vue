@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Ref } from "vue";
 import { ref } from "vue";
-import type { PublicFile, PublicUser } from "@/types";
+import type { PublicFileDto, PublicUserDto } from "@/types";
 import { useAuthStore } from "@/stores/auth/store";
 import { useLoaderStore } from "@/stores/loader/store";
 
@@ -66,7 +66,7 @@ export const useProfileStore = defineStore("profile", () => {
     }
   }
 
-  async function handleSelectAvatar(file: PublicFile, user: PublicUser) {
+  async function handleSelectAvatar(file: PublicFileDto, user: PublicUserDto) {
     auth.updateUserAvatar(
       await auth.uploadUserAvatar(user, file.attributes.url),
       file.attributes.url
@@ -74,7 +74,7 @@ export const useProfileStore = defineStore("profile", () => {
     isActiveModal.value = false;
   }
 
-  async function handleSelectWallpaper(file: PublicFile, user: PublicUser) {
+  async function handleSelectWallpaper(file: PublicFileDto, user: PublicUserDto) {
     auth.updateUserWallpaper(
       await auth.uploadUserWallpaper(user, file),
       file.attributes.url
@@ -82,7 +82,7 @@ export const useProfileStore = defineStore("profile", () => {
     isActiveWallpaperModal.value = false;
   }
 
-  function handleAvatarModal() {
+  function toggleAvatarModal() {
     isActiveModal.value = !isActiveModal.value;
   }
 
@@ -106,11 +106,11 @@ export const useProfileStore = defineStore("profile", () => {
     showEmail.value = !showEmail.value;
   }
 
-  function update(user: PublicUser) {
+  function update(user: PublicUserDto) {
     return auth.update(user);
   }
 
-  function handleFileUpload(newFile: File, user: PublicUser, provider: string) {
+  function handleFileUpload(newFile: File, user: PublicUserDto, provider: string) {
     return new Promise((resolve) => {
       const URL = window.URL || window.webkitURL;
       const blob = URL.createObjectURL(newFile);
@@ -145,18 +145,18 @@ export const useProfileStore = defineStore("profile", () => {
     });
   }
 
-  function upload(file: any, user: PublicUser) {
+  function upload(file: any, user: PublicUserDto) {
     return loader
       .upload(file, user)
       .then((file) => {
-        if (file.attributes.provider === `avatar:${user.uuid}`) {
+        if (file.attributes.provider === `avatar:${user.attributes.uuid}`) {
           showEditAvatarOptions.value = false;
           auth.updateUserAvatar(
             user,
             import.meta.env.VITE_BACKEND + file.attributes.url
           );
         }
-        if (file.attributes.provider === `wallpaper:${user.uuid}`) {
+        if (file.attributes.provider === `wallpaper:${user.attributes.uuid}`) {
           auth.updateUserWallpaper(
             user,
             import.meta.env.VITE_BACKEND + file.attributes.url
@@ -193,7 +193,7 @@ export const useProfileStore = defineStore("profile", () => {
     handleEditAvatarOptions,
     handleOutsideAvatarOptions,
     handleSelectAvatar,
-    handleAvatarModal,
+    toggleAvatarModal,
     handleCollectionModal,
     handleERC721Modal,
     handleShowUsername,

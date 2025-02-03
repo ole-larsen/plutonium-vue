@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PublicCategoryCollection } from "@/types";
+import type { MarketplaceCollectionDto } from "@/types";
 import type { Ref } from "vue";
 import { toRefs, ref } from "vue";
 
@@ -15,7 +15,7 @@ function createCollection() {
   emit("createCollection");
 }
 
-function editCollection(collection: PublicCategoryCollection) {
+function editCollection(collection: MarketplaceCollectionDto) {
   emit("editCollection", collection);
 }
 </script>

@@ -1,30 +1,28 @@
 <script lang="ts" setup>
-import type { Contact, ContactFormData } from "@/types";
+import type { PublicContactDto, ContactFormData } from "@/types";
 import type { Ref } from "vue";
 
 import { onBeforeMount, ref } from "vue";
-import { useContactStore } from "@/stores/pages/contact";
 import { error } from "@/helpers";
-import { usePageStore } from "@/stores/template/page";
 
-import PageTitle from "@/components/Header/PageTitleComponent.vue";
+import PageTitle from "@/components/Template/Header/PageTitleComponent.vue";
 import ContactForm from "@/components/Contact/ContactFormComponent.vue";
+import { usePageStore } from "./store/page";
+import { useContactStore } from "./store/contact";
 
-const contact: Ref<Contact | null> = ref(null);
-const store = usePageStore();
-const contactStore = useContactStore();
-const path = store.getPath();
-const page = store.getPage(path as string);
+const contact: Ref<PublicContactDto | null> = ref(null);
+const pageStore = usePageStore();
+const store = useContactStore();
+const path = pageStore.getPath();
+const page = pageStore.getPage(path as string);
 
 onBeforeMount(async () => {
   try {
-    console.log(page);
     if (path && page.id) {
-      if (!contactStore.getContact(page.id)) {
-        await contactStore.load(page.id);
+      if (!store.getContact(page.id)) {
+        await store.load(page.id);
       }
-      contact.value = contactStore.getContact(page.id);
-      console.log(contact.value);
+      contact.value = store.getContact(page.id);
     }
   } catch (e) {
     error(e);
@@ -32,7 +30,7 @@ onBeforeMount(async () => {
 });
 
 function submit(form: ContactFormData) {
-  contactStore.submit(form, page.id);
+  store.submit(form, page.id);
 }
 </script>
 <template>

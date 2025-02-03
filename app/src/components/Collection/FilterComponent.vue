@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PublicCategoryCollectionCollectible } from "@/types";
+import type { PublicCategoryCollectionCollectibleDto } from "@/types";
 
 import type { Ref } from "vue";
 import { toRefs, ref } from "vue";
@@ -13,19 +13,19 @@ const { collectibles } = toRefs(props);
 const selectedCategory: Ref<string> = ref("All");
 
 const isActive = ref(false);
-const collectibleItem: Ref<PublicCategoryCollectionCollectible | {}> = ref({});
+const collectibleItem: Ref<PublicCategoryCollectionCollectibleDto | {}> = ref({});
 
-function buy(collectible: PublicCategoryCollectionCollectible) {
+function buy(collectible: PublicCategoryCollectionCollectibleDto) {
   isActive.value = !isActive.value;
   collectibleItem.value = collectible;
 }
 
-function placeBid(collectible: PublicCategoryCollectionCollectible) {
+function placeBid(collectible: PublicCategoryCollectionCollectibleDto) {
   isActive.value = !isActive.value;
   collectibleItem.value = collectible;
 }
 
-function loadHistory(collectible: PublicCategoryCollectionCollectible) {
+function loadHistory(collectible: PublicCategoryCollectionCollectibleDto) {
   isActive.value = !isActive.value;
   collectibleItem.value = collectible;
 }

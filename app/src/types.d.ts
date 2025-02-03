@@ -1,19 +1,29 @@
-export type PublicUser = {
-  id: number;
-  address: string;
-  email: string;
-  gravatar: string;
-  nonce: string;
-  token: string;
-  username: string;
-  uuid: string;
-  wallpaper: string;
-  funds: string;
-  socials: any[];
-  wallets: any[];
+export type Oauth2TokenDto = {
+  accessToken: string;
+  code: string;
+  expiry?: string;
+  originalUrl: string;
+  refreshToken: string;
+  state: string;
+  tokenType: string;
 };
 
-export type PublicFile = {
+export type PublicUserDto = {
+  id: number;
+  attributes: {
+    address: string;
+    email: string;
+    gravatar: string;
+    username: string;
+    uuid: string;
+    wallpaper: PublicFileDto | null;
+    funds?: string;
+    socials?: any[];
+    wallets?: any[];
+  }
+};
+
+export type PublicFileDto = {
   id: number;
   attributes: {
     alt: string;
@@ -30,79 +40,95 @@ export type PublicFile = {
   };
 };
 
-export type PublicMarketData = {
-  data: {
-    contracts: {
-      marketplace: PublicContract;
-      collections: {
-        [id: number]: PublicContract;
-      };
-      auctions: PublicContract[];
-    }
-
+export type PublicFaqItemDto = {
+  id: number;
+  attributes: {
+    question: string;
+    answer: string;
   };
 };
 
-export type PublicContract = {
+export type PublicHelpCenterItemDto = {
+  id: number;
+  attributes: {
+    title: string;
+    description: string;
+    link: string;
+    image: PublicFileDto | null;
+  }
+};
+
+export type PublicContractsDto = {
+  contracts: {
+    marketplace: PublicContractDto;
+    collections: {
+      [id: number]: PublicContractDto;
+    };
+    auctions: {
+      [id: number]: PublicContractDto;
+    };
+  }
+};
+
+export type PublicContractDto = {
   abi: string;
   address: string;
   name: string;
-  owner: string;
-  fee: number;
+  owner?: string;
+  fee?: number;
 };
 
 export type PublicCategories = {
-  data: PublicCategory[]
+  data: PublicCategoryDto[]
 };
 
-export type PublicCategory = {
+export type PublicCategoryDto = {
   id: number;
   attributes: {
     title: string;
     slug: string;
     content: string;
     description: string;
-    image: PublicFile;
-    collections: PublicCategoryCollection[];
+    image: PublicFileDto | null;
+    collections?: (MarketplaceCollectionDto | null)[];
   };
 };
 
-export type PublicCategoryCollection = {
+export type MarketplaceCollectionDto = {
   id: number;
   attributes: {
-    categoryId: number;
-    category?: {
-      title: string;
+      categoryId: number;
+      name: string;
+      slug: string;
       url: string;
-    };
-    name: string;
-    symbol: string;
-    description: string;
-    price: string;
-    slug: string;
-    url: string;
-    fee: string;
-    owner: PublicUser;
-    creator: PublicUser;
-    logo: PublicFile;
-    featured: PublicFile;
-    banner: PublicFile;
-    created: string;
-    collectibles: PublicCategoryCollectionCollectible[];
-    isApproved: boolean;
-    isLocked: boolean;
+      symbol: string;
+      description: string;
+      fee: string;
+      address: string;
+      maxItems: number;
+      isApproved: boolean;
+      isLocked: boolean;
+      logo: PublicFileDto | null;
+      banner: PublicFileDto | null;
+      featured: PublicFileDto | null;
+      creator: PublicUserDto | null;
+      owner: PublicUserDto | null;
+      created: string;
+      price: string;
+      collectibles: PublicCategoryCollectionCollectible[];
+      category; PublicCategoryDto;
   };
 };
 
-export type PublicCategoryCollectionCollectible = {
+export type PublicCategoryCollectionCollectibleDto = {
   id: number;
   attributes: {
     collectionId: number;
     itemId: number;
     tokenIds: number[];
     uri: string;
-    owner: PublicUser;
-    creator: PublicUser;
+    owner: PublicUserDto;
+    creator: PublicUserDto;
     metadata: ERC721Metadata;
     details: ERC721Details;
   };
@@ -155,9 +181,9 @@ export type CollectionDTO = {
   categoryId: number;
   itemsInCollection?: number;
   categories?: { id: number; label: string }[];
-  logo: number | PublicFile;
-  featured: number | PublicFile;
-  banner: number | PublicFile;
+  logo?: PublicFileDto;
+  featured?: PublicFileDto;
+  banner?: PublicFileDto;
 };
 
 export type CollectibleDTO = {
@@ -180,28 +206,20 @@ export type CollectibleDTO = {
   quantity: number;
 };
 
-export type PublicMenu = {
-  id?: number;
-  attributes?: {
-    name: string;
-    items: PublicMenuItem[];
-  };
-};
-
-type PublicMenuItem = {
+export type PublicMenuDto = {
   id: number;
   attributes: {
     name: string;
-    orderBy: number;
     link: string;
-    items: {
-      id: number;
-      attributes: {
-        name: string;
-        link: string;
-      };
-    }[];
+    orderBy: number;
+    items: PublicMenuDto[];
   };
+};
+
+export type NonceDto = {
+  address: string;
+  nonce: string;
+  uuid: string;
 };
 
 export interface ConnectInfo {
@@ -214,38 +232,59 @@ export interface ProviderRpcError extends Error {
   data?: unknown;
 }
 
-export type Form = {
+export type SubscribeFormDataDto = {
   email: string;
   csrf: string;
 };
 
-export type SliderItem = {
-  btnLink1: string;
-  btnLink2: string;
-  btnText1: string;
-  btnText2: string;
-  description: string;
-  heading: string;
-  image: PublicFile;
-  bg: PublicFile;
+export type PublicSliderDto = {
+  id: number;
+  attributes: {
+    sliderItems: SliderItemDto[];
+  };
+}
+export type SliderItemDto = {
+  id: number;
+  attributes: {
+    btnLink1: string;
+    btnLink2: string;
+    btnText1: string;
+    btnText2: string;
+    description: string;
+    heading: string;
+    image: PublicFileDto | null;
+    bg: PublicFileDto | null;
+  },
 };
 
-export type CreateAndSellItem = {
+export type PublicCreateAndSellItemDto = {
   id: number;
   attributes: {
     title: string;
     description: string;
     link: string;
-    image: PublicFile;
+    image: PublicFileDto | null;
   };
 };
 
-export type PublicPage = {
+export type PublicWalletConnectItemDto = {
   id: number;
   attributes: {
+    title: string;
+    link: string;
+    description: string;
+    image: PublicFileDto | null;
+  }
+};
+
+export type PublicPageDto = {
+  id: number;
+  attributes: {
+    title: string;
     category: string;
     link: string;
-    title: string;
+    content: string;
+    image: PublicFileDto | null;
   };
 };
 
@@ -259,34 +298,16 @@ export type ContactFormData = {
   csrf: string;
 };
 
-export type Contact = {
-  id?: number;
-  attributes?: {
-    btnLink: string;
-    btnText: string;
+export type PublicContactDto = {
+  id: number;
+  attributes: {
     heading: string;
     subHeading: string;
-    image: PublicFile;
+    link: string;
+    text: string;
+    csrf: string;
+    image: PublicFileDto | null;
   };
-};
-
-export type FAQ = {
-  answer: string;
-  question: string;
-};
-
-export type WalletConnect = {
-  title: string;
-  description: string;
-  address: string;
-  image: PublicFile;
-};
-
-export type HelpCenter = {
-  title: string;
-  description: string;
-  link: string;
-  image: PublicFile;
 };
 
 export type BlogItem = any;

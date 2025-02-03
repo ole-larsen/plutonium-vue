@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
-import type { PublicFile, PublicUser } from "@/types";
+import type { Oauth2TokenDto, PublicFileDto, PublicUserDto } from "@/types";
 import { ref } from "vue";
-import { link } from "@/helpers";
 
 export const useAuthStore = defineStore("auth", () => {
-  const LS_KEY = "metamask:auth";
+  const LS_KEY = "auth:user";
+  const AT_KEY = "auth:oauth2";
 
   const user = ref(
     localStorage.getItem(LS_KEY)
@@ -12,24 +12,43 @@ export const useAuthStore = defineStore("auth", () => {
       : undefined
   );
 
-  function getUser(): PublicUser {
+  function getUser(): PublicUserDto {
     return user.value;
   }
 
-  function storeUser(_user: PublicUser) {
-    localStorage.setItem(LS_KEY, JSON.stringify(_user));
-    user.value = _user;
-  }
+  function setUser(publicUser: PublicUserDto) {
+    localStorage.setItem(LS_KEY, JSON.stringify(publicUser));
+    user.value = publicUser;
+  } 
 
   function removeUser() {
     localStorage.removeItem(LS_KEY);
     delete user.value;
   }
 
-  function update(_user: PublicUser) {
-    if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
-      user.value.username = _user.username;
-      user.value.email = _user.email;
+  const token = ref(
+    localStorage.getItem(AT_KEY)
+      ? JSON.parse(localStorage.getItem(AT_KEY) as string)
+      : undefined
+  );
+  function getToken(): Oauth2TokenDto {
+    return token.value;
+  }
+
+  function setToken(tkn: Oauth2TokenDto) {
+    localStorage.setItem(AT_KEY, JSON.stringify(tkn));
+    token.value = tkn;
+  } 
+
+  function removeToken() {
+    localStorage.removeItem(AT_KEY);
+    delete token.value;
+  }
+
+  function update(publicUser: PublicUserDto) {
+    if (user.value.id === publicUser.id && user.value.attributes.uuid === publicUser.attributes.uuid) {
+      user.value.attributes.username = publicUser.attributes.username;
+      user.value.attributes.email = publicUser.attributes.email;
       localStorage.setItem(LS_KEY, JSON.stringify(user.value));
       return uploadUser();
     }
@@ -40,28 +59,28 @@ export const useAuthStore = defineStore("auth", () => {
       method: "POST", // or "PUT"
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${user.value.token}`,
+        Authorization: `Bearer ${user.value.attributes.token}`,
       },
       body: JSON.stringify(user.value),
     }).then((response) => response.json());
   }
 
-  function updateUserAvatar(_user: PublicUser, url: string) {
-    if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
-      user.value.gravatar = url;
+  function updateUserAvatar(publicUser: PublicUserDto, url: string) {
+    if (user.value.id === publicUser.id && user.value.attributes.uuid === publicUser.attributes.uuid) {
+      user.value.attributes.gravatar = url;
       localStorage.setItem(LS_KEY, JSON.stringify(user.value));
     }
   }
 
-  function updateUserWallpaper(_user: PublicUser, url: string) {
-    if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
-      user.value.wallpaper = url;
+  function updateUserWallpaper(publicUser: PublicUserDto, url: string) {
+    if (user.value.id === publicUser.id && user.value.attributes.uuid === publicUser.attributes.uuid) {
+      user.value.attributes.wallpaper = url;
       localStorage.setItem(LS_KEY, JSON.stringify(user.value));
     }
   }
 
-  function uploadUserAvatar(_user: PublicUser, url: string) {
-    if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
+  function uploadUserAvatar(publicUser: PublicUserDto, url: string) {
+    if (user.value.id === publicUser.id && user.value.attributes.uuid === publicUser.attributes.uuid) {
       user.value.gravatar = url;
       return fetch(`${import.meta.env.VITE_BACKEND}/api/v1/users`, {
         method: "POST", // or "PUT"
@@ -74,9 +93,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  function uploadUserWallpaper(_user: PublicUser, file: any) {
-    if (user.value.id === _user.id && user.value.uuid === _user.uuid) {
-      user.value.wallpaperId = file.id;
+  function uploadUserWallpaper(publicUser: PublicUserDto, file: any) {
+    if (user.value.id === publicUser.id && user.value.uuid === publicUser.attributes.uuid) {
+      user.value.attributes.wallpaperId = file.id;
       return fetch(`${import.meta.env.VITE_BACKEND}/api/v1/users`, {
         method: "POST", // or "PUT"
         headers: {
@@ -102,7 +121,7 @@ export const useAuthStore = defineStore("auth", () => {
     )
       .then((response) => response.json())
       .then((files) => {
-        return files.map((file: PublicFile) => {
+        return files.map((file: PublicFileDto) => {
           file.attributes.url = `${import.meta.env.VITE_BACKEND}${
             file.attributes.url
           }`;
@@ -114,7 +133,7 @@ export const useAuthStore = defineStore("auth", () => {
   function loadWallpapers() {
     const provider = `wallpaper:${user.value.uuid}`;
     return fetch(
-      `${import.meta.env.VITE_BACKEND}/api/v1/avatars?provider=${provider}`,
+      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/avatars?provider=${provider}`,
       {
         method: "GET", // or "PUT"
         headers: {
@@ -135,8 +154,11 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   return {
+    getToken,
+    setToken,
+    removeToken,
     getUser,
-    storeUser,
+    setUser,
     removeUser,
     update,
     updateUserAvatar,

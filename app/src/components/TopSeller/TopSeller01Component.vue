@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PublicUser } from "@/types";
+import type { PublicUserDto } from "@/types";
 import type { ComputedRef } from "vue";
 
 import { computed } from "vue";
@@ -9,10 +9,10 @@ import "vue3-carousel/dist/carousel.css";
 
 import { useUserStore } from "@/stores/users/users.store";
 
-const users: ComputedRef<PublicUser[]> = computed(() =>
+const users: ComputedRef<PublicUserDto[]> = computed(() =>
   useUserStore()
     .getUsers()
-    .filter((user: PublicUser) => Number(user.funds) > 0)
+    .filter((user: PublicUserDto) => Number(user.attributes.funds) > 0)
 );
 
 const settings = {
@@ -55,16 +55,16 @@ const breakpoints = {
             <Slide v-for="user in users" :key="user.id">
               <div class="sc-author-box style-2">
                 <div class="author-avatar">
-                  <img :src="user.gravatar" alt="image" class="avatar" />
+                  <img :src="user.attributes.gravatar" alt="image" class="avatar" />
                   <div class="badge"></div>
                 </div>
-                <div class="author-infor" v-if="user.username">
+                <div class="author-infor" v-if="user.attributes.username">
                   <h5>
-                    <router-link :to="'/author/' + user.uuid">
-                      {{ user.username.slice(0, 8) }}
+                    <router-link :to="'/author/' + user.attributes.uuid">
+                      {{ user.attributes.username.slice(0, 8) }}
                     </router-link>
                   </h5>
-                  <span class="price">{{ user.funds }} ETH</span>
+                  <span class="price">{{ user.attributes.funds }} ETH</span>
                 </div>
               </div>
             </Slide>

@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 
-import Loader from "@/components/Header/LoaderComponent.vue";
-import Header from "@/components/Header/HeaderComponent.vue";
-import Footer from "@/components/Footer/FooterComponent.vue";
-
-import { useLoaderStore } from "@/stores/loader/store";
+import Loader from "@/components/Template/Header/LoaderComponent.vue";
+import Header from "@/components/Template/Header/HeaderComponent.vue";
+import Footer from "@/components/Template/Footer/FooterComponent.vue";
 import { onBeforeMount } from "vue";
-import { error } from "@/helpers";
+import { useLoaderStore } from "./stores/loader/store";
 
-const store = useLoaderStore();
+// first connect wallet to get address
+const loader = useLoaderStore();
 
 onBeforeMount(async () => {
-  try {
-    await store.load();
-  } catch (e) {
-    error(e);
-  }
-});
+  await loader.loadContracts();
+})
 </script>
 
 <template>
