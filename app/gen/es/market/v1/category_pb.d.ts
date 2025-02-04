@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicFile } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
 import type { MarketplaceCollection } from "./collection_pb";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 
@@ -59,7 +59,7 @@ export declare type PublicCategoryAttributes = Message<"market.v1.PublicCategory
   content: string;
 
   /**
-   * @generated from field: market.v1.PublicFile image = 5;
+   * @generated from field: common.v1.PublicFile image = 5;
    */
   image?: PublicFile;
 

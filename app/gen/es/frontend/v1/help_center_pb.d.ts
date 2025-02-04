@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicFile } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 
 /**
@@ -53,7 +53,7 @@ export declare type PublicHelpCenterItemAttributes = Message<"frontend.v1.Public
   description: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 4;
+   * @generated from field: common.v1.PublicFile image = 4;
    */
   image?: PublicFile;
 };

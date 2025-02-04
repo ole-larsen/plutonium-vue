@@ -2,7 +2,10 @@
 // @generated from file profile/v1/profile.proto (package profile.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv1";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv1";
+import type { Message } from "@bufbuild/protobuf";
+import type { PublicUser } from "../../common/v1/user_pb";
+import type { Empty } from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file profile/v1/profile.proto.
@@ -10,8 +13,101 @@ import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv1";
 export declare const file_profile_v1_profile: GenFile;
 
 /**
+ * @generated from message profile.v1.UserForm
+ */
+export declare type UserForm = Message<"profile.v1.UserForm"> & {
+  /**
+   * @generated from field: string csrf = 1;
+   */
+  csrf: string;
+
+  /**
+   * @generated from field: int64 id = 2;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string username = 3;
+   */
+  username: string;
+
+  /**
+   * @generated from field: string address = 4;
+   */
+  address: string;
+
+  /**
+   * @generated from field: string email = 5;
+   */
+  email: string;
+
+  /**
+   * @generated from field: string gravatar = 6;
+   */
+  gravatar: string;
+};
+
+/**
+ * Describes the message profile.v1.UserForm.
+ * Use `create(UserFormSchema)` to create a new message.
+ */
+export declare const UserFormSchema: GenMessage<UserForm>;
+
+/**
+ * @generated from message profile.v1.PatchUserRequest
+ */
+export declare type PatchUserRequest = Message<"profile.v1.PatchUserRequest"> & {
+  /**
+   * @generated from field: profile.v1.UserForm body = 1;
+   */
+  body?: UserForm;
+};
+
+/**
+ * Describes the message profile.v1.PatchUserRequest.
+ * Use `create(PatchUserRequestSchema)` to create a new message.
+ */
+export declare const PatchUserRequestSchema: GenMessage<PatchUserRequest>;
+
+/**
+ * @generated from message profile.v1.PatchUserResponse
+ */
+export declare type PatchUserResponse = Message<"profile.v1.PatchUserResponse"> & {
+  /**
+   * @generated from oneof profile.v1.PatchUserResponse.response
+   */
+  response: {
+    /**
+     * @generated from field: common.v1.PublicUser user = 1;
+     */
+    value: PublicUser;
+    case: "user";
+  } | {
+    /**
+     * @generated from field: google.protobuf.Empty error = 2;
+     */
+    value: Empty;
+    case: "error";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message profile.v1.PatchUserResponse.
+ * Use `create(PatchUserResponseSchema)` to create a new message.
+ */
+export declare const PatchUserResponseSchema: GenMessage<PatchUserResponse>;
+
+/**
  * @generated from service profile.v1.ProfileService
  */
 export declare const ProfileService: GenService<{
+  /**
+   * @generated from rpc profile.v1.ProfileService.PatchUser
+   */
+  patchUser: {
+    methodKind: "unary";
+    input: typeof PatchUserRequestSchema;
+    output: typeof PatchUserResponseSchema;
+  },
 }>;
 

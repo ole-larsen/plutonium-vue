@@ -4,10 +4,10 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { PublicFile } from "./file_pb";
-import { file_market_v1_file } from "./file_pb";
-import type { PublicUser } from "./user_pb";
-import { file_market_v1_user } from "./user_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
+import type { PublicUser } from "../../common/v1/user_pb";
+import { file_common_v1_user } from "../../common/v1/user_pb";
 import type { MarketplaceCollectible } from "./collectible_pb";
 import { file_market_v1_collectible } from "./collectible_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file market/v1/collection.proto.
  */
 export const file_market_v1_collection: GenFile = /*@__PURE__*/
-  fileDesc("ChptYXJrZXQvdjEvY29sbGVjdGlvbi5wcm90bxIJbWFya2V0LnYxImMKFU1hcmtldHBsYWNlQ29sbGVjdGlvbhIKCgJpZBgBIAEoAxI+CgphdHRyaWJ1dGVzGAIgASgLMioubWFya2V0LnYxLk1hcmtldHBsYWNlQ29sbGVjdGlvbkF0dHJpYnV0ZXMi6gMKH01hcmtldHBsYWNlQ29sbGVjdGlvbkF0dHJpYnV0ZXMSEwoLY2F0ZWdvcnlfaWQYASABKAMSDAoEbmFtZRgCIAEoCRIMCgRzbHVnGAMgASgJEgsKA3VybBgEIAEoCRIOCgZzeW1ib2wYBSABKAkSEwoLZGVzY3JpcHRpb24YBiABKAkSCwoDZmVlGAcgASgJEg8KB2FkZHJlc3MYCCABKAkSEQoJbWF4X2l0ZW1zGAkgASgDEhMKC2lzX2FwcHJvdmVkGAogASgIEhEKCWlzX2xvY2tlZBgLIAEoCBIjCgRsb2dvGAwgASgLMhUubWFya2V0LnYxLlB1YmxpY0ZpbGUSJQoGYmFubmVyGA0gASgLMhUubWFya2V0LnYxLlB1YmxpY0ZpbGUSJwoIZmVhdHVyZWQYDiABKAsyFS5tYXJrZXQudjEuUHVibGljRmlsZRImCgdjcmVhdG9yGA8gASgLMhUubWFya2V0LnYxLlB1YmxpY1VzZXISJAoFb3duZXIYECABKAsyFS5tYXJrZXQudjEuUHVibGljVXNlchIPCgdjcmVhdGVkGBEgASgJEjcKDGNvbGxlY3RpYmxlcxgSIAMoCzIhLm1hcmtldC52MS5NYXJrZXRwbGFjZUNvbGxlY3RpYmxlQjhaNmdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL21hcmtldC92MTttYXJrZXR2MWIGcHJvdG8z", [file_market_v1_file, file_market_v1_user, file_market_v1_collectible]);
+  fileDesc("ChptYXJrZXQvdjEvY29sbGVjdGlvbi5wcm90bxIJbWFya2V0LnYxImMKFU1hcmtldHBsYWNlQ29sbGVjdGlvbhIKCgJpZBgBIAEoAxI+CgphdHRyaWJ1dGVzGAIgASgLMioubWFya2V0LnYxLk1hcmtldHBsYWNlQ29sbGVjdGlvbkF0dHJpYnV0ZXMi6gMKH01hcmtldHBsYWNlQ29sbGVjdGlvbkF0dHJpYnV0ZXMSEwoLY2F0ZWdvcnlfaWQYASABKAMSDAoEbmFtZRgCIAEoCRIMCgRzbHVnGAMgASgJEgsKA3VybBgEIAEoCRIOCgZzeW1ib2wYBSABKAkSEwoLZGVzY3JpcHRpb24YBiABKAkSCwoDZmVlGAcgASgJEg8KB2FkZHJlc3MYCCABKAkSEQoJbWF4X2l0ZW1zGAkgASgDEhMKC2lzX2FwcHJvdmVkGAogASgIEhEKCWlzX2xvY2tlZBgLIAEoCBIjCgRsb2dvGAwgASgLMhUuY29tbW9uLnYxLlB1YmxpY0ZpbGUSJQoGYmFubmVyGA0gASgLMhUuY29tbW9uLnYxLlB1YmxpY0ZpbGUSJwoIZmVhdHVyZWQYDiABKAsyFS5jb21tb24udjEuUHVibGljRmlsZRImCgdjcmVhdG9yGA8gASgLMhUuY29tbW9uLnYxLlB1YmxpY1VzZXISJAoFb3duZXIYECABKAsyFS5jb21tb24udjEuUHVibGljVXNlchIPCgdjcmVhdGVkGBEgASgJEjcKDGNvbGxlY3RpYmxlcxgSIAMoCzIhLm1hcmtldC52MS5NYXJrZXRwbGFjZUNvbGxlY3RpYmxlQjhaNmdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL21hcmtldC92MTttYXJrZXR2MWIGcHJvdG8z", [file_common_v1_file, file_common_v1_user, file_market_v1_collectible]);
 
 /**
  * @generated from message market.v1.MarketplaceCollection
@@ -100,27 +100,27 @@ export type MarketplaceCollectionAttributes = Message<"market.v1.MarketplaceColl
   isLocked: boolean;
 
   /**
-   * @generated from field: market.v1.PublicFile logo = 12;
+   * @generated from field: common.v1.PublicFile logo = 12;
    */
   logo?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicFile banner = 13;
+   * @generated from field: common.v1.PublicFile banner = 13;
    */
   banner?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicFile featured = 14;
+   * @generated from field: common.v1.PublicFile featured = 14;
    */
   featured?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicUser creator = 15;
+   * @generated from field: common.v1.PublicUser creator = 15;
    */
   creator?: PublicUser;
 
   /**
-   * @generated from field: market.v1.PublicUser owner = 16;
+   * @generated from field: common.v1.PublicUser owner = 16;
    */
   owner?: PublicUser;
 

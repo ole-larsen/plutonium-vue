@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicFile } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 
 /**
@@ -69,7 +69,7 @@ export declare type PublicSliderItem = Message<"frontend.v1.PublicSliderItem"> &
   heading: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile bg = 4;
+   * @generated from field: common.v1.PublicFile bg = 4;
    */
   bg?: PublicFile;
 
@@ -94,7 +94,7 @@ export declare type PublicSliderItem = Message<"frontend.v1.PublicSliderItem"> &
   btnText2: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 10;
+   * @generated from field: common.v1.PublicFile image = 10;
    */
   image?: PublicFile;
 };

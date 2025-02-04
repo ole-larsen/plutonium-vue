@@ -56,17 +56,18 @@ import type { PublicFaqItem, SuccessFaq } from "@/gen/frontend/v1/faq_pb";
 import type { PublicContact } from "@/gen/frontend/v1/contact_pb";
 import type { PublicPage } from "@/gen/frontend/v1/page_pb";
 import type { Nonce } from "@/gen/market/v1/nonce_pb";
-import type { PublicUser } from "@/gen/market/v1/user_pb";
-import type { PublicFile as MarketPublicFile } from "@/gen/market/v1/file_pb";
-import { adapterCreateAndSellItems, adapterFaqItems, adapterHelpCenterItems, adapterOauth2Token, adapterPublicCategories, adapterPublicContact, adapterPublicContracts, adapterPublicMenu, adapterPublicNonce, adapterPublicPage, adapterPublicSlider, adapterPublicVerify, adapterWalletConnectItems } from "./adapters";
+import type { PublicUser } from "@/gen/common/v1/user_pb";
+import { adapterCreateAndSellItems, adapterFaqItems, adapterHelpCenterItems, adapterOauth2Token, adapterPublicCategories, adapterPublicContact, adapterPublicContracts, adapterPublicMenu, adapterPublicNonce, adapterPublicPage, adapterPublicSlider, adapterPublicUser, adapterWalletConnectItems } from "./adapters";
 import type { Oauth2Token } from "@/gen/market/v1/verify_pb";
+import { ProfileService } from "@/gen/profile/v1/profile_pb";
 export const useLoaderStore = defineStore("loader", () => {
   const axios: any = inject("axios"),
         transport = createConnectTransport({
           baseUrl: import.meta.env.VITE_GRPC_URL,
         }),
         marketClient = createClient(MarketService, transport),
-        market = useMarketPlaceStore();
+        market = useMarketPlaceStore(),
+        auth = useAuthStore();
   
   const loading: Ref<boolean> = ref(false);
 
@@ -243,7 +244,7 @@ export const useLoaderStore = defineStore("loader", () => {
      if (data.response.case === 'data') {
         const { user, token} = data.response.value;
         return {
-          user: adapterPublicVerify(user as PublicUser) as PublicUserDto,
+          user: adapterPublicUser(user as PublicUser) as PublicUserDto,
           token: adapterOauth2Token(token as Oauth2Token) as Oauth2TokenDto
         };
      } else {
@@ -260,182 +261,31 @@ export const useLoaderStore = defineStore("loader", () => {
     throw(new Error(data.response.case));
    }
   }
-  /*
 
-  
-  const collection = useCollectionStore();
-  const auction = useAuctionStore();
-  
-  const createAndSell = useCreateAndSellStore();
-  const helpCenter = useHelpCenterStore();
-  const faq = useFaqStore();
-  const page = usePageStore();
-  const contact = useContactStore();
-  
-  
+  const profileClient = createClient(ProfileService, transport);
 
-  function loadBlog(slug: string) {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/blog/${slug}`, {
-      headers: {
-        "X-Token": import.meta.env.VITE_X_TOKEN,
-      },
+  async function patchUser(user: PublicUserDto, csrf: string) {
+    const token = auth.getToken();
+    // TODO write middleware for token
+    // TODO write middleware for csrf
+    const data = await profileClient.patchUser({ 
+      body: {
+        csrf: csrf,
+        id: BigInt(user.id),
+        username: user.attributes.username,
+        address: user.attributes.address,
+        email: user.attributes.email, 
+        gravatar: user.attributes.gravatar
+      }  
     });
-  }
 
-  function loadBlogs() {
-    return axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/frontend/blog`, {
-      headers: {
-        "X-Token": import.meta.env.VITE_X_TOKEN,
-      },
-    });
-  }
-  
-  function loadUserByAddress(address: string) {
-    return axios.get(
-      `${import.meta.env.VITE_BACKEND}/api/v1/frontend/users?address=${address}`,
-      {
-        headers: {
-          "X-Token": import.meta.env.VITE_X_TOKEN,
-        },
-      }
-    );
-  }
+    const response = data.response.value;
 
-  function upload(file: any, user: PublicUserDto) {
-    const formData = new FormData();
-    formData.append("name", file.name);
-    formData.append("alt", file.alt);
-    formData.append("hash", file.hash);
-    formData.append("ext", file.ext);
-    formData.append("caption", file.caption);
-    formData.append("type", file.type);
-    formData.append("size", file.size);
-    formData.append("width", file.width);
-    formData.append("height", file.height);
-    formData.append("provider", file.provider);
-    formData.append("file", file.file);
-
-    const url = `${import.meta.env.VITE_BACKEND}/api/v1/files`;
-
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${user.attributes.token}`,
-      },
-      body: formData,
-    })
-      .then((response) =>
-        response.status === 200 ? response.json() : response.text()
-      )
-      .then((file) => {
-        return file;
-      })
-      .catch((e) => {
-        throw e;
-      });
-  }
-
-  function loadCollectionContractsToWeb3(_collections: {
-    [id: string]: { abi: string; address: string; name: string };
-  }) {
-    collection.loadWeb3Contracts(_collections);
-  }
-
-  function loadCollectionContractsToMetamask(_collections: {
-    [id: string]: { abi: string; address: string; name: string };
-  }) {
-    collection.loadMetaMaskContracts(_collections);
-  }
-
-  function loadAuctionContractsToWeb3(auctions: PublicContractDto[]) {
-    auction.loadWeb3Contracts(auctions);
-  }
-
-  function loadAuctionContractsToMetamask(auctions: PublicContractDto[]) {
-    auction.loadMetaMaskContracts(auctions);
-  }
-
-  function loadCollectibleLikes(
-    collectible: PublicCategoryCollectionCollectibleDto
-  ) {
-    return axios.get(
-      `${import.meta.env.VITE_BACKEND}/api/v1/like?&itemId=${
-        collectible.attributes.itemId
-      }&collectionId=${collectible.attributes.collectionId}`,
-      {
-        headers: {
-          "X-Token": import.meta.env.VITE_X_TOKEN,
-        },
-      }
-    );
-  }
-
-  function like(collectible: PublicCategoryCollectionCollectibleDto) {
-    if (user.value) {
-      return axios.post(
-        `${import.meta.env.VITE_BACKEND}/api/v1/like`,
-        {
-          userId: user.value.id,
-          itemId: collectible.attributes.itemId,
-          collectionId: collectible.attributes.collectionId,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+    if (response) {
+      auth.setUser(adapterPublicUser(response as PublicUser) as PublicUserDto);
     }
   }
 
-  function deployCollectible(collectible: CollectibleDTO) {
-    return axios.post(
-      `${import.meta.env.VITE_BACKEND}/api/v1/collectibles`,
-      collectible,
-      {
-        withCredentials: true,
-      }
-    );
-  }
-
-  function deployCollection(_collection: CollectionDTO) {
-    return axios.post(
-      `${import.meta.env.VITE_BACKEND}/api/v1/collections`,
-      _collection,
-      {
-        withCredentials: true,
-      }
-    );
-  }
-
-  function deployAuction(
-    collectible: PublicCategoryCollectionCollectibleDto,
-    biddingTime: number
-  ) {
-    return axios.post(
-      `${import.meta.env.VITE_BACKEND}/api/v1/auction`,
-      {
-        id: collectible.id,
-        collectionId: collectible.attributes.collectionId,
-        tokenIds: collectible.attributes.tokenIds,
-        itemId: collectible.attributes.itemId,
-        biddingtime: biddingTime,
-        bid: collectible.attributes.details.price,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-  }
-
-  function updateCollection(_collection: CollectionDTO) {
-    return axios.patch(
-      `${import.meta.env.VITE_BACKEND}/api/v1/collections`,
-      _collection,
-      {
-        withCredentials: true,
-      }
-    );
-  }
-  */
   return {
     loading,
     loadContracts,
@@ -449,6 +299,7 @@ export const useLoaderStore = defineStore("loader", () => {
     loadHelpCenter,
     handleWalletConnect,
     loadCategories,
+    patchUser,
     // loadBlog,
     // loadBlogs,
     // upload,

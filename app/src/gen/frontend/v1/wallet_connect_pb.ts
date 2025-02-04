@@ -4,15 +4,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { PublicFile } from "./file_pb";
-import { file_frontend_v1_file } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file frontend/v1/wallet_connect.proto.
  */
 export const file_frontend_v1_wallet_connect: GenFile = /*@__PURE__*/
-  fileDesc("CiBmcm9udGVuZC92MS93YWxsZXRfY29ubmVjdC5wcm90bxILZnJvbnRlbmQudjEiaQoXUHVibGljV2FsbGV0Q29ubmVjdEl0ZW0SCgoCaWQYASABKAMSQgoKYXR0cmlidXRlcxgCIAEoCzIuLmZyb250ZW5kLnYxLlB1YmxpY1dhbGxldENvbm5lY3RJdGVtQXR0cmlidXRlcyJ9CiFQdWJsaWNXYWxsZXRDb25uZWN0SXRlbUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDAoEbGluaxgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRImCgVpbWFnZRgEIAEoCzIXLmZyb250ZW5kLnYxLlB1YmxpY0ZpbGUiLQoZV2FsbGV0Q29ubmVjdEl0ZW1zUmVxdWVzdBIQCghwcm92aWRlchgBIAEoCUI8WjpnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9mcm9udGVuZC92MTtmcm9udGVuZHYxYgZwcm90bzM", [file_frontend_v1_file]);
+  fileDesc("CiBmcm9udGVuZC92MS93YWxsZXRfY29ubmVjdC5wcm90bxILZnJvbnRlbmQudjEiaQoXUHVibGljV2FsbGV0Q29ubmVjdEl0ZW0SCgoCaWQYASABKAMSQgoKYXR0cmlidXRlcxgCIAEoCzIuLmZyb250ZW5kLnYxLlB1YmxpY1dhbGxldENvbm5lY3RJdGVtQXR0cmlidXRlcyJ7CiFQdWJsaWNXYWxsZXRDb25uZWN0SXRlbUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDAoEbGluaxgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIkCgVpbWFnZRgEIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNGaWxlIi0KGVdhbGxldENvbm5lY3RJdGVtc1JlcXVlc3QSEAoIcHJvdmlkZXIYASABKAlCPFo6Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vZnJvbnRlbmQvdjE7ZnJvbnRlbmR2MWIGcHJvdG8z", [file_common_v1_file]);
 
 /**
  * @generated from message frontend.v1.PublicWalletConnectItem
@@ -56,7 +56,7 @@ export type PublicWalletConnectItemAttributes = Message<"frontend.v1.PublicWalle
   description: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 4;
+   * @generated from field: common.v1.PublicFile image = 4;
    */
   image?: PublicFile;
 };

@@ -6,15 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
-import type { PublicFile } from "./file_pb";
-import { file_frontend_v1_file } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file frontend/v1/slider.proto.
  */
 export const file_frontend_v1_slider: GenFile = /*@__PURE__*/
-  fileDesc("Chhmcm9udGVuZC92MS9zbGlkZXIucHJvdG8SC2Zyb250ZW5kLnYxIlMKDFB1YmxpY1NsaWRlchIKCgJpZBgBIAEoAxI3CgphdHRyaWJ1dGVzGAIgASgLMiMuZnJvbnRlbmQudjEuUHVibGljU2xpZGVyQXR0cmlidXRlcyJNChZQdWJsaWNTbGlkZXJBdHRyaWJ1dGVzEjMKDHNsaWRlcl9pdGVtcxgBIAMoCzIdLmZyb250ZW5kLnYxLlB1YmxpY1NsaWRlckl0ZW0i3QEKEFB1YmxpY1NsaWRlckl0ZW0SCgoCaWQYASABKAMSEwoLZGVzY3JpcHRpb24YAiABKAkSDwoHaGVhZGluZxgDIAEoCRIjCgJiZxgEIAEoCzIXLmZyb250ZW5kLnYxLlB1YmxpY0ZpbGUSEQoJYnRuX2xpbmsxGAUgASgJEhEKCWJ0bl9saW5rMhgGIAEoCRIRCglidG5fdGV4dDEYByABKAkSEQoJYnRuX3RleHQyGAggASgJEiYKBWltYWdlGAogASgLMhcuZnJvbnRlbmQudjEuUHVibGljRmlsZSIhCg1TbGlkZXJSZXF1ZXN0EhAKCHByb3ZpZGVyGAEgASgJInAKDlNsaWRlclJlc3BvbnNlEikKBGRhdGEYASABKAsyGS5mcm9udGVuZC52MS5QdWJsaWNTbGlkZXJIABInCgVlcnJvchgCIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAQgoKCHJlc3BvbnNlQjxaOmdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL2Zyb250ZW5kL3YxO2Zyb250ZW5kdjFiBnByb3RvMw", [file_google_protobuf_empty, file_frontend_v1_file]);
+  fileDesc("Chhmcm9udGVuZC92MS9zbGlkZXIucHJvdG8SC2Zyb250ZW5kLnYxIlMKDFB1YmxpY1NsaWRlchIKCgJpZBgBIAEoAxI3CgphdHRyaWJ1dGVzGAIgASgLMiMuZnJvbnRlbmQudjEuUHVibGljU2xpZGVyQXR0cmlidXRlcyJNChZQdWJsaWNTbGlkZXJBdHRyaWJ1dGVzEjMKDHNsaWRlcl9pdGVtcxgBIAMoCzIdLmZyb250ZW5kLnYxLlB1YmxpY1NsaWRlckl0ZW0i2QEKEFB1YmxpY1NsaWRlckl0ZW0SCgoCaWQYASABKAMSEwoLZGVzY3JpcHRpb24YAiABKAkSDwoHaGVhZGluZxgDIAEoCRIhCgJiZxgEIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNGaWxlEhEKCWJ0bl9saW5rMRgFIAEoCRIRCglidG5fbGluazIYBiABKAkSEQoJYnRuX3RleHQxGAcgASgJEhEKCWJ0bl90ZXh0MhgIIAEoCRIkCgVpbWFnZRgKIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNGaWxlIiEKDVNsaWRlclJlcXVlc3QSEAoIcHJvdmlkZXIYASABKAkicAoOU2xpZGVyUmVzcG9uc2USKQoEZGF0YRgBIAEoCzIZLmZyb250ZW5kLnYxLlB1YmxpY1NsaWRlckgAEicKBWVycm9yGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SABCCgoIcmVzcG9uc2VCPFo6Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vZnJvbnRlbmQvdjE7ZnJvbnRlbmR2MWIGcHJvdG8z", [file_google_protobuf_empty, file_common_v1_file]);
 
 /**
  * @generated from message frontend.v1.PublicSlider
@@ -75,7 +75,7 @@ export type PublicSliderItem = Message<"frontend.v1.PublicSliderItem"> & {
   heading: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile bg = 4;
+   * @generated from field: common.v1.PublicFile bg = 4;
    */
   bg?: PublicFile;
 
@@ -100,7 +100,7 @@ export type PublicSliderItem = Message<"frontend.v1.PublicSliderItem"> & {
   btnText2: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 10;
+   * @generated from field: common.v1.PublicFile image = 10;
    */
   image?: PublicFile;
 };

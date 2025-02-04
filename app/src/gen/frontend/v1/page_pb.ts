@@ -6,15 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
-import type { PublicFile } from "./file_pb";
-import { file_frontend_v1_file } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file frontend/v1/page.proto.
  */
 export const file_frontend_v1_page: GenFile = /*@__PURE__*/
-  fileDesc("ChZmcm9udGVuZC92MS9wYWdlLnByb3RvEgtmcm9udGVuZC52MSJPCgpQdWJsaWNQYWdlEgoKAmlkGAEgASgDEjUKCmF0dHJpYnV0ZXMYAiABKAsyIS5mcm9udGVuZC52MS5QdWJsaWNQYWdlQXR0cmlidXRlcyKTAQoUUHVibGljUGFnZUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDwoHY29udGVudBgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIMCgRsaW5rGAQgASgJEhAKCGNhdGVnb3J5GAUgASgJEiYKBWltYWdlGAYgASgLMhcuZnJvbnRlbmQudjEuUHVibGljRmlsZSIfCgtQYWdlUmVxdWVzdBIQCghwcm92aWRlchgBIAEoCSJsCgxQYWdlUmVzcG9uc2USJwoEZGF0YRgBIAEoCzIXLmZyb250ZW5kLnYxLlB1YmxpY1BhZ2VIABInCgVlcnJvchgCIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAQgoKCHJlc3BvbnNlQjxaOmdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL2Zyb250ZW5kL3YxO2Zyb250ZW5kdjFiBnByb3RvMw", [file_google_protobuf_empty, file_frontend_v1_file]);
+  fileDesc("ChZmcm9udGVuZC92MS9wYWdlLnByb3RvEgtmcm9udGVuZC52MSJPCgpQdWJsaWNQYWdlEgoKAmlkGAEgASgDEjUKCmF0dHJpYnV0ZXMYAiABKAsyIS5mcm9udGVuZC52MS5QdWJsaWNQYWdlQXR0cmlidXRlcyKRAQoUUHVibGljUGFnZUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDwoHY29udGVudBgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIMCgRsaW5rGAQgASgJEhAKCGNhdGVnb3J5GAUgASgJEiQKBWltYWdlGAYgASgLMhUuY29tbW9uLnYxLlB1YmxpY0ZpbGUiHwoLUGFnZVJlcXVlc3QSEAoIcHJvdmlkZXIYASABKAkibAoMUGFnZVJlc3BvbnNlEicKBGRhdGEYASABKAsyFy5mcm9udGVuZC52MS5QdWJsaWNQYWdlSAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZUI8WjpnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9mcm9udGVuZC92MTtmcm9udGVuZHYxYgZwcm90bzM", [file_google_protobuf_empty, file_common_v1_file]);
 
 /**
  * @generated from message frontend.v1.PublicPage
@@ -68,7 +68,7 @@ export type PublicPageAttributes = Message<"frontend.v1.PublicPageAttributes"> &
   category: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 6;
+   * @generated from field: common.v1.PublicFile image = 6;
    */
   image?: PublicFile;
 };

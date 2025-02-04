@@ -2,13 +2,36 @@
 // @generated from file profile/v1/profile.proto (package profile.v1, syntax proto3)
 /* eslint-disable */
 
-import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import { file_common_v1_user } from "../../common/v1/user_pb";
 
 /**
  * Describes the file profile/v1/profile.proto.
  */
 export const file_profile_v1_profile = /*@__PURE__*/
-  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEyEAoOUHJvZmlsZVNlcnZpY2VCOlo4Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vcHJvZmlsZS92MTtwcm9maWxldjFiBnByb3RvMw");
+  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEiaAoIVXNlckZvcm0SDAoEY3NyZhgBIAEoCRIKCgJpZBgCIAEoAxIQCgh1c2VybmFtZRgDIAEoCRIPCgdhZGRyZXNzGAQgASgJEg0KBWVtYWlsGAUgASgJEhAKCGdyYXZhdGFyGAYgASgJIjYKEFBhdGNoVXNlclJlcXVlc3QSIgoEYm9keRgBIAEoCzIULnByb2ZpbGUudjEuVXNlckZvcm0ibwoRUGF0Y2hVc2VyUmVzcG9uc2USJQoEdXNlchgBIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNVc2VySAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZTJaCg5Qcm9maWxlU2VydmljZRJICglQYXRjaFVzZXISHC5wcm9maWxlLnYxLlBhdGNoVXNlclJlcXVlc3QaHS5wcm9maWxlLnYxLlBhdGNoVXNlclJlc3BvbnNlQjpaOGdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL3Byb2ZpbGUvdjE7cHJvZmlsZXYxYgZwcm90bzM", [file_google_protobuf_empty, file_common_v1_user]);
+
+/**
+ * Describes the message profile.v1.UserForm.
+ * Use `create(UserFormSchema)` to create a new message.
+ */
+export const UserFormSchema = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 0);
+
+/**
+ * Describes the message profile.v1.PatchUserRequest.
+ * Use `create(PatchUserRequestSchema)` to create a new message.
+ */
+export const PatchUserRequestSchema = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 1);
+
+/**
+ * Describes the message profile.v1.PatchUserResponse.
+ * Use `create(PatchUserResponseSchema)` to create a new message.
+ */
+export const PatchUserResponseSchema = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 2);
 
 /**
  * @generated from service profile.v1.ProfileService

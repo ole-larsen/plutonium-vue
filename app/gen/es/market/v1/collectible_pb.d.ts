@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicUser } from "./user_pb";
+import type { PublicUser } from "../../common/v1/user_pb";
 
 /**
  * Describes the file market/v1/collectible.proto.
@@ -52,12 +52,12 @@ export declare type MarketplaceCollectibleAttributes = Message<"market.v1.Market
   uri: string;
 
   /**
-   * @generated from field: market.v1.PublicUser creator = 4;
+   * @generated from field: common.v1.PublicUser creator = 4;
    */
   creator?: PublicUser;
 
   /**
-   * @generated from field: market.v1.PublicUser owner = 5;
+   * @generated from field: common.v1.PublicUser owner = 5;
    */
   owner?: PublicUser;
 

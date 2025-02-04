@@ -1,18 +1,24 @@
 <script lang="ts" setup>
-import { computed, toRefs } from "vue";
-
+import { computed, onMounted, ref, Ref, toRefs } from "vue";
+import { useCookies } from "vue3-cookies";
 import { useProfileStore } from "@/stores/template/profile";
 
 const store = useProfileStore();
 
 const showUsername = computed(() => store.showUsername);
 const showEmail = computed(() => store.showEmail);
-
+const { cookies } = useCookies();
 const props = defineProps(["user"]);
 const { user } = toRefs(props);
 
-function editUsername() {
-  store.handleShowUsername();
+const csrf: Ref<string> = ref("");
+
+onMounted(() => {
+  csrf.value = cookies.get("_csrf");
+});
+
+function showEditUsername() {
+  store.toggleUsername();
 }
 
 function editEmail() {
@@ -20,15 +26,16 @@ function editEmail() {
 }
 
 function updateUsername() {
+  
   if (user?.value) {
-    store.update(user.value);
-    store.handleShowUsername();
+    store.update(user.value, csrf.value);
+    store.toggleUsername();
   }
 }
 
 function updateEmail() {
   if (user?.value) {
-    store.update(user.value);
+    store.update(user.value, csrf?.value);
     store.handleShowEmail();
   }
 }
@@ -37,7 +44,7 @@ function updateEmail() {
 <template>
   <div class="infor-profile">
     <div class="infor-profile-username">
-      <h1 class="title" @click="editUsername">{{ user.attributes.username }}</h1>
+      <h1 class="title" @click="showEditUsername">{{ user.attributes.username }}</h1>
       <input
         v-show="showUsername"
         autocomplete="true"

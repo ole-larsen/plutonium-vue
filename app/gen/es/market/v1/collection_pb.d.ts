@@ -4,8 +4,8 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicFile } from "./file_pb";
-import type { PublicUser } from "./user_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import type { PublicUser } from "../../common/v1/user_pb";
 import type { MarketplaceCollectible } from "./collectible_pb";
 
 /**
@@ -94,27 +94,27 @@ export declare type MarketplaceCollectionAttributes = Message<"market.v1.Marketp
   isLocked: boolean;
 
   /**
-   * @generated from field: market.v1.PublicFile logo = 12;
+   * @generated from field: common.v1.PublicFile logo = 12;
    */
   logo?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicFile banner = 13;
+   * @generated from field: common.v1.PublicFile banner = 13;
    */
   banner?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicFile featured = 14;
+   * @generated from field: common.v1.PublicFile featured = 14;
    */
   featured?: PublicFile;
 
   /**
-   * @generated from field: market.v1.PublicUser creator = 15;
+   * @generated from field: common.v1.PublicUser creator = 15;
    */
   creator?: PublicUser;
 
   /**
-   * @generated from field: market.v1.PublicUser owner = 16;
+   * @generated from field: common.v1.PublicUser owner = 16;
    */
   owner?: PublicUser;
 

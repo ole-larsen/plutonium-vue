@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
-import type { PublicFile } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 
 /**
@@ -63,7 +63,7 @@ export declare type PublicContactAttributes = Message<"frontend.v1.PublicContact
   csrf: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 6;
+   * @generated from field: common.v1.PublicFile image = 6;
    */
   image?: PublicFile;
 };

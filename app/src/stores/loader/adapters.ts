@@ -2,16 +2,15 @@ import type { PublicCategory } from "@/gen/market/v1/category_pb";
 import type { PublicContact } from "@/gen/frontend/v1/contact_pb";
 import type { PublicCreateAndSellItem } from "@/gen/frontend/v1/create_and_sell_pb";
 import type { PublicFaqItem } from "@/gen/frontend/v1/faq_pb";
-import type { PublicFile as FrontendPublicFile } from "@/gen/frontend/v1/file_pb";
 import type { PublicHelpCenterItem } from "@/gen/frontend/v1/help_center_pb";
 import type { PublicMenu } from "@/gen/frontend/v1/menu_pb";
 import type { PublicPage } from "@/gen/frontend/v1/page_pb";
 import type { PublicSlider, PublicSliderItem } from "@/gen/frontend/v1/slider_pb";
 import type { PublicWalletConnectItem } from "@/gen/frontend/v1/wallet_connect_pb";
 import type { PublicContracts } from "@/gen/market/v1/contract_pb";
-import type { PublicFile as MarketPublicFile } from "@/gen/market/v1/file_pb";
+import type { PublicFile } from "@/gen/common/v1/file_pb";
 import type { Nonce } from "@/gen/market/v1/nonce_pb";
-import type { PublicUser } from "@/gen/market/v1/user_pb";
+import type { PublicUser } from "@/gen/common/v1/user_pb";
 import type { Oauth2Token } from "@/gen/market/v1/verify_pb";
 import type { NonceDto, Oauth2TokenDto, PublicCategoryDto, PublicContactDto, PublicContractsDto, PublicCreateAndSellItemDto, PublicFaqItemDto, PublicFileDto, PublicHelpCenterItemDto, PublicMenuDto, PublicPageDto, PublicSliderDto, PublicUserDto, PublicWalletConnectItemDto } from "@/types";
 import { link } from "@/helpers";
@@ -27,7 +26,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
       },
     };
   }
-  export function adapterPublicFile(file: FrontendPublicFile | MarketPublicFile): PublicFileDto | null{
+  export function adapterPublicFile(file: PublicFile): PublicFileDto | null{
     if (file && file.attributes) {
       return {
         id: Number(file.id),
@@ -59,12 +58,12 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
               attributes: {
                 description: sliderItem.description,
                 heading: sliderItem.heading,
-                bg: adapterPublicFile(sliderItem.bg as FrontendPublicFile),
+                bg: adapterPublicFile(sliderItem.bg as PublicFile),
                 btnLink1: sliderItem.btnLink1,
                 btnLink2: sliderItem.btnLink2,
                 btnText1: sliderItem.btnText1,
                 btnText2: sliderItem.btnText2,
-                image: adapterPublicFile(sliderItem.image as FrontendPublicFile),
+                image: adapterPublicFile(sliderItem.image as PublicFile),
               }
             }
           }),
@@ -84,7 +83,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
             slug: '/category/' + category.attributes.slug,
             content: category.attributes.content,
             description: category.attributes.description,
-            image: adapterPublicFile(category.attributes.image as MarketPublicFile),
+            image: adapterPublicFile(category.attributes.image as PublicFile),
             // collections: (category.attributes.collections).filter(collection => collection).map(
             //   (collection: MarketplaceCollection) => {
             //     if (collection.attributes) {
@@ -132,7 +131,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
             title: item.attributes.title,
             link: item.attributes.link,
             description: item.attributes.description,
-            image: adapterPublicFile(item.attributes.image as FrontendPublicFile),
+            image: adapterPublicFile(item.attributes.image as PublicFile),
           },
         });
       }
@@ -150,7 +149,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
             title: item.attributes.title,
             link: item.attributes.link,
             description: item.attributes.description,
-            image: adapterPublicFile(item.attributes.image as FrontendPublicFile),
+            image: adapterPublicFile(item.attributes.image as PublicFile),
           },
         });
       }
@@ -168,7 +167,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
             title: item.attributes.title,
             link: item.attributes.link,
             description: item.attributes.description,
-            image: adapterPublicFile(item.attributes.image as FrontendPublicFile),
+            image: adapterPublicFile(item.attributes.image as PublicFile),
           },
         });
       }
@@ -200,7 +199,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
           link: item.attributes.link,
           text: item.attributes.text,
           csrf: item.attributes.csrf,
-          image: adapterPublicFile(item.attributes.image as FrontendPublicFile),
+          image: adapterPublicFile(item.attributes.image as PublicFile),
         },
       }
     }
@@ -215,7 +214,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
           category: item.attributes.category,
           link: item.attributes.link,
           content: item.attributes.content,
-          image: adapterPublicFile(item.attributes.image as FrontendPublicFile),
+          image: adapterPublicFile(item.attributes.image as PublicFile),
         },
       }
     }
@@ -246,7 +245,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
       uuid: item.uuid,
     };
   }
-  export function adapterPublicVerify(item: PublicUser): PublicUserDto | null {
+  export function adapterPublicUser(item: PublicUser): PublicUserDto | null {
     if (item.attributes) {
       return {
         id: Number(item.id),
@@ -256,7 +255,7 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
           username: item.attributes.username,
           uuid: item.attributes.uuid,
           gravatar: item.attributes.gravatar,
-          wallpaper: adapterPublicFile(item.attributes.wallpaper as MarketPublicFile)
+          wallpaper: adapterPublicFile(item.attributes.wallpaper as  PublicFile)
         }
       };
     }

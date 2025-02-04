@@ -2,19 +2,120 @@
 // @generated from file profile/v1/profile.proto (package profile.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv1";
-import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv1";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import type { Empty } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { PublicUser } from "../../common/v1/user_pb";
+import { file_common_v1_user } from "../../common/v1/user_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file profile/v1/profile.proto.
  */
 export const file_profile_v1_profile: GenFile = /*@__PURE__*/
-  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEyEAoOUHJvZmlsZVNlcnZpY2VCOlo4Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vcHJvZmlsZS92MTtwcm9maWxldjFiBnByb3RvMw");
+  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEiaAoIVXNlckZvcm0SDAoEY3NyZhgBIAEoCRIKCgJpZBgCIAEoAxIQCgh1c2VybmFtZRgDIAEoCRIPCgdhZGRyZXNzGAQgASgJEg0KBWVtYWlsGAUgASgJEhAKCGdyYXZhdGFyGAYgASgJIjYKEFBhdGNoVXNlclJlcXVlc3QSIgoEYm9keRgBIAEoCzIULnByb2ZpbGUudjEuVXNlckZvcm0ibwoRUGF0Y2hVc2VyUmVzcG9uc2USJQoEdXNlchgBIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNVc2VySAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZTJaCg5Qcm9maWxlU2VydmljZRJICglQYXRjaFVzZXISHC5wcm9maWxlLnYxLlBhdGNoVXNlclJlcXVlc3QaHS5wcm9maWxlLnYxLlBhdGNoVXNlclJlc3BvbnNlQjpaOGdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL3Byb2ZpbGUvdjE7cHJvZmlsZXYxYgZwcm90bzM", [file_google_protobuf_empty, file_common_v1_user]);
+
+/**
+ * @generated from message profile.v1.UserForm
+ */
+export type UserForm = Message<"profile.v1.UserForm"> & {
+  /**
+   * @generated from field: string csrf = 1;
+   */
+  csrf: string;
+
+  /**
+   * @generated from field: int64 id = 2;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string username = 3;
+   */
+  username: string;
+
+  /**
+   * @generated from field: string address = 4;
+   */
+  address: string;
+
+  /**
+   * @generated from field: string email = 5;
+   */
+  email: string;
+
+  /**
+   * @generated from field: string gravatar = 6;
+   */
+  gravatar: string;
+};
+
+/**
+ * Describes the message profile.v1.UserForm.
+ * Use `create(UserFormSchema)` to create a new message.
+ */
+export const UserFormSchema: GenMessage<UserForm> = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 0);
+
+/**
+ * @generated from message profile.v1.PatchUserRequest
+ */
+export type PatchUserRequest = Message<"profile.v1.PatchUserRequest"> & {
+  /**
+   * @generated from field: profile.v1.UserForm body = 1;
+   */
+  body?: UserForm;
+};
+
+/**
+ * Describes the message profile.v1.PatchUserRequest.
+ * Use `create(PatchUserRequestSchema)` to create a new message.
+ */
+export const PatchUserRequestSchema: GenMessage<PatchUserRequest> = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 1);
+
+/**
+ * @generated from message profile.v1.PatchUserResponse
+ */
+export type PatchUserResponse = Message<"profile.v1.PatchUserResponse"> & {
+  /**
+   * @generated from oneof profile.v1.PatchUserResponse.response
+   */
+  response: {
+    /**
+     * @generated from field: common.v1.PublicUser user = 1;
+     */
+    value: PublicUser;
+    case: "user";
+  } | {
+    /**
+     * @generated from field: google.protobuf.Empty error = 2;
+     */
+    value: Empty;
+    case: "error";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message profile.v1.PatchUserResponse.
+ * Use `create(PatchUserResponseSchema)` to create a new message.
+ */
+export const PatchUserResponseSchema: GenMessage<PatchUserResponse> = /*@__PURE__*/
+  messageDesc(file_profile_v1_profile, 2);
 
 /**
  * @generated from service profile.v1.ProfileService
  */
 export const ProfileService: GenService<{
+  /**
+   * @generated from rpc profile.v1.ProfileService.PatchUser
+   */
+  patchUser: {
+    methodKind: "unary";
+    input: typeof PatchUserRequestSchema;
+    output: typeof PatchUserResponseSchema;
+  },
 }> = /*@__PURE__*/
   serviceDesc(file_profile_v1_profile, 0);
 

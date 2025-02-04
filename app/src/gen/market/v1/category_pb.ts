@@ -8,15 +8,15 @@ import type { Empty } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import type { MarketplaceCollection } from "./collection_pb";
 import { file_market_v1_collection } from "./collection_pb";
-import type { PublicFile } from "./file_pb";
-import { file_market_v1_file } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file market/v1/category.proto.
  */
 export const file_market_v1_category: GenFile = /*@__PURE__*/
-  fileDesc("ChhtYXJrZXQvdjEvY2F0ZWdvcnkucHJvdG8SCW1hcmtldC52MSJVCg5QdWJsaWNDYXRlZ29yeRIKCgJpZBgBIAEoAxI3CgphdHRyaWJ1dGVzGAIgASgLMiMubWFya2V0LnYxLlB1YmxpY0NhdGVnb3J5QXR0cmlidXRlcyK6AQoYUHVibGljQ2F0ZWdvcnlBdHRyaWJ1dGVzEg0KBXRpdGxlGAEgASgJEgwKBHNsdWcYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSDwoHY29udGVudBgEIAEoCRIkCgVpbWFnZRgFIAEoCzIVLm1hcmtldC52MS5QdWJsaWNGaWxlEjUKC2NvbGxlY3Rpb25zGAYgAygLMiAubWFya2V0LnYxLk1hcmtldHBsYWNlQ29sbGVjdGlvbiIlChFDYXRlZ29yaWVzUmVxdWVzdBIQCghwcm92aWRlchgBIAEoCSJCChFTdWNjZXNzQ2F0ZWdvcmllcxItCgpjYXRlZ29yaWVzGAEgAygLMhkubWFya2V0LnYxLlB1YmxpY0NhdGVnb3J5IncKEkNhdGVnb3JpZXNSZXNwb25zZRIsCgRkYXRhGAEgASgLMhwubWFya2V0LnYxLlN1Y2Nlc3NDYXRlZ29yaWVzSAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZUI4WjZnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9tYXJrZXQvdjE7bWFya2V0djFiBnByb3RvMw", [file_google_protobuf_empty, file_market_v1_collection, file_market_v1_file]);
+  fileDesc("ChhtYXJrZXQvdjEvY2F0ZWdvcnkucHJvdG8SCW1hcmtldC52MSJVCg5QdWJsaWNDYXRlZ29yeRIKCgJpZBgBIAEoAxI3CgphdHRyaWJ1dGVzGAIgASgLMiMubWFya2V0LnYxLlB1YmxpY0NhdGVnb3J5QXR0cmlidXRlcyK6AQoYUHVibGljQ2F0ZWdvcnlBdHRyaWJ1dGVzEg0KBXRpdGxlGAEgASgJEgwKBHNsdWcYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSDwoHY29udGVudBgEIAEoCRIkCgVpbWFnZRgFIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNGaWxlEjUKC2NvbGxlY3Rpb25zGAYgAygLMiAubWFya2V0LnYxLk1hcmtldHBsYWNlQ29sbGVjdGlvbiIlChFDYXRlZ29yaWVzUmVxdWVzdBIQCghwcm92aWRlchgBIAEoCSJCChFTdWNjZXNzQ2F0ZWdvcmllcxItCgpjYXRlZ29yaWVzGAEgAygLMhkubWFya2V0LnYxLlB1YmxpY0NhdGVnb3J5IncKEkNhdGVnb3JpZXNSZXNwb25zZRIsCgRkYXRhGAEgASgLMhwubWFya2V0LnYxLlN1Y2Nlc3NDYXRlZ29yaWVzSAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZUI4WjZnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9tYXJrZXQvdjE7bWFya2V0djFiBnByb3RvMw", [file_google_protobuf_empty, file_market_v1_collection, file_common_v1_file]);
 
 /**
  * @generated from message market.v1.PublicCategory
@@ -65,7 +65,7 @@ export type PublicCategoryAttributes = Message<"market.v1.PublicCategoryAttribut
   content: string;
 
   /**
-   * @generated from field: market.v1.PublicFile image = 5;
+   * @generated from field: common.v1.PublicFile image = 5;
    */
   image?: PublicFile;
 

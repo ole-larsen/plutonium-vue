@@ -98,7 +98,7 @@ export const useProfileStore = defineStore("profile", () => {
     isActiveERC721Modal.value = !isActiveERC721Modal.value;
   }
 
-  function handleShowUsername() {
+  function toggleUsername() {
     showUsername.value = !showUsername.value;
   }
 
@@ -106,8 +106,8 @@ export const useProfileStore = defineStore("profile", () => {
     showEmail.value = !showEmail.value;
   }
 
-  function update(user: PublicUserDto) {
-    return auth.update(user);
+  function update(user: PublicUserDto, csrf: string) {
+    return loader.patchUser(user, csrf);
   }
 
   function handleFileUpload(newFile: File, user: PublicUserDto, provider: string) {
@@ -148,7 +148,7 @@ export const useProfileStore = defineStore("profile", () => {
   function upload(file: any, user: PublicUserDto) {
     return loader
       .upload(file, user)
-      .then((file) => {
+      .then((file: any) => {
         if (file.attributes.provider === `avatar:${user.attributes.uuid}`) {
           showEditAvatarOptions.value = false;
           auth.updateUserAvatar(
@@ -196,7 +196,7 @@ export const useProfileStore = defineStore("profile", () => {
     toggleAvatarModal,
     handleCollectionModal,
     handleERC721Modal,
-    handleShowUsername,
+    toggleUsername,
     handleShowEmail,
     update,
     handleFileUpload,

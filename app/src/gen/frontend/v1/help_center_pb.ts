@@ -6,15 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
-import type { PublicFile } from "./file_pb";
-import { file_frontend_v1_file } from "./file_pb";
+import type { PublicFile } from "../../common/v1/file_pb";
+import { file_common_v1_file } from "../../common/v1/file_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file frontend/v1/help_center.proto.
  */
 export const file_frontend_v1_help_center: GenFile = /*@__PURE__*/
-  fileDesc("Ch1mcm9udGVuZC92MS9oZWxwX2NlbnRlci5wcm90bxILZnJvbnRlbmQudjEiYwoUUHVibGljSGVscENlbnRlckl0ZW0SCgoCaWQYASABKAMSPwoKYXR0cmlidXRlcxgCIAEoCzIrLmZyb250ZW5kLnYxLlB1YmxpY0hlbHBDZW50ZXJJdGVtQXR0cmlidXRlcyJ6Ch5QdWJsaWNIZWxwQ2VudGVySXRlbUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDAoEbGluaxgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRImCgVpbWFnZRgEIAEoCzIXLmZyb250ZW5kLnYxLlB1YmxpY0ZpbGUiJQoRSGVscENlbnRlclJlcXVlc3QSEAoIcHJvdmlkZXIYASABKAkiSwoRU3VjY2Vzc0hlbHBDZW50ZXISNgoLaGVscF9jZW50ZXIYASADKAsyIS5mcm9udGVuZC52MS5QdWJsaWNIZWxwQ2VudGVySXRlbSJ5ChJIZWxwQ2VudGVyUmVzcG9uc2USLgoEZGF0YRgBIAEoCzIeLmZyb250ZW5kLnYxLlN1Y2Nlc3NIZWxwQ2VudGVySAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZUI8WjpnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9mcm9udGVuZC92MTtmcm9udGVuZHYxYgZwcm90bzM", [file_google_protobuf_empty, file_frontend_v1_file]);
+  fileDesc("Ch1mcm9udGVuZC92MS9oZWxwX2NlbnRlci5wcm90bxILZnJvbnRlbmQudjEiYwoUUHVibGljSGVscENlbnRlckl0ZW0SCgoCaWQYASABKAMSPwoKYXR0cmlidXRlcxgCIAEoCzIrLmZyb250ZW5kLnYxLlB1YmxpY0hlbHBDZW50ZXJJdGVtQXR0cmlidXRlcyJ4Ch5QdWJsaWNIZWxwQ2VudGVySXRlbUF0dHJpYnV0ZXMSDQoFdGl0bGUYASABKAkSDAoEbGluaxgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIkCgVpbWFnZRgEIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNGaWxlIiUKEUhlbHBDZW50ZXJSZXF1ZXN0EhAKCHByb3ZpZGVyGAEgASgJIksKEVN1Y2Nlc3NIZWxwQ2VudGVyEjYKC2hlbHBfY2VudGVyGAEgAygLMiEuZnJvbnRlbmQudjEuUHVibGljSGVscENlbnRlckl0ZW0ieQoSSGVscENlbnRlclJlc3BvbnNlEi4KBGRhdGEYASABKAsyHi5mcm9udGVuZC52MS5TdWNjZXNzSGVscENlbnRlckgAEicKBWVycm9yGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SABCCgoIcmVzcG9uc2VCPFo6Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vZnJvbnRlbmQvdjE7ZnJvbnRlbmR2MWIGcHJvdG8z", [file_google_protobuf_empty, file_common_v1_file]);
 
 /**
  * @generated from message frontend.v1.PublicHelpCenterItem
@@ -58,7 +58,7 @@ export type PublicHelpCenterItemAttributes = Message<"frontend.v1.PublicHelpCent
   description: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFile image = 4;
+   * @generated from field: common.v1.PublicFile image = 4;
    */
   image?: PublicFile;
 };

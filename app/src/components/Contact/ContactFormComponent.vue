@@ -4,7 +4,7 @@ import { useCookies } from "vue3-cookies";
 
 const emit = defineEmits(["submit"]);
 
-const props = defineProps(["csrf", "heading", "subHeading"]);
+const props = defineProps(["heading", "subHeading"]);
 
 const NAME_REQUIRED = "name is required",
   EMAIL_REQUIRED = "email is required",

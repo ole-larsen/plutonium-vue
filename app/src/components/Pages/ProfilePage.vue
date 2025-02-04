@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+
 import { useRoute } from "vue-router";
 import { BigNumber, ethers } from "ethers";
 import type {
@@ -36,7 +37,6 @@ const web3 = useWeb3Store();
 
 const user: ComputedRef<PublicUserDto> = computed(() => useAuthStore().getUser());
 const balance: Ref<BigNumber> = ref(BigNumber.from("0"));
-
 onMounted(async() => {
   balance.value = await metamask.getBalance();
 });
@@ -158,7 +158,7 @@ const uuid = route.params.uuid; // read parameter id (it is reactive)
         <wallpaper/>
         <div class="themesflat-container">
           <div class="row">
-            <personal :user="user" />
+            <personal :user="user"/>
           </div>
           <br />
           <br />

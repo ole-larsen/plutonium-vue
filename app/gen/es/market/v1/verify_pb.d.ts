@@ -5,7 +5,7 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
 import type { Empty, Timestamp } from "@bufbuild/protobuf/wkt";
-import type { PublicUser } from "./user_pb";
+import type { PublicUser } from "../../common/v1/user_pb";
 
 /**
  * Describes the file market/v1/verify.proto.
@@ -63,7 +63,7 @@ export declare const Oauth2TokenSchema: GenMessage<Oauth2Token>;
  */
 export declare type VerifiedAccess = Message<"market.v1.VerifiedAccess"> & {
   /**
-   * @generated from field: market.v1.PublicUser user = 1;
+   * @generated from field: common.v1.PublicUser user = 1;
    */
   user?: PublicUser;
 
