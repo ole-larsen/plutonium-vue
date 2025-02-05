@@ -5,7 +5,7 @@ import { BigNumber, ethers } from "ethers";
 import type {
   PublicCategoryDto,
   CollectionDTO,
-  MarketplaceCollectionDto,
+  MarketplaceCollectionDto as PublicCollectionDto,
   PublicUserDto,
   CollectibleDTO,
   PublicFileDto
@@ -41,15 +41,14 @@ onMounted(async() => {
   balance.value = await metamask.getBalance();
 });
 
-// const categories: ComputedRef<PublicCategoryDto[]> = computed(() =>
-//   market.getCategories()
-// );
-const categories: PublicCategoryDto[] = [];
+const categories: ComputedRef<PublicCategoryDto[]> = computed(() =>
+  market.getCategories()
+);
 
 // const collections: ComputedRef<MarketplaceCollectionDto[]> = computed(() =>
 //   market.getCollections()
 // );
-const collections: MarketplaceCollectionDto[] = [];
+const collections: PublicCollectionDto[] = [];
 const collection: Ref<CollectionDTO> = ref(newCollection());
 
 function newCollection(): CollectionDTO {
@@ -83,50 +82,50 @@ function reloadCollection() {
   collection.value = newCollection();
 }
 
-function editCollection(_collection: MarketplaceCollectionDto) {
+function editCollection(publicCollection: PublicCollectionDto) {
   collection.value = {
-    id: _collection.id,
-    name: _collection.attributes.name,
-    symbol: _collection.attributes.symbol,
-    description: _collection.attributes.description,
-    price: _collection.attributes.price,
-    slug: _collection.attributes.slug,
-    url: _collection.attributes.url,
-    fee: ethers.utils.formatEther(_collection.attributes.fee),
-    owner: _collection.attributes?.owner?.attributes.address as string,
-    categoryId: _collection.attributes.categoryId,
-    // categories: categories.value.map((_category: PublicCategoryDto) => {
-    //   return {
-    //     id: _category.id,
-    //     label: _category.attributes.title,
-    //   };
-    // }),
+    id: publicCollection.id,
+    name: publicCollection.attributes.name,
+    symbol: publicCollection.attributes.symbol,
+    description: publicCollection.attributes.description,
+    price: publicCollection.attributes.price,
+    slug: publicCollection.attributes.slug,
+    url: publicCollection.attributes.url,
+    fee: ethers.utils.formatEther(publicCollection.attributes.fee),
+    owner: publicCollection.attributes?.owner?.attributes.address as string,
+    categoryId: publicCollection.attributes.categoryId,
+    categories: categories.value.map((publicCategory: PublicCategoryDto) => {
+      return {
+        id: publicCategory.id,
+        label: publicCategory.attributes.title,
+      };
+    }),
   };
-  if (_collection.attributes.logo) {
-    collection.value.logo = _collection.attributes.logo;
+  if (publicCollection.attributes.logo) {
+    collection.value.logo = publicCollection.attributes.logo;
   }
-  if (_collection.attributes.featured) {
-    collection.value.featured = _collection.attributes.featured;
+  if (publicCollection.attributes.featured) {
+    collection.value.featured = publicCollection.attributes.featured;
   }
-  if (_collection.attributes.banner) {
-    collection.value.banner = _collection.attributes.banner;
+  if (publicCollection.attributes.banner) {
+    collection.value.banner = publicCollection.attributes.banner;
   }
   store.handleCollectionModal();
 }
 
-// watch(
-//   () => categories.value,
-//   (_categories: PublicCategoryDto[]) => {
-//     collection.value.categories = _categories.map(
-//       (_category: PublicCategoryDto) => {
-//         return {
-//           id: _category.id,
-//           label: _category.attributes.title,
-//         };
-//       }
-//     );
-//   }
-// );
+watch(
+  () => categories.value,
+  (publicCategories: PublicCategoryDto[]) => {
+    collection.value.categories = publicCategories.map(
+      (publicCategory: PublicCategoryDto) => {
+        return {
+          id: publicCategory.id,
+          label: publicCategory.attributes.title,
+        };
+      }
+    );
+  }
+);
 
 const collectible: Ref<CollectibleDTO> = ref({
   name: "",

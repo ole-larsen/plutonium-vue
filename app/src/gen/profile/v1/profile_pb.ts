@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file profile/v1/profile.proto.
  */
 export const file_profile_v1_profile: GenFile = /*@__PURE__*/
-  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEiaAoIVXNlckZvcm0SDAoEY3NyZhgBIAEoCRIKCgJpZBgCIAEoAxIQCgh1c2VybmFtZRgDIAEoCRIPCgdhZGRyZXNzGAQgASgJEg0KBWVtYWlsGAUgASgJEhAKCGdyYXZhdGFyGAYgASgJIjYKEFBhdGNoVXNlclJlcXVlc3QSIgoEYm9keRgBIAEoCzIULnByb2ZpbGUudjEuVXNlckZvcm0ibwoRUGF0Y2hVc2VyUmVzcG9uc2USJQoEdXNlchgBIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNVc2VySAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZTJaCg5Qcm9maWxlU2VydmljZRJICglQYXRjaFVzZXISHC5wcm9maWxlLnYxLlBhdGNoVXNlclJlcXVlc3QaHS5wcm9maWxlLnYxLlBhdGNoVXNlclJlc3BvbnNlQjpaOGdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL3Byb2ZpbGUvdjE7cHJvZmlsZXYxYgZwcm90bzM", [file_google_protobuf_empty, file_common_v1_user]);
+  fileDesc("Chhwcm9maWxlL3YxL3Byb2ZpbGUucHJvdG8SCnByb2ZpbGUudjEifQoIVXNlckZvcm0SDAoEY3NyZhgBIAEoCRIKCgJpZBgCIAEoAxIQCgh1c2VybmFtZRgDIAEoCRIPCgdhZGRyZXNzGAQgASgJEg0KBWVtYWlsGAUgASgJEhAKCGdyYXZhdGFyGAYgASgJEhMKC3dhbGxwYXBlcklkGAcgASgDIjYKEFBhdGNoVXNlclJlcXVlc3QSIgoEYm9keRgBIAEoCzIULnByb2ZpbGUudjEuVXNlckZvcm0ibwoRUGF0Y2hVc2VyUmVzcG9uc2USJQoEdXNlchgBIAEoCzIVLmNvbW1vbi52MS5QdWJsaWNVc2VySAASJwoFZXJyb3IYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIKCghyZXNwb25zZTJaCg5Qcm9maWxlU2VydmljZRJICglQYXRjaFVzZXISHC5wcm9maWxlLnYxLlBhdGNoVXNlclJlcXVlc3QaHS5wcm9maWxlLnYxLlBhdGNoVXNlclJlc3BvbnNlQjpaOGdpdGh1Yi5jb20vb2xlLWxhcnNlbi9wbHV0b25pdW0vZ2VuL3Byb2ZpbGUvdjE7cHJvZmlsZXYxYgZwcm90bzM", [file_google_protobuf_empty, file_common_v1_user]);
 
 /**
  * @generated from message profile.v1.UserForm
@@ -49,6 +49,11 @@ export type UserForm = Message<"profile.v1.UserForm"> & {
    * @generated from field: string gravatar = 6;
    */
   gravatar: string;
+
+  /**
+   * @generated from field: int64 wallpaperId = 7;
+   */
+  wallpaperId: bigint;
 };
 
 /**

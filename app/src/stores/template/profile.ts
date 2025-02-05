@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Ref } from "vue";
 import { ref } from "vue";
-import type { PublicFileDto, PublicUserDto } from "@/types";
+import type { FileForm, PublicFileDto, PublicUserDto } from "@/types";
 import { useAuthStore } from "@/stores/auth/store";
 import { useLoaderStore } from "@/stores/loader/store";
 
@@ -102,7 +102,7 @@ export const useProfileStore = defineStore("profile", () => {
     showUsername.value = !showUsername.value;
   }
 
-  function handleShowEmail() {
+  function toggleEmail() {
     showEmail.value = !showEmail.value;
   }
 
@@ -110,12 +110,13 @@ export const useProfileStore = defineStore("profile", () => {
     return loader.patchUser(user, csrf);
   }
 
-  function handleFileUpload(newFile: File, user: PublicUserDto, provider: string) {
+  function upload(newFile: File, provider: string, csrf: string) {
     return new Promise((resolve) => {
       const URL = window.URL || window.webkitURL;
       const blob = URL.createObjectURL(newFile);
 
-      const file = {
+      const file: FileForm = {
+        csrf: csrf,
         name: provider + ":" + newFile.name,
         alt: newFile.name,
         caption: newFile.name,
@@ -140,33 +141,13 @@ export const useProfileStore = defineStore("profile", () => {
         file.width = img.width;
         file.height = img.height;
         file.file = newFile;
-        resolve(upload(file, user));
+        resolve(loader.uploadFile(file, csrf));
       };
     });
   }
 
-  function upload(file: any, user: PublicUserDto) {
-    return loader
-      .upload(file, user)
-      .then((file: any) => {
-        if (file.attributes.provider === `avatar:${user.attributes.uuid}`) {
-          showEditAvatarOptions.value = false;
-          auth.updateUserAvatar(
-            user,
-            import.meta.env.VITE_BACKEND + file.attributes.url
-          );
-        }
-        if (file.attributes.provider === `wallpaper:${user.attributes.uuid}`) {
-          auth.updateUserWallpaper(
-            user,
-            import.meta.env.VITE_BACKEND + file.attributes.url
-          );
-        }
-        return file;
-      })
-      .catch((e) => {
-        throw e;
-      });
+  function loadAvatars() {
+    return loader.loadAvatars();
   }
 
   return {
@@ -197,8 +178,9 @@ export const useProfileStore = defineStore("profile", () => {
     handleCollectionModal,
     handleERC721Modal,
     toggleUsername,
-    handleShowEmail,
+    toggleEmail,
     update,
-    handleFileUpload,
+    upload,
+    loadAvatars
   };
 });

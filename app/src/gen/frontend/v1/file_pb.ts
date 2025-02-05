@@ -4,100 +4,106 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
+import type { Empty } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file frontend/v1/file.proto.
  */
 export const file_frontend_v1_file: GenFile = /*@__PURE__*/
-  fileDesc("ChZmcm9udGVuZC92MS9maWxlLnByb3RvEgtmcm9udGVuZC52MSJPCgpQdWJsaWNGaWxlEgoKAmlkGAEgASgDEjUKCmF0dHJpYnV0ZXMYAiABKAsyIS5mcm9udGVuZC52MS5QdWJsaWNGaWxlQXR0cmlidXRlcyK3AQoUUHVibGljRmlsZUF0dHJpYnV0ZXMSDAoEbmFtZRgBIAEoCRIQCghwcm92aWRlchgCIAEoCRILCgN1cmwYAyABKAkSCwoDYWx0GAQgASgJEg8KB2NhcHRpb24YBSABKAkSCwoDZXh0GAYgASgJEgwKBGhhc2gYByABKAkSDAoEbWltZRgIIAEoCRIMCgRzaXplGAkgASgBEg0KBXdpZHRoGAogASgDEg4KBmhlaWdodBgLIAEoA0I8WjpnaXRodWIuY29tL29sZS1sYXJzZW4vcGx1dG9uaXVtL2dlbi9mcm9udGVuZC92MTtmcm9udGVuZHYxYgZwcm90bzM");
+  fileDesc("ChZmcm9udGVuZC92MS9maWxlLnByb3RvEgtmcm9udGVuZC52MSKAAQoOVXBsb2FkRmlsZUZvcm0SDAoEY3NyZhgBIAEoCRIPCgdwYWdlX2lkGAIgASgDEhAKCHByb3ZpZGVyGAMgASgJEg8KB3N1YmplY3QYBCABKAkSDAoEbmFtZRgFIAEoCRINCgVlbWFpbBgGIAEoCRIPCgdtZXNzYWdlGAcgASgJIj4KEVVwbG9hZEZpbGVSZXF1ZXN0EikKBGJvZHkYASABKAsyGy5mcm9udGVuZC52MS5VcGxvYWRGaWxlRm9ybSJZChJVcGxvYWRGaWxlUmVzcG9uc2USDgoEZGF0YRgBIAEoCUgAEicKBWVycm9yGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SABCCgoIcmVzcG9uc2VCPFo6Z2l0aHViLmNvbS9vbGUtbGFyc2VuL3BsdXRvbml1bS9nZW4vZnJvbnRlbmQvdjE7ZnJvbnRlbmR2MWIGcHJvdG8z", [file_google_protobuf_empty]);
 
 /**
- * @generated from message frontend.v1.PublicFile
+ * @generated from message frontend.v1.UploadFileForm
  */
-export type PublicFile = Message<"frontend.v1.PublicFile"> & {
+export type UploadFileForm = Message<"frontend.v1.UploadFileForm"> & {
   /**
-   * @generated from field: int64 id = 1;
+   * @generated from field: string csrf = 1;
    */
-  id: bigint;
+  csrf: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFileAttributes attributes = 2;
+   * @generated from field: int64 page_id = 2;
    */
-  attributes?: PublicFileAttributes;
-};
-
-/**
- * Describes the message frontend.v1.PublicFile.
- * Use `create(PublicFileSchema)` to create a new message.
- */
-export const PublicFileSchema: GenMessage<PublicFile> = /*@__PURE__*/
-  messageDesc(file_frontend_v1_file, 0);
-
-/**
- * @generated from message frontend.v1.PublicFileAttributes
- */
-export type PublicFileAttributes = Message<"frontend.v1.PublicFileAttributes"> & {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name: string;
+  pageId: bigint;
 
   /**
-   * @generated from field: string provider = 2;
+   * @generated from field: string provider = 3;
    */
   provider: string;
 
   /**
-   * @generated from field: string url = 3;
+   * @generated from field: string subject = 4;
    */
-  url: string;
+  subject: string;
 
   /**
-   * @generated from field: string alt = 4;
+   * @generated from field: string name = 5;
    */
-  alt: string;
+  name: string;
 
   /**
-   * @generated from field: string caption = 5;
+   * @generated from field: string email = 6;
    */
-  caption: string;
+  email: string;
 
   /**
-   * @generated from field: string ext = 6;
+   * @generated from field: string message = 7;
    */
-  ext: string;
-
-  /**
-   * @generated from field: string hash = 7;
-   */
-  hash: string;
-
-  /**
-   * @generated from field: string mime = 8;
-   */
-  mime: string;
-
-  /**
-   * @generated from field: double size = 9;
-   */
-  size: number;
-
-  /**
-   * @generated from field: int64 width = 10;
-   */
-  width: bigint;
-
-  /**
-   * @generated from field: int64 height = 11;
-   */
-  height: bigint;
+  message: string;
 };
 
 /**
- * Describes the message frontend.v1.PublicFileAttributes.
- * Use `create(PublicFileAttributesSchema)` to create a new message.
+ * Describes the message frontend.v1.UploadFileForm.
+ * Use `create(UploadFileFormSchema)` to create a new message.
  */
-export const PublicFileAttributesSchema: GenMessage<PublicFileAttributes> = /*@__PURE__*/
+export const UploadFileFormSchema: GenMessage<UploadFileForm> = /*@__PURE__*/
+  messageDesc(file_frontend_v1_file, 0);
+
+/**
+ * @generated from message frontend.v1.UploadFileRequest
+ */
+export type UploadFileRequest = Message<"frontend.v1.UploadFileRequest"> & {
+  /**
+   * @generated from field: frontend.v1.UploadFileForm body = 1;
+   */
+  body?: UploadFileForm;
+};
+
+/**
+ * Describes the message frontend.v1.UploadFileRequest.
+ * Use `create(UploadFileRequestSchema)` to create a new message.
+ */
+export const UploadFileRequestSchema: GenMessage<UploadFileRequest> = /*@__PURE__*/
   messageDesc(file_frontend_v1_file, 1);
+
+/**
+ * @generated from message frontend.v1.UploadFileResponse
+ */
+export type UploadFileResponse = Message<"frontend.v1.UploadFileResponse"> & {
+  /**
+   * @generated from oneof frontend.v1.UploadFileResponse.response
+   */
+  response: {
+    /**
+     * @generated from field: string data = 1;
+     */
+    value: string;
+    case: "data";
+  } | {
+    /**
+     * @generated from field: google.protobuf.Empty error = 2;
+     */
+    value: Empty;
+    case: "error";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message frontend.v1.UploadFileResponse.
+ * Use `create(UploadFileResponseSchema)` to create a new message.
+ */
+export const UploadFileResponseSchema: GenMessage<UploadFileResponse> = /*@__PURE__*/
+  messageDesc(file_frontend_v1_file, 2);
 

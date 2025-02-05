@@ -90,7 +90,7 @@ function handleWalletConnect() {
                     >
                       <span>Wallet connect</span>
                     </a>
-                    <template v-if="isAuthorized && user">
+                    <template v-if="isAuthorized && user && user.attributes.uuid">
                       <router-link
                         :to="`/profile/${user.attributes.uuid}`"
                         class="sc-button header-slider style style-1 wallet fl-button pri-1"

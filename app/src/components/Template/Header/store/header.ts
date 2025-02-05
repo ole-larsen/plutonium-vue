@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import type { PublicMenuDto, PublicUserDto } from "@/types";
 import type { ComputedRef, Ref } from "vue";
 import { computed, ref } from "vue";
-import { useMetaMaskStore } from "@/stores/web3/metamask";
 import { useLoaderStore } from "@/stores/loader/store";
 import { error } from "@/helpers";
 import { useAuthStore } from "@/stores/auth/store";

@@ -45,6 +45,11 @@ export declare type UserForm = Message<"profile.v1.UserForm"> & {
    * @generated from field: string gravatar = 6;
    */
   gravatar: string;
+
+  /**
+   * @generated from field: int64 wallpaperId = 7;
+   */
+  wallpaperId: bigint;
 };
 
 /**

@@ -11,6 +11,7 @@ import "frontend/v1/faq.proto";
 import "frontend/v1/contact.proto";
 import "frontend/v1/page.proto";
 import "frontend/v1/subscribe.proto";
+import "frontend/v1/file.proto";
 
 service FrontendService {
   rpc Menu(MenuRequest) returns (MenuResponse);
@@ -21,4 +22,5 @@ service FrontendService {
   rpc Slider(SliderRequest) returns (SliderResponse);
   rpc PostSubscribe(PostSubscribeRequest) returns (PostSubscribeResponse);
   rpc PostContact(PostContactRequest) returns (PostContactResponse);
+  rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
 }

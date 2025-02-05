@@ -4,6 +4,7 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import type { Message } from "@bufbuild/protobuf";
+import type { Empty } from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file frontend/v1/file.proto.
@@ -11,89 +12,92 @@ import type { Message } from "@bufbuild/protobuf";
 export declare const file_frontend_v1_file: GenFile;
 
 /**
- * @generated from message frontend.v1.PublicFile
+ * @generated from message frontend.v1.UploadFileForm
  */
-export declare type PublicFile = Message<"frontend.v1.PublicFile"> & {
+export declare type UploadFileForm = Message<"frontend.v1.UploadFileForm"> & {
   /**
-   * @generated from field: int64 id = 1;
+   * @generated from field: string csrf = 1;
    */
-  id: bigint;
+  csrf: string;
 
   /**
-   * @generated from field: frontend.v1.PublicFileAttributes attributes = 2;
+   * @generated from field: int64 page_id = 2;
    */
-  attributes?: PublicFileAttributes;
-};
-
-/**
- * Describes the message frontend.v1.PublicFile.
- * Use `create(PublicFileSchema)` to create a new message.
- */
-export declare const PublicFileSchema: GenMessage<PublicFile>;
-
-/**
- * @generated from message frontend.v1.PublicFileAttributes
- */
-export declare type PublicFileAttributes = Message<"frontend.v1.PublicFileAttributes"> & {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name: string;
+  pageId: bigint;
 
   /**
-   * @generated from field: string provider = 2;
+   * @generated from field: string provider = 3;
    */
   provider: string;
 
   /**
-   * @generated from field: string url = 3;
+   * @generated from field: string subject = 4;
    */
-  url: string;
+  subject: string;
 
   /**
-   * @generated from field: string alt = 4;
+   * @generated from field: string name = 5;
    */
-  alt: string;
+  name: string;
 
   /**
-   * @generated from field: string caption = 5;
+   * @generated from field: string email = 6;
    */
-  caption: string;
+  email: string;
 
   /**
-   * @generated from field: string ext = 6;
+   * @generated from field: string message = 7;
    */
-  ext: string;
-
-  /**
-   * @generated from field: string hash = 7;
-   */
-  hash: string;
-
-  /**
-   * @generated from field: string mime = 8;
-   */
-  mime: string;
-
-  /**
-   * @generated from field: double size = 9;
-   */
-  size: number;
-
-  /**
-   * @generated from field: int64 width = 10;
-   */
-  width: bigint;
-
-  /**
-   * @generated from field: int64 height = 11;
-   */
-  height: bigint;
+  message: string;
 };
 
 /**
- * Describes the message frontend.v1.PublicFileAttributes.
- * Use `create(PublicFileAttributesSchema)` to create a new message.
+ * Describes the message frontend.v1.UploadFileForm.
+ * Use `create(UploadFileFormSchema)` to create a new message.
  */
-export declare const PublicFileAttributesSchema: GenMessage<PublicFileAttributes>;
+export declare const UploadFileFormSchema: GenMessage<UploadFileForm>;
+
+/**
+ * @generated from message frontend.v1.UploadFileRequest
+ */
+export declare type UploadFileRequest = Message<"frontend.v1.UploadFileRequest"> & {
+  /**
+   * @generated from field: frontend.v1.UploadFileForm body = 1;
+   */
+  body?: UploadFileForm;
+};
+
+/**
+ * Describes the message frontend.v1.UploadFileRequest.
+ * Use `create(UploadFileRequestSchema)` to create a new message.
+ */
+export declare const UploadFileRequestSchema: GenMessage<UploadFileRequest>;
+
+/**
+ * @generated from message frontend.v1.UploadFileResponse
+ */
+export declare type UploadFileResponse = Message<"frontend.v1.UploadFileResponse"> & {
+  /**
+   * @generated from oneof frontend.v1.UploadFileResponse.response
+   */
+  response: {
+    /**
+     * @generated from field: string data = 1;
+     */
+    value: string;
+    case: "data";
+  } | {
+    /**
+     * @generated from field: google.protobuf.Empty error = 2;
+     */
+    value: Empty;
+    case: "error";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message frontend.v1.UploadFileResponse.
+ * Use `create(UploadFileResponseSchema)` to create a new message.
+ */
+export declare const UploadFileResponseSchema: GenMessage<UploadFileResponse>;
 

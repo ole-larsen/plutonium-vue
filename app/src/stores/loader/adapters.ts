@@ -273,3 +273,20 @@ export function adapterPublicMenu(menu: PublicMenu): PublicMenuDto {
       tokenType: item.tokenType,
     }
   }
+
+  export function fileToUint8Array(file: File): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            if (reader.result instanceof ArrayBuffer) {
+                resolve(new Uint8Array(reader.result));
+            } else {
+                reject(new Error("Failed to convert file to Uint8Array"));
+            }
+        };
+
+        reader.onerror = () => reject(reader.error);
+        reader.readAsArrayBuffer(file);
+    });
+}

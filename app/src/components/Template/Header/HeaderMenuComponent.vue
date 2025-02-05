@@ -39,7 +39,7 @@ const { menu, isActive, isActiveMobile } = toRefs(props);
               v-bind:key="page.id"
             >
               <router-link
-                :to="page.attributes.link ? page.attributes.link : '/'"
+                :to="page.attributes.link ? '/' + page.attributes.link : '/'"
                 >{{ page.attributes.name }}</router-link
               >
             </li>

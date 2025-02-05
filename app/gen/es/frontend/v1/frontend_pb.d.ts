@@ -10,6 +10,7 @@ import type { FaqRequestSchema, FaqResponseSchema } from "./faq_pb";
 import type { HelpCenterRequestSchema, HelpCenterResponseSchema } from "./help_center_pb";
 import type { SliderRequestSchema, SliderResponseSchema } from "./slider_pb";
 import type { PostSubscribeRequestSchema, PostSubscribeResponseSchema } from "./subscribe_pb";
+import type { UploadFileRequestSchema, UploadFileResponseSchema } from "./file_pb";
 
 /**
  * Describes the file frontend/v1/frontend.proto.
@@ -83,6 +84,14 @@ export declare const FrontendService: GenService<{
     methodKind: "unary";
     input: typeof PostContactRequestSchema;
     output: typeof PostContactResponseSchema;
+  },
+  /**
+   * @generated from rpc frontend.v1.FrontendService.UploadFile
+   */
+  uploadFile: {
+    methodKind: "unary";
+    input: typeof UploadFileRequestSchema;
+    output: typeof UploadFileResponseSchema;
   },
 }>;
 

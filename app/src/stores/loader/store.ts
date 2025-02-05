@@ -1,71 +1,47 @@
 import { defineStore } from "pinia";
 import type {
   PublicContractsDto,
-  CollectionDTO,
   ContactFormData,
   PublicUserDto,
-  PublicCategoryCollectionCollectibleDto,
-  CollectibleDTO,
-  PublicContractDto,
-  PublicCategories,
-  PublicSliderDto,
-  PublicFileDto,
-  PublicCategoryDto,
-  PublicCreateAndSellItemDto,
-  PublicWalletConnectItemDto,
-  PublicHelpCenterItemDto,
-  PublicFaqItemDto,
-  PublicContactDto,
-  PublicPageDto,
   SubscribeFormDataDto,
-  NonceDto,
   Oauth2TokenDto,
+  FileForm,
 } from "@/types";
 import type { ComputedRef, Ref } from "vue";
 import { ref, inject, computed } from "vue";
 
 import { useMarketPlaceStore } from "@/stores/contracts/marketPlace";
-import { useUserStore } from "@/stores/users/users.store";
 import { useMetaMaskStore } from "@/stores/web3/metamask";
 import { useWeb3Store } from "@/stores/web3/web3";
 import { useAuthStore } from "@/stores/auth/store";
-import { useCollectionStore } from "@/stores/contracts/collection";
-import { useAuctionStore } from "@/stores/contracts/auction";
-import { useSliderStore } from "../../components/Slider/store/slider";
-import { useCreateAndSellStore } from "../components/createAndSell";
-import { useHelpCenterStore } from "../../components/Pages/store/helpCenter";
-import { useFaqStore } from "../../components/Pages/store/faq";
-import { useContactStore } from "../../components/Pages/store/contact";
-import { error, link } from "@/helpers";
+import { error } from "@/helpers";
 
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import { FrontendService } from "@/gen/frontend/v1/frontend_pb";
 import { MarketService } from "@/gen/market/v1/market_pb";
-import type { Success as MarketSuccess, PublicContract, PublicContracts } from "@/gen/market/v1/contract_pb";
-import type { PublicMenuDto } from "@/types";
-import type { PublicSlider, PublicSliderItem } from "@/gen/frontend/v1/slider_pb";
+import type { Success as MarketSuccess, PublicContracts } from "@/gen/market/v1/contract_pb";
+import type { PublicSlider } from "@/gen/frontend/v1/slider_pb";
 import type { PublicMenu } from "@/gen/frontend/v1/menu_pb";
-import type { PublicFile } from "@/gen/frontend/v1/file_pb";
-import type { PublicCategory } from "@/gen/frontend/v1/category_pb";
-import type { MarketplaceCollection } from "@/gen/frontend/v1/collection_pb";
-import type { PublicCreateAndSellItem } from "@/gen/frontend/v1/create_and_sell_pb";
-import type { PublicWalletConnectItem } from "@/gen/frontend/v1/wallet_connect_pb";
-import type { PublicHelpCenterItem, SuccessHelpCenter } from "@/gen/frontend/v1/help_center_pb";
-import type { PublicFaqItem, SuccessFaq } from "@/gen/frontend/v1/faq_pb";
+import type { SuccessHelpCenter } from "@/gen/frontend/v1/help_center_pb";
+import type { SuccessFaq } from "@/gen/frontend/v1/faq_pb";
 import type { PublicContact } from "@/gen/frontend/v1/contact_pb";
 import type { PublicPage } from "@/gen/frontend/v1/page_pb";
 import type { Nonce } from "@/gen/market/v1/nonce_pb";
 import type { PublicUser } from "@/gen/common/v1/user_pb";
-import { adapterCreateAndSellItems, adapterFaqItems, adapterHelpCenterItems, adapterOauth2Token, adapterPublicCategories, adapterPublicContact, adapterPublicContracts, adapterPublicMenu, adapterPublicNonce, adapterPublicPage, adapterPublicSlider, adapterPublicUser, adapterWalletConnectItems } from "./adapters";
+import { adapterFaqItems, adapterHelpCenterItems, adapterOauth2Token, adapterPublicCategories, adapterPublicContact, adapterPublicContracts, adapterPublicMenu, adapterPublicNonce, adapterPublicPage, adapterPublicSlider, adapterPublicUser, fileToUint8Array } from "./adapters";
 import type { Oauth2Token } from "@/gen/market/v1/verify_pb";
 import { ProfileService } from "@/gen/profile/v1/profile_pb";
+import { CdnService } from "@/gen/cdn/v1/cdn_pb";
+import type { PublicFile } from "@/gen/common/v1/file_pb";
+
 export const useLoaderStore = defineStore("loader", () => {
   const axios: any = inject("axios"),
         transport = createConnectTransport({
           baseUrl: import.meta.env.VITE_GRPC_URL,
         }),
         marketClient = createClient(MarketService, transport),
+        cdnClient = createClient(CdnService, transport),
         market = useMarketPlaceStore(),
         auth = useAuthStore();
   
@@ -275,7 +251,8 @@ export const useLoaderStore = defineStore("loader", () => {
         username: user.attributes.username,
         address: user.attributes.address,
         email: user.attributes.email, 
-        gravatar: user.attributes.gravatar
+        gravatar: user.attributes.gravatar,
+        wallpaperId: user.attributes.wallpaper ? BigInt(user.attributes.wallpaper?.id) : undefined,
       }  
     });
 
@@ -288,6 +265,30 @@ export const useLoaderStore = defineStore("loader", () => {
     }
   }
 
+  async function uploadFile(file: FileForm, csrf: string): Promise<PublicFile> {
+    const data = await cdnClient.uploadFile({
+      body: {
+        csrf: csrf,
+        metadata: {
+          alt: file.alt,
+          caption: file.caption,
+          ext: file.ext,
+          height: file.height,
+          name: file.name,
+          provider: file.provider,
+          size: file.size,
+          type: file.type,
+          width: file.width,
+        },
+        file: await fileToUint8Array(file.file),
+      },
+    })
+    return data.response.value as PublicFile;
+  }
+
+  async function loadAvatars() {
+    console.log("Loading avatars");
+  }
   return {
     loading,
     loadContracts,
@@ -302,6 +303,8 @@ export const useLoaderStore = defineStore("loader", () => {
     handleWalletConnect,
     loadCategories,
     patchUser,
+    uploadFile,
+    loadAvatars
     // loadBlog,
     // loadBlogs,
     // upload,

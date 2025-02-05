@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { Ref } from "vue";
 
-import { computed, ref, toRefs } from "vue";
+import { computed, onMounted, ref, toRefs } from "vue";
 
+import { useCookies } from "vue3-cookies";
 import useDetectOutsideClick from "@/helpers/outside-click";
 
 import { useProfileStore } from "@/stores/template/profile";
@@ -12,14 +13,14 @@ import { useAuthStore } from "@/stores/auth/store";
 import { error } from "@/helpers";
 
 import AvatarModal from "@/components/Profile/AvatarModalComponent.vue";
+import { PublicFileDto, PublicUserDto } from "@/types";
 
 const props = defineProps(["user"]);
 
 const { user } = toRefs(props);
 
 const store = useProfileStore();
-const auth = useAuthStore();
-
+const { cookies } = useCookies();
 const show = computed(() => store.showEditAvatarBtn);
 const toggleOptions = computed(() => store.showEditAvatarOptions);
 const isActiveModal = computed(() => store.isActiveModal);
@@ -29,14 +30,29 @@ const avatar: Ref<any> = ref(null);
 const uploadNav: Ref<any> = ref(null);
 const avatars = ref([]);
 
+const csrf: Ref<string> = ref("");
+
+onMounted(() => {
+  csrf.value = cookies.get("_csrf");
+});
+
 useDetectOutsideClick(uploadNav, () => {
   store.handleOutsideAvatarOptions();
 });
 
-const startUpload = () => {
+const startUpload = async () => {
   if (user?.value) {
     const provider = `avatar:${user.value.attributes.uuid}`;
-    store.handleFileUpload(avatar.value.files[0], user.value, provider);
+    const img = await store.upload(avatar.value.files[0], provider, csrf.value);
+    if (img) {
+      const userForUpdate: PublicUserDto = {
+      id: user.value.id,
+      attributes: {
+        gravatar: (img as PublicFileDto).attributes.url,
+      },
+    };
+    await store.update(userForUpdate, csrf.value);
+    }
   }
 };
 
@@ -58,8 +74,8 @@ function upload() {
 
 async function toggle() {
   try {
-    avatars.value = await auth.loadAvatars();
-    store.toggleAvatarModal();
+    await store.loadAvatars();
+    //store.toggleAvatarModal();
   } catch (e) {
     error(e);
   }

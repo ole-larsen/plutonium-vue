@@ -22,3 +22,4 @@ message PublicFileAttributes {
   int64 width = 10;
   int64 height = 11;
 }
+

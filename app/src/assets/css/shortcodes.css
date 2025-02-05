@@ -1772,7 +1772,6 @@
   background: url(../images/backgroup-section/img_bg_page_title.jpg) center
     center no-repeat;
   background-size: cover;
-  padding: 16px 0 16px;
 }
 .home-2 .flat-title-page {
   padding: 0;
@@ -2762,7 +2761,7 @@ section.today-picks {
 
 .flat-title-page .img-bg {
   position: absolute;
-  z-index: -1;
+  z-index: 4;
   right: 0%;
   top: 14%;
   max-width: 100%;
@@ -3032,7 +3031,10 @@ section.today-picks {
   padding: 36px 0 79px;
 }
 .tf-box-icon.categories {
-  padding: 108px 0 0 0;
+  padding: 104px 0 0 0;
+  position: relative;
+  z-index: 3;
+  background: none;
 }
 .home-2 .tf-box-icon.create {
   padding: 72px 0 82px;

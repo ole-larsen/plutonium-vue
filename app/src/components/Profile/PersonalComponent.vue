@@ -22,7 +22,7 @@ function showEditUsername() {
 }
 
 function editEmail() {
-  store.handleShowEmail();
+  store.toggleEmail();
 }
 
 function updateUsername() {
@@ -35,7 +35,7 @@ function updateUsername() {
 function updateEmail() {
   if (user?.value) {
     store.update(user.value, csrf?.value);
-    store.handleShowEmail();
+    store.toggleEmail();
   }
 }
 </script>

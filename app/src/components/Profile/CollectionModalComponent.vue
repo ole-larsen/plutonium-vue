@@ -110,7 +110,7 @@ async function handleLogoUpload() {
   if (collection?.value) {
     for (const _file of logo.value.files) {
       const provider = `collection:logo:${user?.value.uuid}`;
-      const _logo: PublicFileDto | unknown = await store.handleFileUpload(
+      const _logo: PublicFileDto | unknown = await store.upload(
         _file,
         user?.value,
         provider
@@ -128,7 +128,7 @@ async function handleFeaturedUpload() {
   if (collection?.value) {
     for (const _file of featured.value.files) {
       const provider = `collection:featured:${user?.value.uuid}`;
-      const _featured: PublicFileDto | unknown = await store.handleFileUpload(
+      const _featured: PublicFileDto | unknown = await store.upload(
         _file,
         user?.value,
         provider
@@ -147,7 +147,7 @@ async function handleBannerUpload() {
   if (collection?.value) {
     for (const _file of banner.value.files) {
       const provider = `collection:banner:${user?.value.uuid}`;
-      const _banner: PublicFileDto | unknown = await store.handleFileUpload(
+      const _banner: PublicFileDto | unknown = await store.upload(
         _file,
         user?.value,
         provider

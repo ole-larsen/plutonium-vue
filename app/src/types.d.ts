@@ -11,12 +11,12 @@ export type Oauth2TokenDto = {
 export type PublicUserDto = {
   id: number;
   attributes: {
-    address: string;
-    email: string;
-    gravatar: string;
-    username: string;
-    uuid: string;
-    wallpaper: PublicFileDto | null;
+    address?: string;
+    email?: string;
+    gravatar?: string;
+    username?: string;
+    uuid?: string;
+    wallpaper?: PublicFileDto | null;
     funds?: string;
     socials?: any[];
     wallets?: any[];
@@ -371,3 +371,20 @@ export type MarketItem = {
 };
 
 export type AccordionType = { count: number; active: number | null };
+
+export type FileForm = {
+  csrf: string;
+  alt: string;
+  caption: string; 
+  ext: string;
+  file: File;
+  hash: string;
+  height: number;
+  name: string
+  provider: string;
+  wallpaper?: any;
+  size: number;
+  thumb: string;
+  type: string;
+  width: number;
+}

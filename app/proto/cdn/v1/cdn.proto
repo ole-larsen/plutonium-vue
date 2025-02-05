@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package cdn.v1;
+
+option go_package = "github.com/ole-larsen/plutonium/gen/cdn/v1;cdnv1";
+
+import "google/protobuf/empty.proto";
+import "common/v1/file.proto";
+
+import "google/protobuf/wrappers.proto";
+
+message FileMetadata {
+  google.protobuf.StringValue name = 1;      // Image name
+  google.protobuf.StringValue alt = 2;       // Alternative text
+  google.protobuf.StringValue ext = 3;       // Extension 
+  google.protobuf.StringValue type = 4;      // MIME type
+  google.protobuf.StringValue provider = 5;  // Image provider (chapter)
+  google.protobuf.StringValue caption = 6;   // Image caption
+  google.protobuf.DoubleValue size = 7;      // Image size in bytes
+  google.protobuf.DoubleValue width = 8;     // Image width
+  google.protobuf.DoubleValue height = 9;    // Image height
+}
+message UploadFileForm {
+  string csrf = 1;
+  FileMetadata metadata = 2;
+  bytes file = 3;                            // The file to upload (binary)
+}
+
+message UploadFileRequest {
+  UploadFileForm body = 1;
+}
+
+message UploadFileResponse {
+    oneof response {
+        common.v1.PublicFile data = 1;
+        google.protobuf.Empty error = 2;
+    }
+}
+
+service CdnService {
+    rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);  
+}
