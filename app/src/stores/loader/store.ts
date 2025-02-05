@@ -280,9 +280,11 @@ export const useLoaderStore = defineStore("loader", () => {
     });
 
     const response = data.response.value;
-
+   
     if (response) {
-      auth.setUser(adapterPublicUser(response as PublicUser) as PublicUserDto);
+      const publicUser = adapterPublicUser(response as PublicUser) as PublicUserDto;
+      publicUser.attributes.address = auth.getUser().attributes.address;
+      auth.setUser(publicUser);
     }
   }
 

@@ -26,7 +26,6 @@ function editEmail() {
 }
 
 function updateUsername() {
-  
   if (user?.value) {
     store.update(user.value, csrf.value);
     store.toggleUsername();
